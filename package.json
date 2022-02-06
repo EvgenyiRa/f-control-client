@@ -1,0 +1,30 @@
+{
+  "name": "f-control-client",
+  "version": "1.0.0",
+  "description": "client remote full control",
+  "main": "index.js",
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6",
+    "screenshot-desktop": "^1.12.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EvgenyiRa/f-control-client.git"
+  },
+  "keywords": [
+    "remote",
+    "control"
+  ],
+  "author": "Evgenyi Rassadnikov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/EvgenyiRa/f-control-client/issues"
+  },
+  "homepage": "https://github.com/EvgenyiRa/f-control-client#readme"
+}
