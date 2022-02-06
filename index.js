@@ -9,7 +9,7 @@ console.log("Start f-control");
 const timerId = setInterval(async ()=> {
   try {
     const hereDateTime=new Date(),
-          hereDateStr=dfns.format(hereDateTime, 'dd.MM.yyyy');
+          hereDateStr=dfns.format(hereDateTime, 'dd-MM-yyyy');
     /*мониторинг всех процессов при желании
     const stdout = execSync('ps -eF');
     let process=stdout.toString().split(String.fromCharCode(10)),
@@ -112,11 +112,15 @@ const timerId = setInterval(async ()=> {
       let winsActiveSumStr='',
           winsActiveSumObj;
       try {
-        winsActiveSumStr=fs.readSync("./data/winsActiveSum_"+hereDateStr+".json");
+        winsActiveSumStr=fs.readFileSync("./data/winsActiveSum_"+hereDateStr+".json",
+                                      {encoding:'utf8', flag:'r'});
       } catch (e) {
+        //console.log(e);
       }
+      //console.log(winsActiveSumStr);
       if (winsActiveSumStr!=='') {
           winsActiveSumObj=JSON.parse(winsActiveSumStr);
+          //console.log('from file');
           if (!!winsActiveSumObj[winPNAMEstring]) {
               const lastTimeProcessF=winsActiveSumObj[winPNAMEstring]['lastTimeProcess'];
               let timeAllF=winsActiveSumObj[winPNAMEstring]['timeAll'];
@@ -127,13 +131,14 @@ const timerId = setInterval(async ()=> {
               winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:timeAllF,timeAllUser:timeAllUserF};
           }
           else {
-              winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:winPTimeNum,timeAllUser:winPTimeNum};
+              winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:0,timeAllUser:winPTimeNum};
           }
       }
       else {
           winsActiveSumObj={};
-          winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:winPTimeNum}
+          winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:0,timeAllUser:winPTimeNum};
       }
+      fs.writeFileSync("./data/winsActiveSum_"+hereDateStr+".json", JSON.stringify(winsActiveSumObj));
     } catch (e) {
       console.error(e); // should contain code (exit code) and signal (that caused the termination).
     }
