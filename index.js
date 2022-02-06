@@ -2,12 +2,15 @@ const { performance } = require('perf_hooks'),
       rp = require('request-promise'),
       util = require('util'),
       execSync = require('child_process').execSync,
-      fs = require("fs");
+      fs = require("fs"),
+      dfns=require('date-fns');
 
+console.log("Start f-control");
 const timerId = setInterval(async ()=> {
   try {
-    console.log("Start f-control");
-    const stdout = execSync('ps -eF');
+    const hereDateTime=new Date(),
+          hereDateStr=dfns.format(hereDateTime, 'dd.MM.yyyy'),
+          stdout = execSync('ps -eF');
     let process=stdout.toString().split(String.fromCharCode(10)),
         processAll={data:[]};
     const oneStrWork=(process_i)=>{
@@ -78,20 +81,35 @@ const timerId = setInterval(async ()=> {
       //break;
     }
     //пишем в файл
-    fs.writeFileSync("./data/process.json", JSON.stringify(processAll));
+    fs.writeFileSync("./data/process_"+hereDateStr+".json", JSON.stringify(processAll));
     //console.log(processAll);
-    //получаем активное окно
-    /*const winPrePID = execSync("xdotool getactivewindow"),
-          winPID = execSync("xdotool getwindowpid "+winPrePID.toString()),
-          winPNAME = execSync("ps -p "+winPID.toString()+" -o comm="),
-          winPNAMEstring=winPNAME.toString(),
-          winObj={time:performance.now()};
-    if (typeof winPNAMEstring==='string') {
-        winObj['name']=winPNAMEstring;
+    //получаем активное окно и время выполнения процесса
+    try {
+      const winPrePID = execSync("xdotool getactivewindow"),
+            winPID = execSync("xdotool getwindowpid "+winPrePID.toString());
+      let winPIDstring=winPID.toString();
+      winPIDstring=winPIDstring.slice(0, -1);
+      const winPNAME = execSync("ps -p "+winPIDstring+" -o comm="),
+            winPTime = execSync("ps -p "+winPIDstring+" -o etimes"),
+            winObj={time:performance.now()};
+      let winPNAMEstring=winPNAME.toString();
+      if (typeof winPNAMEstring==='string') {
+          winPNAMEstring=winPNAMEstring.slice(0, -1);
+          winObj['name']=winPNAMEstring;
+      }
+      let winPTimeString=winPTime.toString();
+      if (typeof winPTimeString==='string') {
+          winPTimeString=winPTimeString.slice(0, -1).split(' ');
+          winPTimeString=winPTimeString[winPTimeString.length-1];
+          winObj['times']=parseInt(winPTimeString);
+      }
+      //console.log(winPNAME.toString());
+      fs.writeFileSync("./data/lastWin_"+hereDateStr+".json", JSON.stringify(winObj));
+      //суммируем время активных окон
+    } catch (e) {
+      console.error(e); // should contain code (exit code) and signal (that caused the termination).
     }
-    //console.log(winPNAME.toString());
-    fs.writeFileSync("./data/lastWin.json", JSON.stringify(winObj));*/
-    fs.writeFileSync("./data/lastWin.json", JSON.stringify({time:performance.now()}));
+    //fs.writeFileSync("./data/lastWin.json", JSON.stringify({time:performance.now()}));
   } catch (e) {
     console.error(e); // should contain code (exit code) and signal (that caused the termination).
   }
