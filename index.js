@@ -9,8 +9,9 @@ console.log("Start f-control");
 const timerId = setInterval(async ()=> {
   try {
     const hereDateTime=new Date(),
-          hereDateStr=dfns.format(hereDateTime, 'dd.MM.yyyy'),
-          stdout = execSync('ps -eF');
+          hereDateStr=dfns.format(hereDateTime, 'dd.MM.yyyy');
+    /*мониторинг всех процессов при желании
+    const stdout = execSync('ps -eF');
     let process=stdout.toString().split(String.fromCharCode(10)),
         processAll={data:[]};
     const oneStrWork=(process_i)=>{
@@ -56,7 +57,7 @@ const timerId = setInterval(async ()=> {
     processAll.processNameObjKey=processNameObjKey;
     for (var i = 1; i < process.length; i++) {
       const oneStr=oneStrWork(process[i]);
-      /*if (!isNaN(oneStr[processNameObjKey['PID']])) {
+      ***if (!isNaN(oneStr[processNameObjKey['PID']])) {
         let procName=oneStr[processNameObjKey['CMD']];
         try {
           const stdoutPN = execSync("ps -p "+oneStr[processNameObjKey['PID']]+" -o comm=");
@@ -75,13 +76,13 @@ const timerId = setInterval(async ()=> {
       }
       else {
         console.log(process[i]);
-      }*/
+      }***
       processAll.data.push(oneStr);
       //test
       //break;
     }
     //пишем в файл
-    fs.writeFileSync("./data/process_"+hereDateStr+".json", JSON.stringify(processAll));
+    fs.writeFileSync("./data/process_"+hereDateStr+".json", JSON.stringify(processAll));*/
     //console.log(processAll);
     //получаем активное окно и время выполнения процесса
     try {
@@ -97,15 +98,42 @@ const timerId = setInterval(async ()=> {
           winPNAMEstring=winPNAMEstring.slice(0, -1);
           winObj['name']=winPNAMEstring;
       }
-      let winPTimeString=winPTime.toString();
+      let winPTimeString=winPTime.toString(),
+          winPTimeNum;
       if (typeof winPTimeString==='string') {
           winPTimeString=winPTimeString.slice(0, -1).split(' ');
           winPTimeString=winPTimeString[winPTimeString.length-1];
-          winObj['times']=parseInt(winPTimeString);
+          winPTimeNum=parseInt(winPTimeString);
+          winObj['times']=winPTimeNum;
       }
       //console.log(winPNAME.toString());
       fs.writeFileSync("./data/lastWin_"+hereDateStr+".json", JSON.stringify(winObj));
       //суммируем время активных окон
+      let winsActiveSumStr='',
+          winsActiveSumObj;
+      try {
+        winsActiveSumStr=fs.readSync("./data/winsActiveSum_"+hereDateStr+".json");
+      } catch (e) {
+      }
+      if (winsActiveSumStr!=='') {
+          winsActiveSumObj=JSON.parse(winsActiveSumStr);
+          if (!!winsActiveSumObj[winPNAMEstring]) {
+              const lastTimeProcessF=winsActiveSumObj[winPNAMEstring]['lastTimeProcess'];
+              let timeAllF=winsActiveSumObj[winPNAMEstring]['timeAll'];
+              if (lastTimeProcessF>winPTimeNum) {
+                  timeAllF+=lastTimeProcessF;
+              }
+              const timeAllUserF=timeAllF+winPTimeNum;
+              winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:timeAllF,timeAllUser:timeAllUserF};
+          }
+          else {
+              winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:winPTimeNum,timeAllUser:winPTimeNum};
+          }
+      }
+      else {
+          winsActiveSumObj={};
+          winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:winPTimeNum}
+      }
     } catch (e) {
       console.error(e); // should contain code (exit code) and signal (that caused the termination).
     }
