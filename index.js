@@ -1,14 +1,15 @@
 const { performance } = require('perf_hooks'),
       rp = require('request-promise'),
       util = require('util'),
-      execSync = require('child_process').execSync;
+      execSync = require('child_process').execSync,
+      fs = require("fs");
 
-async function run() {
+const timerId = setInterval(async ()=> {
   try {
     console.log("Start f-control");
     const stdout = execSync('ps -eF');
     let process=stdout.toString().split(String.fromCharCode(10)),
-        processAll=[];
+        processAll={data:[]};
     const oneStrWork=(process_i)=>{
       let tekStrAll=process_i,
           oneStr=[],
@@ -48,10 +49,11 @@ async function run() {
     for (var i = 0; i < processNameObj.length; i++) {
       processNameObjKey[processNameObj[i]]=i;
     }
-    console.log(processNameObjKey);
+    //console.log(processNameObjKey);
+    processAll.processNameObjKey=processNameObjKey;
     for (var i = 1; i < process.length; i++) {
       const oneStr=oneStrWork(process[i]);
-      if (!isNaN(oneStr[processNameObjKey['PID']])) {
+      /*if (!isNaN(oneStr[processNameObjKey['PID']])) {
         let procName=oneStr[processNameObjKey['CMD']];
         try {
           const stdoutPN = execSync("ps -p "+oneStr[processNameObjKey['PID']]+" -o comm=");
@@ -59,7 +61,7 @@ async function run() {
           procName=stdoutPN.toString();
           if (procName[procName.length-1]===String.fromCharCode(10)) {
             procName=procName.slice(0, -1);
-            console.log(procName);
+            //console.log(procName);
           }
         }
         catch (e) {
@@ -70,13 +72,27 @@ async function run() {
       }
       else {
         console.log(process[i]);
-      }
-      processAll.push(oneStr);
+      }*/
+      processAll.data.push(oneStr);
+      //test
       //break;
     }
+    //пишем в файл
+    fs.writeFileSync("./data/process.json", JSON.stringify(processAll));
     //console.log(processAll);
+    //получаем активное окно
+    /*const winPrePID = execSync("xdotool getactivewindow"),
+          winPID = execSync("xdotool getwindowpid "+winPrePID.toString()),
+          winPNAME = execSync("ps -p "+winPID.toString()+" -o comm="),
+          winPNAMEstring=winPNAME.toString(),
+          winObj={time:performance.now()};
+    if (typeof winPNAMEstring==='string') {
+        winObj['name']=winPNAMEstring;
+    }
+    //console.log(winPNAME.toString());
+    fs.writeFileSync("./data/lastWin.json", JSON.stringify(winObj));*/
+    fs.writeFileSync("./data/lastWin.json", JSON.stringify({time:performance.now()}));
   } catch (e) {
     console.error(e); // should contain code (exit code) and signal (that caused the termination).
   }
-}
-run();
+},3000);
