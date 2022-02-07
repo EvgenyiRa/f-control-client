@@ -12,10 +12,10 @@ const hereDateTime=new Date(),
 let data={timeAll:0,access:true},
     lastDate=hereDateStr,
     timeAllDelta=performance.now();
-const currentUser=execSync('whoami').slice(0, -1);
+const currentUser=execSync('whoami').toString().slice(0, -1);
 //console.log(currentUser.toString());
 try {
-  const dataStr=fs.readFileSync("./data/data_"+hereDateStr+".json",
+  const dataStr=fs.readFileSync("./data/data_"+currentUser+'_'+hereDateStr+".json",
                                 {encoding:'utf8', flag:'r'});
   data=JSON.parse(dataStr);
 } catch (e) {
@@ -23,9 +23,9 @@ try {
 }
 
 const dataToFilePost=async (hereDateStrIn)=>{
-    fs.writeFileSync("./data/data_"+hereDateStrIn+".json", JSON.stringify(data));
+    fs.writeFileSync("./data/data_"+currentUser+'_'+hereDateStrIn+".json", JSON.stringify(data));
     try {
-      const dataFSBody={data:data,date:hereDateStrIn,currentUser:currentUser};
+      const dataFSBody={repUserId:configs.repUserId,data:data,date:hereDateStrIn,currentUser:currentUser};
       const dataS=await rp({
         method: `POST`,
         uri: configs.webServer+'/f-client/save',
