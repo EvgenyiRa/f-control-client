@@ -1,4 +1,5 @@
-const { performance } = require('perf_hooks'),
+const configs=require('./configs/configs.js'),
+      { performance } = require('perf_hooks'),
       rp = require('request-promise'),
       util = require('util'),
       execSync = require('child_process').execSync,
@@ -8,9 +9,11 @@ const { performance } = require('perf_hooks'),
 console.log("Start f-control");
 const hereDateTime=new Date(),
       hereDateStr=dfns.format(hereDateTime, 'dd-MM-yyyy');
-let data={timeAll:0},
+let data={timeAll:0,access:true},
     lastDate=hereDateStr,
     timeAllDelta=performance.now();
+const currentUser=execSync('whoami').slice(0, -1);
+//console.log(currentUser.toString());
 try {
   const dataStr=fs.readFileSync("./data/data_"+hereDateStr+".json",
                                 {encoding:'utf8', flag:'r'});
@@ -19,8 +22,22 @@ try {
     //console.log(e);
 }
 
-const dataToFile=(hereDateStrIn)=>{
+const dataToFilePost=async (hereDateStrIn)=>{
     fs.writeFileSync("./data/data_"+hereDateStrIn+".json", JSON.stringify(data));
+    try {
+      const dataFSBody={data:data,date:hereDateStrIn,currentUser:currentUser};
+      const dataS=await rp({
+        method: `POST`,
+        uri: configs.webServer+'/f-client/save',
+        body: dataFSBody,
+        json:true
+      });
+      if (!!dataS) {
+        //обрабатываем ответ
+      }
+    } catch (err) {
+      console.log(err);
+    }
 }
 
 const timerId = setInterval(async ()=> {
@@ -28,7 +45,7 @@ const timerId = setInterval(async ()=> {
     const hereDateTimeNew=new Date(),
           hereDateStrNew=dfns.format(hereDateTime, 'dd-MM-yyyy');
     if (hereDateStrNew!==lastDate) {
-        dataToFile(lastDate);
+        dataToFilePost(lastDate);
         data={};
         lastDate=hereDateStrNew;
     }
@@ -146,15 +163,15 @@ const timerId = setInterval(async ()=> {
               }
               const timeAllUserF=timeAllF+winPTimeNum,
                     winTimeAllDelta=winsActiveSumObj[winPNAMEstring]['timeAllDelta']+(timeAllDelta2-timeAllDelta);
-              winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:timeAllF,timeAllUser:timeAllUserF,timeAllDelta:winTimeAllDelta};
+              winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:timeAllF,timeAllUser:timeAllUserF,timeAllDelta:winTimeAllDelta,pid:+winPIDstring,access:winsActiveSumObj[winPNAMEstring]['access']};
           }
           else {
-              winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:0,timeAllUser:winPTimeNum,timeAllDelta:(timeAllDelta2-timeAllDelta)};
+              winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:0,timeAllUser:winPTimeNum,timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
           }
       }
       else {
           winsActiveSumObj={};
-          winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:0,timeAllUser:winPTimeNum,timeAllDelta:(timeAllDelta2-timeAllDelta)};
+          winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:0,timeAllUser:winPTimeNum,timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
       }
       data['winsActiveSum']=winsActiveSumObj;
       data['timeAll']=data['timeAll']+(timeAllDelta2-timeAllDelta);
@@ -169,5 +186,5 @@ const timerId = setInterval(async ()=> {
 },3000);
 
 const timerSavePost = setInterval(async ()=> {
-    dataToFile(lastDate);
+    dataToFilePost(lastDate);
 },5000);
