@@ -11,7 +11,8 @@ const hereDateTime=new Date(),
       hereDateStr=dfns.format(hereDateTime, 'dd-MM-yyyy');
 let data={timeAll:0,access:true},
     lastDate=hereDateStr,
-    timeAllDelta=performance.now();
+    timeAllDelta=performance.now(),
+    countMSsaveTek=0;
 const currentUser=execSync('whoami').toString().slice(0, -1);
 //console.log(currentUser.toString());
 try {
@@ -34,6 +35,7 @@ const dataToFilePost=async (hereDateStrIn)=>{
       });
       if (!!dataS) {
         //обрабатываем ответ
+        return dataS;
       }
     } catch (err) {
       console.log(err);
@@ -175,6 +177,11 @@ const timerId = setInterval(async ()=> {
       }
       data['winsActiveSum']=winsActiveSumObj;
       data['timeAll']=data['timeAll']+(timeAllDelta2-timeAllDelta);
+      countMSsaveTek+=timeAllDelta2-timeAllDelta;
+      if (countMSsaveTek>=configs.countMSsave) {
+          countMSsaveTek=0;
+          data=await dataToFilePost(lastDate);
+      }
       timeAllDelta=timeAllDelta2;
     } catch (e) {
       console.error(e); // should contain code (exit code) and signal (that caused the termination).
@@ -183,8 +190,4 @@ const timerId = setInterval(async ()=> {
   } catch (e) {
     console.error(e); // should contain code (exit code) and signal (that caused the termination).
   }
-},3000);
-
-const timerSavePost = setInterval(async ()=> {
-    dataToFilePost(lastDate);
-},5000);
+},1000);
