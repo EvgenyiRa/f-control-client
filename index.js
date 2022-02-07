@@ -8,8 +8,9 @@ const { performance } = require('perf_hooks'),
 console.log("Start f-control");
 const hereDateTime=new Date(),
       hereDateStr=dfns.format(hereDateTime, 'dd-MM-yyyy');
-let data={},
-    lastDate=hereDateStr;
+let data={timeAll:0},
+    lastDate=hereDateStr,
+    timeAllDelta=performance.now();
 try {
   const dataStr=fs.readFileSync("./data/data_"+hereDateStr+".json",
                                 {encoding:'utf8', flag:'r'});
@@ -133,6 +134,7 @@ const timerId = setInterval(async ()=> {
       //суммируем время активных окон
       let winsActiveSumObj;
       //console.log(winsActiveSumStr);
+      const timeAllDelta2=performance.now();
       if (!!data['winsActiveSum']) {
           winsActiveSumObj=data['winsActiveSum'];
           //console.log('from file');
@@ -142,18 +144,21 @@ const timerId = setInterval(async ()=> {
               if (lastTimeProcessF>winPTimeNum) {
                   timeAllF+=lastTimeProcessF;
               }
-              const timeAllUserF=timeAllF+winPTimeNum;
-              winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:timeAllF,timeAllUser:timeAllUserF};
+              const timeAllUserF=timeAllF+winPTimeNum,
+                    winTimeAllDelta=winsActiveSumObj[winPNAMEstring]['timeAllDelta']+(timeAllDelta2-timeAllDelta);
+              winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:timeAllF,timeAllUser:timeAllUserF,timeAllDelta:winTimeAllDelta};
           }
           else {
-              winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:0,timeAllUser:winPTimeNum};
+              winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:0,timeAllUser:winPTimeNum,timeAllDelta:(timeAllDelta2-timeAllDelta)};
           }
       }
       else {
           winsActiveSumObj={};
-          winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:0,timeAllUser:winPTimeNum};
+          winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:0,timeAllUser:winPTimeNum,timeAllDelta:(timeAllDelta2-timeAllDelta)};
       }
       data['winsActiveSum']=winsActiveSumObj;
+      data['timeAll']=data['timeAll']+(timeAllDelta2-timeAllDelta);
+      timeAllDelta=timeAllDelta2;
     } catch (e) {
       console.error(e); // should contain code (exit code) and signal (that caused the termination).
     }
