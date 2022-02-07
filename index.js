@@ -14,7 +14,7 @@ let data={timeAll:0,access:true},
     timeAllDelta=performance.now(),
     countMSsaveTek=0;
 const currentUser=execSync('whoami').toString().slice(0, -1);
-//console.log(currentUser.toString());
+console.log(currentUser);
 try {
   const dataStr=fs.readFileSync("./data/data_"+currentUser+'_'+hereDateStr+".json",
                                 {encoding:'utf8', flag:'r'});
@@ -49,7 +49,7 @@ const dataToFilePost=async (hereDateStrIn)=>{
 const timerId = setInterval(async ()=> {
   try {
     const hereDateTimeNew=new Date(),
-          hereDateStrNew=dfns.format(hereDateTime, 'dd-MM-yyyy');
+          hereDateStrNew=dfns.format(hereDateTimeNew, 'dd-MM-yyyy');
     if (hereDateStrNew!==lastDate) {
         dataToFilePost(lastDate);
         data={};
@@ -188,8 +188,10 @@ const timerId = setInterval(async ()=> {
           if (!!dataRes) {
             data=dataRes
           }
+          //console.log(data);
           if (!data.access) {
-            execSync("gnome-session-quit --no-prompt");
+            console.log("gnome-session-quit --no-prompt");
+            //execSync("gnome-session-quit --no-prompt");
           }
           //убиваем запрещенные процессы
           for (var key in data.winsActiveSum) {
