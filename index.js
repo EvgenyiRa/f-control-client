@@ -33,12 +33,16 @@ const dataToFilePost=async (hereDateStrIn)=>{
         body: dataFSBody,
         json:true
       });
-      if (!!dataS) {
+      if (!!dataS.data) {
         //обрабатываем ответ
-        return dataS;
+        return dataS.data;
+      }
+      else {
+          return undefined;
       }
     } catch (err) {
       console.log(err);
+      return undefined;
     }
 }
 
@@ -180,7 +184,11 @@ const timerId = setInterval(async ()=> {
       countMSsaveTek+=timeAllDelta2-timeAllDelta;
       if (countMSsaveTek>=configs.countMSsave) {
           countMSsaveTek=0;
-          data=await dataToFilePost(lastDate);
+          const dataRes=await dataToFilePost(lastDate);
+          if (!!dataRes) {
+            data=dataRes
+          }
+          //await dataToFilePost(lastDate);
       }
       timeAllDelta=timeAllDelta2;
     } catch (e) {
