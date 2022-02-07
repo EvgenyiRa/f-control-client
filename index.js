@@ -6,10 +6,31 @@ const { performance } = require('perf_hooks'),
       dfns=require('date-fns');
 
 console.log("Start f-control");
+const hereDateTime=new Date(),
+      hereDateStr=dfns.format(hereDateTime, 'dd-MM-yyyy');
+let data={},
+    lastDate=hereDateStr;
+try {
+  const dataStr=fs.readFileSync("./data/data_"+hereDateStr+".json",
+                                {encoding:'utf8', flag:'r'});
+  data=JSON.parse(dataStr);
+} catch (e) {
+    //console.log(e);
+}
+
+const dataToFile=(hereDateStrIn)=>{
+    fs.writeFileSync("./data/data_"+hereDateStrIn+".json", JSON.stringify(data));
+}
+
 const timerId = setInterval(async ()=> {
   try {
-    const hereDateTime=new Date(),
-          hereDateStr=dfns.format(hereDateTime, 'dd-MM-yyyy');
+    const hereDateTimeNew=new Date(),
+          hereDateStrNew=dfns.format(hereDateTime, 'dd-MM-yyyy');
+    if (hereDateStrNew!==lastDate) {
+        dataToFile(lastDate);
+        data={};
+        lastDate=hereDateStrNew;
+    }
     /*мониторинг всех процессов при желании
     const stdout = execSync('ps -eF');
     let process=stdout.toString().split(String.fromCharCode(10)),
@@ -107,19 +128,13 @@ const timerId = setInterval(async ()=> {
           winObj['times']=winPTimeNum;
       }
       //console.log(winPNAME.toString());
-      fs.writeFileSync("./data/lastWin_"+hereDateStr+".json", JSON.stringify(winObj));
+      //fs.writeFileSync("./data/lastWin_"+hereDateStr+".json", JSON.stringify(winObj));
+      data.lastWin=winObj;
       //суммируем время активных окон
-      let winsActiveSumStr='',
-          winsActiveSumObj;
-      try {
-        winsActiveSumStr=fs.readFileSync("./data/winsActiveSum_"+hereDateStr+".json",
-                                      {encoding:'utf8', flag:'r'});
-      } catch (e) {
-        //console.log(e);
-      }
+      let winsActiveSumObj;
       //console.log(winsActiveSumStr);
-      if (winsActiveSumStr!=='') {
-          winsActiveSumObj=JSON.parse(winsActiveSumStr);
+      if (!!data['winsActiveSum']) {
+          winsActiveSumObj=data['winsActiveSum'];
           //console.log('from file');
           if (!!winsActiveSumObj[winPNAMEstring]) {
               const lastTimeProcessF=winsActiveSumObj[winPNAMEstring]['lastTimeProcess'];
@@ -138,7 +153,7 @@ const timerId = setInterval(async ()=> {
           winsActiveSumObj={};
           winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:0,timeAllUser:winPTimeNum};
       }
-      fs.writeFileSync("./data/winsActiveSum_"+hereDateStr+".json", JSON.stringify(winsActiveSumObj));
+      data['winsActiveSum']=winsActiveSumObj;
     } catch (e) {
       console.error(e); // should contain code (exit code) and signal (that caused the termination).
     }
@@ -147,3 +162,7 @@ const timerId = setInterval(async ()=> {
     console.error(e); // should contain code (exit code) and signal (that caused the termination).
   }
 },3000);
+
+const timerSavePost = setInterval(async ()=> {
+    dataToFile(lastDate);
+},5000);
