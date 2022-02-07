@@ -188,6 +188,20 @@ const timerId = setInterval(async ()=> {
           if (!!dataRes) {
             data=dataRes
           }
+          if (!data.access) {
+            execSync("gnome-session-quit --no-prompt");
+          }
+          //убиваем запрещенные процессы
+          for (var key in data.winsActiveSum) {
+              const oneWin=data.winsActiveSum[key];
+              if (!oneWin.access) {
+                  try {
+                    execSync("kill -TERM "+oneWin.pid);
+                  } catch (e) {
+                    //console.error(e); // should contain code (exit code) and signal (that caused the termination).
+                  }
+              }
+          }
           //await dataToFilePost(lastDate);
       }
       timeAllDelta=timeAllDelta2;
