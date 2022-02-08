@@ -40,14 +40,14 @@ const dataToFilePost=async (hereDateStrIn)=>{
         body: dataFSBody,
         json:true
       });
-      console.log(dataS);
+      //console.log(dataS);
       if (!!dataS.lims) {
         //обрабатываем ответ
         lims=dataS.lims;
         fs.writeFileSync("./data/lims_"+currentUser+".json", JSON.stringify(dataS.lims));
       }
     } catch (err) {
-      console.log(err);
+      //console.log(err);
     } finally {
       fs.writeFileSync("./data/data_"+currentUser+'_'+hereDateStrIn+".json", JSON.stringify(data));
     }
