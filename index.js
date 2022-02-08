@@ -138,10 +138,10 @@ const timerId = setInterval(async ()=> {
     //console.log(processAll);
     //получаем активное окно и время выполнения процесса
     try {
-      const winPrePID = execSync("xdotool getactivewindow"),
-            winPID = execSync("xdotool getwindowpid "+winPrePID.toString());
-      let winPIDstring=winPID.toString();
-      winPIDstring=winPIDstring.slice(0, -1);
+      let winPIDstring = execSync("xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_PID").toString();
+      //let winPIDstring=winPID.toString();
+      winPIDstring=winPIDstring.slice(0, -1).split('_NET_WM_PID(CARDINAL) = ')[1];
+      //console.log(winPIDstring);
       const winPNAME = execSync("ps -p "+winPIDstring+" -o comm="),
             winPTime = execSync("ps -p "+winPIDstring+" -o etimes"),
             winObj={time:performance.now()};
@@ -150,6 +150,7 @@ const timerId = setInterval(async ()=> {
           winPNAMEstring=winPNAMEstring.slice(0, -1);
           winObj['name']=winPNAMEstring;
       }
+      console.log(winPNAMEstring); 
       let winPTimeString=winPTime.toString(),
           winPTimeNum;
       if (typeof winPTimeString==='string') {
