@@ -10,6 +10,7 @@ console.log("Start f-control");
 const hereDateTime=new Date(),
       hereDateStr=dfns.format(hereDateTime, 'dd-MM-yyyy');
 let data={timeAll:0,access:true},
+    lims,
     lastDate=hereDateStr,
     timeAllDelta=performance.now(),
     countMSsaveTek=0;
@@ -22,9 +23,15 @@ try {
 } catch (e) {
     //console.log(e);
 }
+try {
+  const dataStr=fs.readFileSync("./data/lims_"+currentUser+".json",
+                                {encoding:'utf8', flag:'r'});
+  lims=JSON.parse(dataStr);
+} catch (e) {
+    //console.log(e);
+}
 
 const dataToFilePost=async (hereDateStrIn)=>{
-    fs.writeFileSync("./data/data_"+currentUser+'_'+hereDateStrIn+".json", JSON.stringify(data));
     try {
       const dataFSBody={repUserId:configs.repUserId,data:data,date:hereDateStrIn,currentUser:currentUser};
       const dataS=await rp({
@@ -33,16 +40,15 @@ const dataToFilePost=async (hereDateStrIn)=>{
         body: dataFSBody,
         json:true
       });
-      if (!!dataS.data) {
+      if (!!dataS.lims) {
         //обрабатываем ответ
-        return dataS.data;
-      }
-      else {
-          return undefined;
+        lims=dataS.lims;
+        fs.writeFileSync("./data/lims_"+currentUser+".json", JSON.stringify(dataS.lims));
       }
     } catch (err) {
       console.log(err);
-      return undefined;
+    } finally {
+      fs.writeFileSync("./data/data_"+currentUser+'_'+hereDateStrIn+".json", JSON.stringify(data));
     }
 }
 
@@ -51,7 +57,7 @@ const timerId = setInterval(async ()=> {
     const hereDateTimeNew=new Date(),
           hereDateStrNew=dfns.format(hereDateTimeNew, 'dd-MM-yyyy');
     if (hereDateStrNew!==lastDate) {
-        dataToFilePost(lastDate);
+        await dataToFilePost(lastDate);
         data={};
         lastDate=hereDateStrNew;
     }
@@ -184,27 +190,54 @@ const timerId = setInterval(async ()=> {
       countMSsaveTek+=timeAllDelta2-timeAllDelta;
       if (countMSsaveTek>=configs.countMSsave) {
           countMSsaveTek=0;
-          const dataRes=await dataToFilePost(lastDate);
-          if (!!dataRes) {
-            data=dataRes
-          }
+          await dataToFilePost(lastDate);
           //console.log(data);
-          if (!data.access) {
-            console.log("gnome-session-quit --no-prompt");
-            //execSync("gnome-session-quit --no-prompt");
+          //await dataToFilePost(lastDate);
+      }
+
+      //проверяем превышение лимитов
+      let rows=dataS.lims.sys;
+      const timeAllClient=data.timeAll/1000;
+      data.access=true;
+      if (rows['TIME_ALL']>0) {
+        if (rows['TIME_ALL']<timeAllClient) {
+          data.access=false;
+        }
+      }
+      const userCntlID=rows['REP_USERS_CONTROL_ID'];
+      rows=dataS.lims.proc;
+      if (rows.length>0) {
+        //console.log(data.winsActiveSum);
+        for (var i = 0; i < rows.length; i++) {
+          const rowOne=rows[i];
+          if (!!data.winsActiveSum[rowOne['PRC_NAME']]) {
+            const timeAllDeltaClient=data.winsActiveSum[rowOne['PRC_NAME']].timeAllDelta/1000;
+            data.winsActiveSum[rowOne['PRC_NAME']].access=true;
+            if (rowOne['LIM']<timeAllDeltaClient) {
+                data.winsActiveSum[rowOne['PRC_NAME']].access=false;
+            }
           }
-          //убиваем запрещенные процессы
-          for (var key in data.winsActiveSum) {
-              const oneWin=data.winsActiveSum[key];
-              if (!oneWin.access) {
-                  try {
-                    execSync("kill -TERM "+oneWin.pid);
-                  } catch (e) {
-                    //console.error(e); // should contain code (exit code) and signal (that caused the termination).
-                  }
+        }
+      }
+
+      if (!data.access) {
+        if (configs.test) {
+          console.log("gnome-session-quit --no-prompt");
+        }
+        else {
+          execSync("gnome-session-quit --no-prompt");
+        }
+      }
+      //убиваем запрещенные процессы
+      for (var key in data.winsActiveSum) {
+          const oneWin=data.winsActiveSum[key];
+          if (!oneWin.access) {
+              try {
+                execSync("kill -TERM "+oneWin.pid);
+              } catch (e) {
+                //console.error(e); // should contain code (exit code) and signal (that caused the termination).
               }
           }
-          //await dataToFilePost(lastDate);
       }
       timeAllDelta=timeAllDelta2;
     } catch (e) {

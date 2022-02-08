@@ -1,5 +1,6 @@
 module.exports = {
-  webServer: "http://127.0.0.1:3777",
+  webServer: "http://192.168.1.57:3777",
   repUserId: 1,
-  countMSsave:3000
+  countMSsave:3000,
+  test:true;
 };
