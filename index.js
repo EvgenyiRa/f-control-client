@@ -251,4 +251,4 @@ const timerId = setInterval(async ()=> {
   } catch (e) {
     console.error(e); // should contain code (exit code) and signal (that caused the termination).
   }
-},1000);
+},configs.counMSupd);
