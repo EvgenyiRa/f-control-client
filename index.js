@@ -1,3 +1,4 @@
+#!/usr/bin/node
 const configs=require('./configs/configs.js'),
       { performance } = require('perf_hooks'),
       rp = require('request-promise'),
@@ -150,7 +151,7 @@ const timerId = setInterval(async ()=> {
           winPNAMEstring=winPNAMEstring.slice(0, -1);
           winObj['name']=winPNAMEstring;
       }
-      console.log(winPNAMEstring); 
+      //console.log(winPNAMEstring);
       let winPTimeString=winPTime.toString(),
           winPTimeNum;
       if (typeof winPTimeString==='string') {

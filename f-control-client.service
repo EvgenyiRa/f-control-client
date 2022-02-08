@@ -5,7 +5,7 @@ Description=F-control-client
 
 [Service]
 #which node
-ExecStart=/usr/bin/node /var/www/nodejs/f-control-client/index.js
+ExecStart=/var/www/nodejs/f-control-client/run.sh
 Restart=always
 User=ra
 # Note Debian/Ubuntu uses 'nogroup', RHEL/Fedora uses 'nobody'
