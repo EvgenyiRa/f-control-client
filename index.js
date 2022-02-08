@@ -40,6 +40,7 @@ const dataToFilePost=async (hereDateStrIn)=>{
         body: dataFSBody,
         json:true
       });
+      console.log(dataS);
       if (!!dataS.lims) {
         //обрабатываем ответ
         lims=dataS.lims;
@@ -196,25 +197,28 @@ const timerId = setInterval(async ()=> {
       }
 
       //проверяем превышение лимитов
-      let rows=dataS.lims.sys;
-      const timeAllClient=data.timeAll/1000;
-      data.access=true;
-      if (rows['TIME_ALL']>0) {
-        if (rows['TIME_ALL']<timeAllClient) {
-          data.access=false;
+      if (!!lims) {
+        let rows=lims.sys;
+        const timeAllClient=data.timeAll/1000;
+        data.access=true;
+        if (rows['TIME_ALL']>0) {
+          if (rows['TIME_ALL']<timeAllClient) {
+            data.access=false;
+          }
         }
-      }
-      const userCntlID=rows['REP_USERS_CONTROL_ID'];
-      rows=dataS.lims.proc;
-      if (rows.length>0) {
-        //console.log(data.winsActiveSum);
-        for (var i = 0; i < rows.length; i++) {
-          const rowOne=rows[i];
-          if (!!data.winsActiveSum[rowOne['PRC_NAME']]) {
-            const timeAllDeltaClient=data.winsActiveSum[rowOne['PRC_NAME']].timeAllDelta/1000;
-            data.winsActiveSum[rowOne['PRC_NAME']].access=true;
-            if (rowOne['LIM']<timeAllDeltaClient) {
-                data.winsActiveSum[rowOne['PRC_NAME']].access=false;
+        if (!!lims.proc) {
+          rows=lims.proc;
+          if (rows.length>0) {
+            //console.log(data.winsActiveSum);
+            for (var i = 0; i < rows.length; i++) {
+              const rowOne=rows[i];
+              if (!!data.winsActiveSum[rowOne['PRC_NAME']]) {
+                const timeAllDeltaClient=data.winsActiveSum[rowOne['PRC_NAME']].timeAllDelta/1000;
+                data.winsActiveSum[rowOne['PRC_NAME']].access=true;
+                if (rowOne['LIM']<timeAllDeltaClient) {
+                    data.winsActiveSum[rowOne['PRC_NAME']].access=false;
+                }
+              }
             }
           }
         }
