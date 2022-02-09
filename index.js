@@ -10,7 +10,7 @@ const configs=require('./configs/configs.js'),
 console.log("Start f-control");
 const hereDateTime=new Date(),
       hereDateStr=dfns.format(hereDateTime, 'dd-MM-yyyy');
-let data={timeAll:0,access:true},
+let data={timeAll:0,access:true,netstat:{}},
     lims,
     lastDate=hereDateStr,
     timeAllDelta=performance.now(),
@@ -31,6 +31,7 @@ try {
 } catch (e) {
     //console.log(e);
 }
+
 
 const dataToFilePost=async (hereDateStrIn)=>{
     try {
@@ -63,80 +64,7 @@ const timerId = setInterval(async ()=> {
         data={};
         lastDate=hereDateStrNew;
     }
-    /*мониторинг всех процессов при желании
-    const stdout = execSync('ps -eF');
-    let process=stdout.toString().split(String.fromCharCode(10)),
-        processAll={data:[]};
-    const oneStrWork=(process_i)=>{
-      let tekStrAll=process_i,
-          oneStr=[],
-          tekStr=tekStrAll[0];
-      //console.log(tekStr);
-      //processAll.push(.split(' '))
-      for (var j = 1; j < tekStrAll.length; j++) {
-        if (tekStrAll[j]===' ') {
-          if (tekStr!==' ') {
-              if (tekStrAll[j+1]!=='-') {
-                oneStr.push(tekStr);
-                tekStr=' ';
-              }
-              else {
-                  tekStr+=tekStrAll[j];
-              }
-          }
-          else {
-              tekStr=' ';
-          }
-        }
-        else {
-          if (tekStr!==' ') {
-              tekStr+=tekStrAll[j];
-          }
-          else {
-              tekStr=tekStrAll[j];
-          }
-        }
-      }
-      oneStr.push(tekStr);
-      return oneStr;
-    }
-    const processNameObj=oneStrWork(process[0]),
-          processNameObjKey={};
-    processNameObj.push('PNAME');
-    for (var i = 0; i < processNameObj.length; i++) {
-      processNameObjKey[processNameObj[i]]=i;
-    }
-    //console.log(processNameObjKey);
-    processAll.processNameObjKey=processNameObjKey;
-    for (var i = 1; i < process.length; i++) {
-      const oneStr=oneStrWork(process[i]);
-      ***if (!isNaN(oneStr[processNameObjKey['PID']])) {
-        let procName=oneStr[processNameObjKey['CMD']];
-        try {
-          const stdoutPN = execSync("ps -p "+oneStr[processNameObjKey['PID']]+" -o comm=");
-          //console.log(stdoutPN.toString());
-          procName=stdoutPN.toString();
-          if (procName[procName.length-1]===String.fromCharCode(10)) {
-            procName=procName.slice(0, -1);
-            //console.log(procName);
-          }
-        }
-        catch (e) {
-          //console.log(e);
-          //console.log(oneStr);
-        }
-        oneStr.push(procName);
-      }
-      else {
-        console.log(process[i]);
-      }***
-      processAll.data.push(oneStr);
-      //test
-      //break;
-    }
-    //пишем в файл
-    fs.writeFileSync("./data/process_"+hereDateStr+".json", JSON.stringify(processAll));*/
-    //console.log(processAll);
+
     //получаем активное окно и время выполнения процесса
     try {
       let winPIDstring = execSync("xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_PID").toString();
@@ -197,6 +125,69 @@ const timerId = setInterval(async ()=> {
           //console.log(data);
           //await dataToFilePost(lastDate);
       }
+
+      //мониторинг всех активных подкючений программ
+
+        let stdout = execSync('netstat -p inet –program')
+                      .toString()
+                      .slice(0, -1)
+                      .split('PID/Program name')[1];
+      while (((stdout[0]===' ') || (stdout[0]===String.fromCharCode(10)) || (stdout[0]===String.fromCharCode(13))) & (stdout.length>0)) {
+          stdout=stdout.substr(1);
+      }
+      let process=stdout.split(String.fromCharCode(10))/*,
+          processAll=[]*/;
+      //console.log(process);
+      const oneStrWork=(process_i)=>{
+        let tekStrAll=process_i,
+            oneStr=[],
+            tekStr=tekStrAll[0];
+        //console.log(tekStr);
+        //processAll.push(.split(' '))
+        for (var j = 1; j < tekStrAll.length; j++) {
+          if (tekStrAll[j]===' ') {
+            if (tekStr!==' ') {
+                if (tekStrAll[j+1]!=='-') {
+                  oneStr.push(tekStr);
+                  tekStr=' ';
+                }
+                else {
+                    tekStr+=tekStrAll[j];
+                }
+            }
+            else {
+                tekStr=' ';
+            }
+          }
+          else {
+            if (tekStr!==' ') {
+                tekStr+=tekStrAll[j];
+            }
+            else {
+                tekStr=tekStrAll[j];
+            }
+          }
+        }
+        if (tekStr!==' ') {
+          oneStr.push(tekStr);
+        }
+        if (oneStr.length>6) {
+          const newCols=oneStr[6].split('/');
+          oneStr[6]=parseInt(newCols.shift());
+          oneStr[7]=newCols.join('/')
+        }
+        return oneStr;
+      }
+
+
+      for (var i = 0; i < process.length; i++) {
+        const oneStr=oneStrWork(process[i]);
+        if ((oneStr.length>6) & (!isNaN(oneStr[6])) & (oneStr[6])!==null) {
+          console.log(typeof oneStr[6]);
+          data.netstat[oneStr[4].split(':')[0]]=oneStr;
+        }
+      }
+      console.log(data.netstat);
 
       //проверяем превышение лимитов
       if (!!lims) {
