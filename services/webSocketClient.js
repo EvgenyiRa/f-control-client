@@ -4,7 +4,7 @@ const configs=require('../configs/configs.js'),
       wsClient = new WebSocketClient(),
       state={
         wsAuth:false,
-        wsConnect:true
+        wsConnect:false
       };
 
 //Признак коннекта к серверу
@@ -16,7 +16,9 @@ const init=(data)=>{
   wsClient.on('connect', wsHandler);
   function wsHandler(connection) {
     console.log('WebSocket Client Connected');
+    state.wsConnect=true;
     connection.on('error', function(error) {
+        state.wsConnect=false;
         console.log("Connection Error: " + error.toString());
     });
     connection.on('close', function() {
@@ -38,6 +40,9 @@ const init=(data)=>{
                     key:configs.keyForWebServer,
                   };
                   connection.sendUTF(JSON.stringify(request));
+              }
+              else if (dataP.type==='authRes') {
+                state.wsAuth=dataP.data.auth;
               }
             } catch (err) {
               console.log('wsServer err msg: ', err);

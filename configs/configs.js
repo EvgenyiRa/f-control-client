@@ -3,7 +3,7 @@ const configs={
   webServerProtocol: 'http',
   webSocketProtocol:'ws',
   repUserId: 1,
-  keyForWebServer:'ca2424d4114217b607ccefcfd6d1596b0836c8cf5724b3146ab04e3e35e679e7',
+  keyForWebServer:'e0c0c7d7502e3b41c1136a15e71d6f955781385349e4042134d109c5403360d3',
   countMSsave:3000,
   counMSupd:1000,
   test:true,
