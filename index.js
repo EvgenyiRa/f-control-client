@@ -8,6 +8,41 @@ const configs=require('./configs/configs.js'),
       dfns=require('date-fns');
 
 console.log("Start f-control");
+
+//Признак коннекта к серверу
+let wsConnect=false;
+console.log("Подключение к серверу "+configs.webServer+" по WebSocket");
+// Создаётся экземпляр клиента
+const WebSocketClient = require('websocket').client,
+      wsClient = new WebSocketClient();
+// Вешаем на него обработчик события подключения к серверу
+wsClient.on('connect', wsHandler);
+function wsHandler(connection) {
+  console.log('WebSocket Client Connected');
+  wsConnect=true;
+  connection.on('error', function(error) {
+      console.log("Connection Error: " + error.toString());
+  });
+  connection.on('close', function() {
+      console.log('echo-protocol Connection Closed');
+      wsConnect=false;
+  });
+  connection.on('message', function(message) {
+      if (message.type === 'utf8') {
+          console.log("Received: '" + message.utf8Data + "'");
+      }
+  });
+  // посылаем сообщение серверу
+  connection.sendUTF('Hi, there!');
+}
+// Подключаемся к нужному ресурсу
+wsClient.connect(configs.webSocketServer);
+//ошибка подключения
+wsClient.on('connectFailed', function(error) {
+    console.log('Connect Error: ' + error.toString());
+    wsConnect=false;
+});
+
 const hereDateTime=new Date(),
       hereDateStr=dfns.format(hereDateTime, 'dd-MM-yyyy');
 let data={timeAll:0,access:true,netstat:{}},
@@ -126,8 +161,8 @@ const timerId = setInterval(async ()=> {
           //await dataToFilePost(lastDate);
       }
 
+      /* пока оставили как пример разбора ответа от многострочного ответа linux
       //мониторинг всех активных подкючений программ
-
         let stdout = execSync('netstat -p inet –program')
                       .toString()
                       .slice(0, -1)
@@ -135,8 +170,7 @@ const timerId = setInterval(async ()=> {
       while (((stdout[0]===' ') || (stdout[0]===String.fromCharCode(10)) || (stdout[0]===String.fromCharCode(13))) & (stdout.length>0)) {
           stdout=stdout.substr(1);
       }
-      let process=stdout.split(String.fromCharCode(10))/*,
-          processAll=[]*/;
+      let process=stdout.split(String.fromCharCode(10));
       //console.log(process);
       const oneStrWork=(process_i)=>{
         let tekStrAll=process_i,
@@ -187,7 +221,8 @@ const timerId = setInterval(async ()=> {
           data.netstat[oneStr[4].split(':')[0]]=oneStr;
         }
       }
-      console.log(data.netstat);
+      //console.log(data.netstat);
+      */
 
       //проверяем превышение лимитов
       if (!!lims) {
