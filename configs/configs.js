@@ -5,7 +5,10 @@ const configs={
   repUserId: 1,
   countMSsave:3000,
   counMSupd:1000,
-  test:true
+  test:true,
+  webClientIP:"127.0.0.1",
+  webClientPort:"4777",
+  https:false
 };
 configs.webServer=configs.webServerProtocol+'://'+configs.webServerIP;
 configs.webSocketServer=configs.webSocketProtocol+'://'+configs.webServerIP+'/ws';
