@@ -1,3 +1,4 @@
+#!/usr/bin/node
 const webServer = require('./services/web-server.js');
 
 async function startup() {
