@@ -14,14 +14,15 @@ const configs=require('../configs/configs.js'),
       fs = require('fs'),
       path = require('path'),
       bodyParser = require('body-parser'),
-      data={
+      dataDefault={
         data:{timeAll:0,access:true},
         lims:{},
         repUserId:configs.repUserId,
         key:configs.keyForWebServer,
         login:currentUser,
         wsStat:{auth:false,connect:false,dataUpdate:false}
-      };
+      },
+      data=dataDefault;
 
 console.log("Start f-control ");
 console.log('Current user: ',currentUser);
