@@ -4,25 +4,30 @@ const configs=require('../configs/configs.js'),
       fs = require('fs'),
       wsClient = new WebSocketClient();
 
-//Признак коннекта к серверу
-let wsConnect=false;
 console.log("Подключение к серверу "+configs.webServer+" по WebSocket");
+const connectionObj={};
 
 const init=(data)=>{
   // Вешаем на него обработчик события подключения к серверу
+  data.wsStat.connect=false;
+  data.wsStat.auth=false;
+  data.wsStat.dataUpdate=false;
   wsClient.on('connect', wsHandler);
   function wsHandler(connection) {
     console.log('WebSocket Client Connected');
     data.wsStat.connect=true;
+    data.wsStat.connection=connection;
     connection.on('error', function(error) {
         data.wsStat.connect=false;
         data.wsStat.auth=false;
+        data.wsStat.dataUpdate=false;
         console.log("Connection Error: " + error.toString());
     });
     connection.on('close', function() {
         console.log('echo-protocol Connection Closed');
         data.wsStat.connect=false;
         data.wsStat.auth=false;
+        data.wsStat.dataUpdate=false;
     });
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
@@ -34,9 +39,9 @@ const init=(data)=>{
                   const request={
                     type:'auth',
                     message:"it's my, open!",
-                    repUserId:configs.repUserId,
+                    repUserId:data.repUserId,
                     login:data.login,
-                    key:configs.keyForWebServer,
+                    key:data.key
                   };
                   connection.sendUTF(JSON.stringify(request));
               }
@@ -60,6 +65,7 @@ const init=(data)=>{
       console.log('Connect Error: ' + error.toString());
       data.wsStat.connect=false;
       data.wsStat.auth=false;
+      data.wsStat.dataUpdate=false;
   });
 }
 module.exports.init = init;

@@ -16,8 +16,10 @@ const configs=require('../configs/configs.js'),
       data={
         data:{timeAll:0,access:true},
         lims:{},
+        repUserId:configs.repUserId,
+        key:configs.keyForWebServer,
         login:currentUser,
-        wsStat:{auth:false,connect:false}
+        wsStat:{auth:false,connect:false,dataUpdate:false}
       };
 
 console.log("Start f-control ");
@@ -119,13 +121,11 @@ try {
 //и отправка на сервер по вебсокету
 const dataToFilePost=async (hereDateStrIn)=>{
     try {
-      const dataFSBody={repUserId:configs.repUserId,data:data,date:hereDateStrIn,currentUser:currentUser};
-      const dataS=await rp({
-        method: `POST`,
-        uri: configs.webServer+'/f-client/save',
-        body: dataFSBody,
-        json:true
-      });
+        if ((data.wsStat.auth) & (data.wsStat.connect) & (!data.wsStat.dataUpdate)) {
+          data.wsStat.dataUpdate=true;
+          const dataForWSS={type:'dataUpdate',data:data}
+          data.wsStat.connection.sendUTF(JSON.stringify(dataForWSS));
+        }
     } catch (err) {
       //console.log(err);
     } finally {
