@@ -8,11 +8,12 @@ async function post(req, res, next) {
           data.data.browser={};
       }
       if (!!!data.data.browser[host]) {
-          data.data.browser[host]=[];
+          data.data.browser[host]={timeAll:0,urls:[]};
       }
-      if (data.data.browser[host].indexOf(req.body.url)===-1) {
-          data.data.browser[host].push(req.body.url);
+      if (data.data.browser[host].urls.indexOf(req.body.url)===-1) {
+          data.data.browser[host].urls.push(req.body.url);
       }
+      data.data.browserLastHost=host;
       const resObj={result:'ok'}
       res.status(200).json(resObj);
       //res.status(404).end();
