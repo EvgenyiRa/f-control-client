@@ -14,7 +14,7 @@ console.log("Start f-control ");
 console.log('Current user: ',currentUser);
 
 let https,
-    data={timeAll:0,access:true,netstat:{}},
+    data={timeAll:0,access:true,netstat:{},login:currentUser},
    lims,
    lastDate=hereDateStr,
    timeAllDelta=performance.now(),
