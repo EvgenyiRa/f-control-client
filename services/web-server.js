@@ -1,4 +1,5 @@
 const configs=require('../configs/configs.js'),
+      routerChFC=require('./routerChFC.js'),
       lurl=require('url'),
       { performance } = require('perf_hooks'),
       rp = require('request-promise'),
@@ -57,15 +58,25 @@ function initialize() {
         //httpWsServer = httpWs.createServer(appWs);
     }
 
+    app.use(bodyParser.json({limit: '100mb', extended: true}));
+
     app.all('*', function(req, res, next) {
-        const { pathname } = lurl.parse(request.url);
-        if (pathname==='/ch_fc') {
-          next();
+        const { pathname } = lurl.parse(req.url);
+        //console.log(pathname);
+        if (pathname==='/ch_fc/set_url') {
+            res.header("Access-Control-Allow-Origin", "*");
+            res.header("Access-Control-Allow-Methods", "*");
+            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+            prOk=true;
+            req.body.data=data;
+            next();
+        }
+        else {
+          res.status(404).end();
         }
     });
 
-    app.use(bodyParser.json({limit: '100mb', extended: true}));
-    //app.use('/ch_fc', routerChFC);
+    app.use('/ch_fc', routerChFC);
 
     httpsServer.listen(configs.webClientPort,configs.webClientIP)
       .on('listening', () => {
