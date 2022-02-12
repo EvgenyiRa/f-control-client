@@ -121,10 +121,12 @@ try {
 //и отправка на сервер по вебсокету
 const dataToFilePost=async (hereDateStrIn)=>{
     try {
-        if ((data.wsStat.auth) & (data.wsStat.connect) & (!data.wsStat.dataUpdate)) {
-          data.wsStat.dataUpdate=true;
-          const dataForWSS={type:'dataUpdate',data:data}
+        if ((data.wsStat.auth) & (data.wsStat.connect)) {
+          const dataForWSS={type:'dataUpdate',data:data, date: hereDateStrIn};
           data.wsStat.connection.sendUTF(JSON.stringify(dataForWSS));
+        }
+        else if (!data.wsStat.connect) {
+            webSocketClient.init(data);
         }
     } catch (err) {
       //console.log(err);
