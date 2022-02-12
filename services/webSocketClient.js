@@ -52,6 +52,9 @@ const init=(data)=>{
                     fs.writeFileSync("./data/lims_"+data.login+".json", JSON.stringify(data.lims));
                 }
               }
+              else if (dataP.type==='dataUpdateRes') {
+                console.log(dataP);
+              }
             } catch (err) {
               console.log('wsServer err msg: ', err);
             }
