@@ -215,7 +215,16 @@ const timerId = setInterval(async ()=> {
           winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:0,timeAllUser:winPTimeNum,timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
       }
       data.data['winsActiveSum']=winsActiveSumObj;
-      data.data['timeAll']=data.data['timeAll']+(timeAllDelta2-timeAllDelta);
+
+      if (['chrome'].indexOf(winPNAMEstring)>-1) {
+        //добавляем время к последнему активному хосту, если это процесс браузера
+        //и существуют данные о последнем переходе на страницу
+        if (!!data.data.browserLastHost) {
+            data.data.browser[data.data.browserLastHost].timeAll+=timeAllDelta2-timeAllDelta;
+        }
+      }
+
+      data.data['timeAll']+=timeAllDelta2-timeAllDelta;
       countMSsaveTek+=timeAllDelta2-timeAllDelta;
       if (countMSsaveTek>=configs.countMSsave) {
           countMSsaveTek=0;
