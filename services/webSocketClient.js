@@ -1,11 +1,7 @@
 // Создаётся экземпляр клиента
 const configs=require('../configs/configs.js'),
       WebSocketClient = require('websocket').client,
-      wsClient = new WebSocketClient(),
-      state={
-        wsAuth:false,
-        wsConnect:false
-      };
+      wsClient = new WebSocketClient();
 
 //Признак коннекта к серверу
 let wsConnect=false;
@@ -16,14 +12,16 @@ const init=(data)=>{
   wsClient.on('connect', wsHandler);
   function wsHandler(connection) {
     console.log('WebSocket Client Connected');
-    state.wsConnect=true;
+    data.wsStat.connect=true;
     connection.on('error', function(error) {
-        state.wsConnect=false;
+        data.wsStat.connect=false;
+        data.wsStat.auth=false;
         console.log("Connection Error: " + error.toString());
     });
     connection.on('close', function() {
         console.log('echo-protocol Connection Closed');
-        state.wsConnect=false;
+        data.wsStat.connect=false;
+        data.wsStat.auth=false;
     });
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
@@ -42,7 +40,10 @@ const init=(data)=>{
                   connection.sendUTF(JSON.stringify(request));
               }
               else if (dataP.type==='authRes') {
-                state.wsAuth=dataP.data.auth;
+                data.wsStat.auth=dataP.data.auth;
+                if (data.wsStat.auth) {
+                    data.lims=dataP.data.lims;
+                }
               }
             } catch (err) {
               console.log('wsServer err msg: ', err);
@@ -55,7 +56,8 @@ const init=(data)=>{
   //ошибка подключения
   wsClient.on('connectFailed', function(error) {
       console.log('Connect Error: ' + error.toString());
-      state.wsConnect=false;
+      data.wsStat.connect=false;
+      data.wsStat.auth=false;
   });
 }
 module.exports.init = init;
