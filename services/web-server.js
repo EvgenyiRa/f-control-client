@@ -7,8 +7,12 @@ const configs=require('../configs/configs.js'),
       dfns=require('date-fns'),
       webSocketClient=require('./webSocketClient.js'),
       hereDateTime=new Date(),
-      hereDateStr=dfns.format(hereDateTime, 'dd-MM-yyyy');
+      hereDateStr=dfns.format(hereDateTime, 'dd-MM-yyyy'),
       currentUser=execSync('whoami').toString().slice(0, -1),
+      express = require('express'),
+      fs = require('fs'),
+      path = require('path'),
+      bodyParser = require('body-parser'),
       data={
         data:{timeAll:0,access:true},
         lims:{},
@@ -29,11 +33,6 @@ if (configs.https) {
 else {
     https = require('http');
 }
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
-
-const bodyParser = require('body-parser');
 
 let httpsServer;
 
@@ -130,7 +129,7 @@ const dataToFilePost=async (hereDateStrIn)=>{
     } catch (err) {
       //console.log(err);
     } finally {
-      fs.writeFileSync("./data/data_"+currentUser+'_'+hereDateStrIn+".json", JSON.stringify(data));
+      fs.writeFileSync("./data/data_"+currentUser+'_'+hereDateStrIn+".json", JSON.stringify(data.data));
     }
 }
 

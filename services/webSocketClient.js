@@ -1,6 +1,7 @@
 // Создаётся экземпляр клиента
 const configs=require('../configs/configs.js'),
       WebSocketClient = require('websocket').client,
+      fs = require('fs'),
       wsClient = new WebSocketClient();
 
 //Признак коннекта к серверу
@@ -43,6 +44,7 @@ const init=(data)=>{
                 data.wsStat.auth=dataP.data.auth;
                 if (data.wsStat.auth) {
                     data.lims=dataP.data.lims;
+                    fs.writeFileSync("./data/lims_"+data.login+".json", JSON.stringify(data.lims));
                 }
               }
             } catch (err) {
