@@ -236,26 +236,26 @@ const timerId = setInterval(async ()=> {
       //проверяем превышение лимитов
       if (!!data.lims) {
         let rows=data.lims.sys;
-        const timeAllClient=data.data.timeAll/1000;
-        data.data.access=true;
-        if (typeof rows['TIME_ALL']!=='undefined') {
+        if (!!rows) {
+          const timeAllClient=data.data.timeAll/1000;
+          data.data.access=true;          
           if (rows['TIME_ALL']>0) {
             if (rows['TIME_ALL']<timeAllClient) {
               data.data.access=false;
             }
           }
-        }
-        if (!!data.lims.proc) {
-          rows=data.lims.proc;
-          if (rows.length>0) {
-            //console.log(data.winsActiveSum);
-            for (var i = 0; i < rows.length; i++) {
-              const rowOne=rows[i];
-              if (!!data.data.winsActiveSum[rowOne['PRC_NAME']]) {
-                const timeAllDeltaClient=data.data.winsActiveSum[rowOne['PRC_NAME']].timeAllDelta/1000;
-                data.data.winsActiveSum[rowOne['PRC_NAME']].access=true;
-                if (rowOne['LIM']<timeAllDeltaClient) {
-                    data.data.winsActiveSum[rowOne['PRC_NAME']].access=false;
+          if (!!data.lims.proc) {
+            rows=data.lims.proc;
+            if (rows.length>0) {
+              //console.log(data.winsActiveSum);
+              for (var i = 0; i < rows.length; i++) {
+                const rowOne=rows[i];
+                if (!!data.data.winsActiveSum[rowOne['PRC_NAME']]) {
+                  const timeAllDeltaClient=data.data.winsActiveSum[rowOne['PRC_NAME']].timeAllDelta/1000;
+                  data.data.winsActiveSum[rowOne['PRC_NAME']].access=true;
+                  if (rowOne['LIM']<timeAllDeltaClient) {
+                      data.data.winsActiveSum[rowOne['PRC_NAME']].access=false;
+                  }
                 }
               }
             }
