@@ -1,8 +1,7 @@
 // Создаётся экземпляр клиента
 const configs=require('../configs/configs.js'),
       WebSocketClient = require('websocket').client,
-      fs = require('fs'),
-      wsClient = new WebSocketClient();
+      fs = require('fs');
 
 console.log("Подключение к серверу "+configs.webServer+" по WebSocket");
 const connectionObj={};
@@ -12,22 +11,25 @@ const init=(data)=>{
   data.wsStat.connect=false;
   data.wsStat.auth=false;
   data.wsStat.dataUpdate=false;
+  const wsClient = new WebSocketClient();
   wsClient.on('connect', wsHandler);
   function wsHandler(connection) {
     console.log('WebSocket Client Connected');
     data.wsStat.connect=true;
     data.wsStat.connection=connection;
     connection.on('error', function(error) {
+        console.log("Connection Error: " + error.toString());
         data.wsStat.connect=false;
         data.wsStat.auth=false;
         data.wsStat.dataUpdate=false;
-        console.log("Connection Error: " + error.toString());
+        wsClient.abort();              
     });
     connection.on('close', function() {
-        console.log('echo-protocol Connection Closed');
+        console.log('Connection close');
         data.wsStat.connect=false;
         data.wsStat.auth=false;
         data.wsStat.dataUpdate=false;
+        wsClient.abort();
     });
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
@@ -56,7 +58,7 @@ const init=(data)=>{
                 console.log(dataP);
               }
             } catch (err) {
-              console.log('wsServer err msg: ', err);
+              console.log('try wsServer err msg: ', err);
             }
         }
     });
@@ -65,10 +67,11 @@ const init=(data)=>{
   wsClient.connect(configs.webSocketServer);
   //ошибка подключения
   wsClient.on('connectFailed', function(error) {
-      console.log('Connect Error: ' + error.toString());
+      console.log('connectFailed ' + error.toString());
       data.wsStat.connect=false;
       data.wsStat.auth=false;
       data.wsStat.dataUpdate=false;
+      wsClient.abort();
   });
 }
 module.exports.init = init;

@@ -111,8 +111,6 @@ function close() {
 module.exports.close = close;
 //
 
-webSocketClient.init(data);
-
 //подгружаем данные из локальных файлов
 try {
   const dataStr=fs.readFileSync("./data/data_"+currentUser+'_'+hereDateStr+".json",
@@ -128,6 +126,8 @@ try {
 } catch (e) {
     //console.log(e);
 }
+
+webSocketClient.init(data);
 
 //периодическое сохранение данных в файл
 //и отправка на сервер по вебсокету
@@ -238,9 +238,11 @@ const timerId = setInterval(async ()=> {
         let rows=data.lims.sys;
         const timeAllClient=data.data.timeAll/1000;
         data.data.access=true;
-        if (rows['TIME_ALL']>0) {
-          if (rows['TIME_ALL']<timeAllClient) {
-            data.data.access=false;
+        if (typeof rows['TIME_ALL']!=='undefined') {
+          if (rows['TIME_ALL']>0) {
+            if (rows['TIME_ALL']<timeAllClient) {
+              data.data.access=false;
+            }
           }
         }
         if (!!data.lims.proc) {
