@@ -1,5 +1,10 @@
 #https://isqua.ru/blog/2020/05/25/nodejs-systemd/
 #https://qastack.ru/programming/4681067/how-do-i-run-a-node-js-application-as-its-own-process
+#для папки /data устанавливаем группу root, т.к. получение инфы об окнах делать будем под ней
+#https://losst.ru/gruppy-polzovatelej-linux
+#Для каждого контролируемого пользователя создается свой юнит, соотвественно разные имена сервисов должны быть
+#и разные скрипты запуска /f-control-client/run.sh : разное имя скрипта и внутри указывается пользователь контролируемый
+#Необходимо установить расширение для chrome и предоставить пользователю только этот браузер
 [Unit]
 Description=F-control-client
 
@@ -7,8 +12,9 @@ Description=F-control-client
 #which node
 ExecStart=/var/www/nodejs/f-control-client/run.sh
 Restart=always
+#User=ra
 # Note Debian/Ubuntu uses 'nogroup', RHEL/Fedora uses 'nobody'
-Group=f-control
+#Group=f-control
 #Environment=PATH=/usr/bin:/usr/local/bin
 #Environment=NODE_ENV=production
 #WorkingDirectory=/var/www/nodejs/react-restapi
