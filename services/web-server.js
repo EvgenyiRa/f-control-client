@@ -64,11 +64,10 @@ function initialize() {
     app.all('*', function(req, res, next) {
         const { pathname } = lurl.parse(req.url);
         //console.log(pathname);
-        if (pathname==='/ch_fc/set_url') {
+        if (['/ch_fc/set_url','/ch_fc/get_info'].indexOf(pathname)>-1) {
             res.header("Access-Control-Allow-Origin", "*");
             res.header("Access-Control-Allow-Methods", "*");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-            prOk=true;
             req.body.data=data;
             next();
         }
@@ -238,7 +237,7 @@ const timerId = setInterval(async ()=> {
         let rows=data.lims.sys;
         if (!!rows) {
           const timeAllClient=data.data.timeAll/1000;
-          data.data.access=true;          
+          data.data.access=true;
           if (rows['TIME_ALL']>0) {
             if (rows['TIME_ALL']<timeAllClient) {
               data.data.access=false;
