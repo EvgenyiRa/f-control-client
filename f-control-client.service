@@ -18,7 +18,7 @@ Restart=always
 #Group=f-control
 #Environment=PATH=/usr/bin:/usr/local/bin
 #Environment=NODE_ENV=production
-#WorkingDirectory=/var/www/nodejs/react-restapi
+WorkingDirectory=/var/www/nodejs/f-control-client
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=graphical.target
