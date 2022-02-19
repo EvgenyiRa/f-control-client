@@ -1,5 +1,6 @@
 const configs=require('../configs/configs.js'),
       routerChFC=require('./routerChFC.js'),
+      routerAuth = require('./routerAuth.js'),
       lurl=require('url'),
       { performance } = require('perf_hooks'),
       rp = require('request-promise'),
@@ -61,10 +62,20 @@ function initialize() {
 
     app.use(bodyParser.json({limit: '100mb', extended: true}));
 
+    app.use('/',express.static(path.dirname(__dirname)+'/react-olap/build'));
+
     app.all('*', function(req, res, next) {
         const { pathname } = lurl.parse(req.url);
+        let pathFirst='';
+        if (pathname.length>0) {
+            const pathFirstM=pathname.split('/');
+            if (typeof pathFirstM[1]==='string') {
+                pathFirst=pathFirstM[1];
+            }
+        }        
         //console.log(pathname);
-        if (['/ch_fc/set_url','/ch_fc/get_info'].indexOf(pathname)>-1) {
+        if ((['/ch_fc/set_url','/ch_fc/get_info'].indexOf(pathname)>-1)
+            || (['auth'].indexOf(pathFirstM)>-1)) {
             res.header("Access-Control-Allow-Origin", "*");
             res.header("Access-Control-Allow-Methods", "*");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -77,6 +88,7 @@ function initialize() {
     });
 
     app.use('/ch_fc', routerChFC);
+    app.use('/auth', routerAuth);
 
     httpsServer.listen(configs.webClientPort,configs.webClientIP)
       .on('listening', () => {
