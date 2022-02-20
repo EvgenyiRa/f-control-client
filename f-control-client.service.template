@@ -9,14 +9,14 @@ Description=F-control-client
 
 [Service]
 #which node
-ExecStart=/var/www/nodejs/f-control-client/run.sh
+ExecStart={currentPath}/run.sh
 Restart=always
 #User=ra
 # Note Debian/Ubuntu uses 'nogroup', RHEL/Fedora uses 'nobody'
 #Group=f-control
 #Environment=PATH=/usr/bin:/usr/local/bin
 #Environment=NODE_ENV=production
-WorkingDirectory=/var/www/nodejs/f-control-client
+WorkingDirectory={currentPath}
 
 [Install]
 WantedBy=graphical.target
