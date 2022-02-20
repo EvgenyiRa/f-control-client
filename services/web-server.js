@@ -146,9 +146,6 @@ const loadDataLocal=()=>{
       //console.log(e);
   }
 }
-loadDataLocal();
-
-webSocketClient.init(data);
 
 //периодическое сохранение данных в файл
 //и отправка на сервер по вебсокету
@@ -175,159 +172,164 @@ const dataToFilePost=async (hereDateStrIn)=>{
     }
 }
 
-//интервальня обработка:
-//1)активности окон пользователя
-//2)периодическое сохранение данных в файл и их отправка на сервер по вебсокету
-const timerId = setInterval(async ()=> {
-  try {
-    const hereDateTimeNew=new Date(),
-          hereDateStrNew=dfns.format(hereDateTimeNew, 'dd-MM-yyyy');
-    if (hereDateStrNew!==lastDate) {
-        await dataToFilePost(lastDate);
-        data.data={};
-        lastDate=hereDateStrNew;
-    }
-    const currentUserNew=getCurrenUser();
-    if (currentUserNew!==currentUser) {
-        currentUser=currentUserNew;
-        console.log('New User: ',currentUser);
-        data=dataDefault;
-        data.login=currentUser;
-        webSocketClient.wsAbort();
-        loadDataLocal();
-        webSocketClient.init(data);
-    }
-
-    //получаем активное окно и время выполнения процесса
+if (execSync("whoami").toString().slice(0, -1)!=='root') {
+  //под рутом только первая инициализация, далее админ системы
+  loadDataLocal();
+  webSocketClient.init(data);
+  //интервальня обработка:
+  //1)активности окон пользователя
+  //2)периодическое сохранение данных в файл и их отправка на сервер по вебсокету
+  const timerId = setInterval(async ()=> {
     try {
-      let winPIDstring = execSync("xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_PID").toString();
-      //let winPIDstring=winPID.toString();
-      winPIDstring=winPIDstring.slice(0, -1).split('_NET_WM_PID(CARDINAL) = ')[1];
-      //console.log(winPIDstring);
-      const winPNAME = execSync("ps -p "+winPIDstring+" -o comm="),
-            winPTime = execSync("ps -p "+winPIDstring+" -o etimes"),
-            winObj={time:performance.now()};
-      let winPNAMEstring=winPNAME.toString();
-      if (typeof winPNAMEstring==='string') {
-          winPNAMEstring=winPNAMEstring.slice(0, -1);
-          winObj['name']=winPNAMEstring;
-      }
-      //console.log(winPNAMEstring);
-      let winPTimeString=winPTime.toString(),
-          winPTimeNum;
-      if (typeof winPTimeString==='string') {
-          winPTimeString=winPTimeString.slice(0, -1).split(' ');
-          winPTimeString=winPTimeString[winPTimeString.length-1];
-          winPTimeNum=parseInt(winPTimeString);
-          winObj['times']=winPTimeNum;
-      }
-      //console.log(winPNAME.toString());
-      //fs.writeFileSync("./data/lastWin_"+hereDateStr+".json", JSON.stringify(winObj));
-      data.data.lastWin=winObj;
-      //суммируем время активных окон
-      let winsActiveSumObj;
-      //console.log(winsActiveSumStr);
-      const timeAllDelta2=performance.now();
-      if (!!data.data['winsActiveSum']) {
-          winsActiveSumObj=data.data['winsActiveSum'];
-          //console.log('from file');
-          if (!!winsActiveSumObj[winPNAMEstring]) {
-              const lastTimeProcessF=winsActiveSumObj[winPNAMEstring]['lastTimeProcess'];
-              let timeAllF=winsActiveSumObj[winPNAMEstring]['timeAll'];
-              if (lastTimeProcessF>winPTimeNum) {
-                  timeAllF+=lastTimeProcessF;
-              }
-              const timeAllUserF=timeAllF+winPTimeNum,
-                    winTimeAllDelta=winsActiveSumObj[winPNAMEstring]['timeAllDelta']+(timeAllDelta2-timeAllDelta);
-              winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:timeAllF,timeAllUser:timeAllUserF,timeAllDelta:winTimeAllDelta,pid:+winPIDstring,access:winsActiveSumObj[winPNAMEstring]['access']};
-          }
-          else {
-              winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:0,timeAllUser:winPTimeNum,timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
-          }
-      }
-      else {
-          winsActiveSumObj={};
-          winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:0,timeAllUser:winPTimeNum,timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
-      }
-      data.data['winsActiveSum']=winsActiveSumObj;
-
-      if (['chrome'].indexOf(winPNAMEstring)>-1) {
-        //добавляем время к последнему активному хосту, если это процесс браузера
-        //и существуют данные о последнем переходе на страницу
-        if (!!data.data.browserLastHost) {
-            data.data.browser[data.data.browserLastHost].timeAll+=timeAllDelta2-timeAllDelta;
-        }
-      }
-
-      data.data['timeAll']+=timeAllDelta2-timeAllDelta;
-      countMSsaveTek+=timeAllDelta2-timeAllDelta;
-      if (countMSsaveTek>=configs.countMSsave) {
-          countMSsaveTek=0;
+      const hereDateTimeNew=new Date(),
+            hereDateStrNew=dfns.format(hereDateTimeNew, 'dd-MM-yyyy');
+      if (hereDateStrNew!==lastDate) {
           await dataToFilePost(lastDate);
-          //console.log(data);
-          //await dataToFilePost(lastDate);
+          data.data={};
+          lastDate=hereDateStrNew;
+      }
+      const currentUserNew=getCurrenUser();
+      if (currentUserNew!==currentUser) {
+          currentUser=currentUserNew;
+          console.log('New User: ',currentUser);
+          data=dataDefault;
+          data.login=currentUser;
+          webSocketClient.wsAbort();
+          loadDataLocal();
+          webSocketClient.init(data);
       }
 
-      //проверяем превышение лимитов
-      if (!!data.lims) {
-        let rows=data.lims.sys;
-        if (!!rows) {
-          const timeAllClient=data.data.timeAll/1000;
-          data.data.access=true;
-          if (rows['TIME_ALL']>0) {
-            if (rows['TIME_ALL']<timeAllClient) {
-              data.data.access=false;
+      //получаем активное окно и время выполнения процесса
+      try {
+        let winPIDstring = execSync("xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_PID").toString();
+        //let winPIDstring=winPID.toString();
+        winPIDstring=winPIDstring.slice(0, -1).split('_NET_WM_PID(CARDINAL) = ')[1];
+        //console.log(winPIDstring);
+        const winPNAME = execSync("ps -p "+winPIDstring+" -o comm="),
+              winPTime = execSync("ps -p "+winPIDstring+" -o etimes"),
+              winObj={time:performance.now()};
+        let winPNAMEstring=winPNAME.toString();
+        if (typeof winPNAMEstring==='string') {
+            winPNAMEstring=winPNAMEstring.slice(0, -1);
+            winObj['name']=winPNAMEstring;
+        }
+        //console.log(winPNAMEstring);
+        let winPTimeString=winPTime.toString(),
+            winPTimeNum;
+        if (typeof winPTimeString==='string') {
+            winPTimeString=winPTimeString.slice(0, -1).split(' ');
+            winPTimeString=winPTimeString[winPTimeString.length-1];
+            winPTimeNum=parseInt(winPTimeString);
+            winObj['times']=winPTimeNum;
+        }
+        //console.log(winPNAME.toString());
+        //fs.writeFileSync("./data/lastWin_"+hereDateStr+".json", JSON.stringify(winObj));
+        data.data.lastWin=winObj;
+        //суммируем время активных окон
+        let winsActiveSumObj;
+        //console.log(winsActiveSumStr);
+        const timeAllDelta2=performance.now();
+        if (!!data.data['winsActiveSum']) {
+            winsActiveSumObj=data.data['winsActiveSum'];
+            //console.log('from file');
+            if (!!winsActiveSumObj[winPNAMEstring]) {
+                const lastTimeProcessF=winsActiveSumObj[winPNAMEstring]['lastTimeProcess'];
+                let timeAllF=winsActiveSumObj[winPNAMEstring]['timeAll'];
+                if (lastTimeProcessF>winPTimeNum) {
+                    timeAllF+=lastTimeProcessF;
+                }
+                const timeAllUserF=timeAllF+winPTimeNum,
+                      winTimeAllDelta=winsActiveSumObj[winPNAMEstring]['timeAllDelta']+(timeAllDelta2-timeAllDelta);
+                winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:timeAllF,timeAllUser:timeAllUserF,timeAllDelta:winTimeAllDelta,pid:+winPIDstring,access:winsActiveSumObj[winPNAMEstring]['access']};
             }
+            else {
+                winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:0,timeAllUser:winPTimeNum,timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
+            }
+        }
+        else {
+            winsActiveSumObj={};
+            winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:0,timeAllUser:winPTimeNum,timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
+        }
+        data.data['winsActiveSum']=winsActiveSumObj;
+
+        if (['chrome'].indexOf(winPNAMEstring)>-1) {
+          //добавляем время к последнему активному хосту, если это процесс браузера
+          //и существуют данные о последнем переходе на страницу
+          if (!!data.data.browserLastHost) {
+              data.data.browser[data.data.browserLastHost].timeAll+=timeAllDelta2-timeAllDelta;
           }
-          if (!!data.lims.proc) {
-            rows=data.lims.proc;
-            if (rows.length>0) {
-              //console.log(data.winsActiveSum);
-              for (var i = 0; i < rows.length; i++) {
-                const rowOne=rows[i];
-                if (!!data.data.winsActiveSum[rowOne['PRC_NAME']]) {
-                  const timeAllDeltaClient=data.data.winsActiveSum[rowOne['PRC_NAME']].timeAllDelta/1000;
-                  data.data.winsActiveSum[rowOne['PRC_NAME']].access=true;
-                  if (rowOne['LIM']<timeAllDeltaClient) {
-                      data.data.winsActiveSum[rowOne['PRC_NAME']].access=false;
+        }
+
+        data.data['timeAll']+=timeAllDelta2-timeAllDelta;
+        countMSsaveTek+=timeAllDelta2-timeAllDelta;
+        if (countMSsaveTek>=configs.countMSsave) {
+            countMSsaveTek=0;
+            await dataToFilePost(lastDate);
+            //console.log(data);
+            //await dataToFilePost(lastDate);
+        }
+
+        //проверяем превышение лимитов
+        if (!!data.lims) {
+          let rows=data.lims.sys;
+          if (!!rows) {
+            const timeAllClient=data.data.timeAll/1000;
+            data.data.access=true;
+            if (rows['TIME_ALL']>0) {
+              if (rows['TIME_ALL']<timeAllClient) {
+                data.data.access=false;
+              }
+            }
+            if (!!data.lims.proc) {
+              rows=data.lims.proc;
+              if (rows.length>0) {
+                //console.log(data.winsActiveSum);
+                for (var i = 0; i < rows.length; i++) {
+                  const rowOne=rows[i];
+                  if (!!data.data.winsActiveSum[rowOne['PRC_NAME']]) {
+                    const timeAllDeltaClient=data.data.winsActiveSum[rowOne['PRC_NAME']].timeAllDelta/1000;
+                    data.data.winsActiveSum[rowOne['PRC_NAME']].access=true;
+                    if (rowOne['LIM']<timeAllDeltaClient) {
+                        data.data.winsActiveSum[rowOne['PRC_NAME']].access=false;
+                    }
                   }
                 }
               }
             }
           }
         }
-      }
 
-      if (!data.data.access) {
-        if (configs.test) {
-          console.log("killall -w -u "+currentUser);
-        }
-        else {
-          //execSync("gnome-session-quit --logout --no-prompt");
-          try {
-            execSync("killall -w -u "+currentUser);
-          } catch (e) {
-            console.error(e); // should contain code (exit code) and signal (that caused the termination).
+        if (!data.data.access) {
+          if (configs.test) {
+            console.log("killall -w -u "+currentUser);
+          }
+          else {
+            //execSync("gnome-session-quit --logout --no-prompt");
+            try {
+              execSync("killall -w -u "+currentUser);
+            } catch (e) {
+              console.error(e); // should contain code (exit code) and signal (that caused the termination).
+            }
           }
         }
+        //убиваем запрещенные процессы
+        for (var key in data.data.winsActiveSum) {
+            const oneWin=data.data.winsActiveSum[key];
+            if (!oneWin.access) {
+                try {
+                  execSync("kill -TERM "+oneWin.pid);
+                } catch (e) {
+                  //console.error(e); // should contain code (exit code) and signal (that caused the termination).
+                }
+            }
+        }
+        timeAllDelta=timeAllDelta2;
+      } catch (e) {
+        console.error(e); // should contain code (exit code) and signal (that caused the termination).
       }
-      //убиваем запрещенные процессы
-      for (var key in data.data.winsActiveSum) {
-          const oneWin=data.data.winsActiveSum[key];
-          if (!oneWin.access) {
-              try {
-                execSync("kill -TERM "+oneWin.pid);
-              } catch (e) {
-                //console.error(e); // should contain code (exit code) and signal (that caused the termination).
-              }
-          }
-      }
-      timeAllDelta=timeAllDelta2;
+      //fs.writeFileSync("./data/lastWin.json", JSON.stringify({time:performance.now()}));
     } catch (e) {
       console.error(e); // should contain code (exit code) and signal (that caused the termination).
     }
-    //fs.writeFileSync("./data/lastWin.json", JSON.stringify({time:performance.now()}));
-  } catch (e) {
-    console.error(e); // should contain code (exit code) and signal (that caused the termination).
-  }
-},configs.counMSupd);
+  },configs.counMSupd);
+}
