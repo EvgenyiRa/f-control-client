@@ -6,12 +6,14 @@ const configs=require('../configs/configs.js'),
 console.log("Подключение к серверу "+configs.webServer+" по WebSocket");
 const connectionObj={};
 
+let wsClient;
+
 const init=(data)=>{
   // Вешаем на него обработчик события подключения к серверу
   data.wsStat.connect=false;
   data.wsStat.auth=false;
   data.wsStat.dataUpdate=false;
-  const wsClient = new WebSocketClient();
+  wsClient = new WebSocketClient();
   wsClient.on('connect', wsHandler);
   function wsHandler(connection) {
     console.log('WebSocket Client Connected');
@@ -22,7 +24,7 @@ const init=(data)=>{
         data.wsStat.connect=false;
         data.wsStat.auth=false;
         data.wsStat.dataUpdate=false;
-        wsClient.abort();              
+        wsClient.abort();
     });
     connection.on('close', function() {
         console.log('Connection close');
@@ -75,3 +77,8 @@ const init=(data)=>{
   });
 }
 module.exports.init = init;
+
+const wsAbort=()=>{
+    wsClient.abort();
+}
+module.exports.wsAbort=wsAbort;

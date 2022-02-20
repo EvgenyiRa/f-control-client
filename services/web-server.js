@@ -10,12 +10,13 @@ const configs=require('../configs/configs.js'),
       webSocketClient=require('./webSocketClient.js'),
       hereDateTime=new Date(),
       hereDateStr=dfns.format(hereDateTime, 'dd-MM-yyyy'),
-      currentUser=execSync('whoami').toString().slice(0, -1),
       express = require('express'),
       fs = require('fs'),
       path = require('path'),
-      bodyParser = require('body-parser'),
-      dataDefault={
+      bodyParser = require('body-parser');
+
+let currentUser=execSync('last -1').toString().split(' ')[0];
+const dataDefault={
         data:{timeAll:0,access:true},
         lims:{},
         repUserId:configs.repUserId,
@@ -122,21 +123,24 @@ function close() {
 module.exports.close = close;
 //
 
-//подгружаем данные из локальных файлов
-try {
-  const dataStr=fs.readFileSync("./data/data_"+currentUser+'_'+hereDateStr+".json",
-                                {encoding:'utf8', flag:'r'});
-  data.data=JSON.parse(dataStr);
-} catch (e) {
-    //console.log(e);
+const loadDataLocal=()=>{
+  //подгружаем данные из локальных файлов
+  try {
+    const dataStr=fs.readFileSync("./data/data_"+currentUser+'_'+hereDateStr+".json",
+                                  {encoding:'utf8', flag:'r'});
+    data.data=JSON.parse(dataStr);
+  } catch (e) {
+      //console.log(e);
+  }
+  try {
+    const dataStr=fs.readFileSync("./data/lims_"+currentUser+".json",
+                                  {encoding:'utf8', flag:'r'});
+    data.lims=JSON.parse(dataStr);
+  } catch (e) {
+      //console.log(e);
+  }
 }
-try {
-  const dataStr=fs.readFileSync("./data/lims_"+currentUser+".json",
-                                {encoding:'utf8', flag:'r'});
-  data.lims=JSON.parse(dataStr);
-} catch (e) {
-    //console.log(e);
-}
+loadDataLocal();
 
 webSocketClient.init(data);
 
@@ -172,6 +176,15 @@ const timerId = setInterval(async ()=> {
         await dataToFilePost(lastDate);
         data.data={};
         lastDate=hereDateStrNew;
+    }
+    const currentUserNew=execSync('last -1').toString().split(' ')[0];
+    if (currentUserNew!==currentUser) {
+        currentUser=currentUserNew;
+        console.log('New User: ',currentUser);        
+        data.login=currentUser;
+        webSocketClient.wsAbort();
+        loadDataLocal();
+        webSocketClient.init(data);
     }
 
     //получаем активное окно и время выполнения процесса
