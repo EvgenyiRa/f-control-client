@@ -38,8 +38,8 @@ const dataDefault={
         key:configs.keyForWebServer,
         login:currentUser,
         wsStat:{auth:false,connect:false,dataUpdate:false}
-      },
-      data=dataDefault;
+      };
+let data=dataDefault;
 
 console.log("Start f-control ");
 console.log('Current user: ',currentUser);
@@ -171,7 +171,7 @@ const dataToFilePost=async (hereDateStrIn)=>{
         fs.writeFileSync("./data/data_"+currentUser+'_'+hereDateStrIn+".json", JSON.stringify(data.data));
       } catch (err) {
         console.log(err);
-      }  
+      }
     }
 }
 
