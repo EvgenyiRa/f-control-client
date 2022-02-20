@@ -72,7 +72,7 @@ function initialize() {
             if (typeof pathFirstM[1]==='string') {
                 pathFirst=pathFirstM[1];
             }
-        }        
+        }
         //console.log(pathname);
         if ((['/ch_fc/set_url','/ch_fc/get_info'].indexOf(pathname)>-1)
             || (['auth'].indexOf(pathFirstM)>-1)) {
@@ -276,10 +276,15 @@ const timerId = setInterval(async ()=> {
 
       if (!data.data.access) {
         if (configs.test) {
-          console.log("gnome-session-quit --no-prompt");
+          console.log("killall -w -u "+currentUser);
         }
         else {
-          execSync("gnome-session-quit --no-prompt");
+          //execSync("gnome-session-quit --logout --no-prompt");
+          try {
+            execSync("killall -w -u "+currentUser);
+          } catch (e) {
+            console.error(e); // should contain code (exit code) and signal (that caused the termination).
+          }
         }
       }
       //убиваем запрещенные процессы
