@@ -165,9 +165,13 @@ const dataToFilePost=async (hereDateStrIn)=>{
             webSocketClient.init(data);
         }
     } catch (err) {
-      //console.log(err);
+      console.log(err);
     } finally {
-      fs.writeFileSync("./data/data_"+currentUser+'_'+hereDateStrIn+".json", JSON.stringify(data.data));
+      try {
+        fs.writeFileSync("./data/data_"+currentUser+'_'+hereDateStrIn+".json", JSON.stringify(data.data));
+      } catch (err) {
+        console.log(err);
+      }  
     }
 }
 
