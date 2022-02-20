@@ -15,7 +15,21 @@ const configs=require('../configs/configs.js'),
       path = require('path'),
       bodyParser = require('body-parser');
 
-let currentUser=execSync('last -1').toString().split(' ')[0];
+const getCurrenUser=()=>{
+  const resE=execSync('last -1').toString();
+  let result=resE[0];
+  for (var i = 1; i < resE.length; i++) {
+    if (resE[i]!==' ') {
+        result+=resE[i];
+    }
+    else {
+      break;
+    }
+  }
+  return result;
+}
+
+let currentUser=getCurrenUser();
 const dataDefault={
         data:{timeAll:0,access:true},
         lims:{},
@@ -27,6 +41,7 @@ const dataDefault={
       data=dataDefault;
 
 console.log("Start f-control ");
+console.log('Current user[0]="'+currentUser[0]+'"');
 console.log('Current user: ',currentUser);
 
 let https,
@@ -177,10 +192,11 @@ const timerId = setInterval(async ()=> {
         data.data={};
         lastDate=hereDateStrNew;
     }
-    const currentUserNew=execSync('last -1').toString().split(' ')[0];
+    const currentUserNew=getCurrenUser();
     if (currentUserNew!==currentUser) {
         currentUser=currentUserNew;
-        console.log('New User: ',currentUser);        
+        console.log('New User: ',currentUser);
+        data=dataDefault;
         data.login=currentUser;
         webSocketClient.wsAbort();
         loadDataLocal();
