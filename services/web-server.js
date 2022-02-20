@@ -41,7 +41,6 @@ const dataDefault={
       data=dataDefault;
 
 console.log("Start f-control ");
-console.log('Current user[0]="'+currentUser[0]+'"');
 console.log('Current user: ',currentUser);
 
 let https,
