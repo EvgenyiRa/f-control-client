@@ -17,7 +17,8 @@ const configs=require('../configs/configs.js'),
       bodyParser = require('body-parser');
 
 const getCurrenUser=()=>{
-  const resE=execSync('last -1').toString();
+  const result=execSync('whoami').toString().slice(0, -1);
+  /*const resE=execSync('last -1').toString();
   let result=resE[0];
   for (var i = 1; i < resE.length; i++) {
     if (resE[i]!==' ') {
@@ -26,7 +27,7 @@ const getCurrenUser=()=>{
     else {
       break;
     }
-  }
+  }*/
   return result;
 }
 
