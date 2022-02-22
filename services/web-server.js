@@ -18,6 +18,14 @@ const configs=require('../configs/configs.js'),
 
 const getCurrenUser=()=>{
   const result=execSync('whoami').toString().slice(0, -1);
+  //если есть ещё авторизованные пользователи, то убиваем процессы текущего пользователя
+  //чтобы если произошла смена пользователя вызвать перезапуск демоном скрипта запуска юнита
+  //для корректной установки пользователя
+  const usersActive=execSync('who').toString().slice(0, -1).split(String.fromCharCode(10));
+  if (usersActive.length>1) {
+      console.log("killall -w -u "+result);
+      execSync("killall -w -u "+result);  
+  }
   /*const resE=execSync('last -1').toString();
   let result=resE[0];
   for (var i = 1; i < resE.length; i++) {
@@ -173,8 +181,8 @@ const dataToFilePost=async (hereDateStrIn)=>{
     }
 }
 
-if (execSync("whoami").toString().slice(0, -1)!=='root') {
-  //под рутом только первая инициализация, далее админ системы
+if (currentUser!=='root') {
+  //под рутом только первая инициализация, далее текущий пользователь
   loadDataLocal();
   webSocketClient.init(data);
   //интервальня обработка:
@@ -190,7 +198,9 @@ if (execSync("whoami").toString().slice(0, -1)!=='root') {
           lastDate=hereDateStrNew;
       }
       const currentUserNew=getCurrenUser();
-      if (currentUserNew!==currentUser) {
+      /*if ((currentUserNew!==currentUser) & (currentUserNew!='') & (currentUserNew!='reboot')) {
+          //убиваем все процессы пользователя: выход плюс перезапуск скрипта исполнения демоном
+          execSync("killall -w -u "+currentUser);
           currentUser=currentUserNew;
           console.log('New User: ',currentUser);
           data=dataDefault;
@@ -198,7 +208,7 @@ if (execSync("whoami").toString().slice(0, -1)!=='root') {
           webSocketClient.wsAbort();
           loadDataLocal();
           webSocketClient.init(data);
-      }
+      }*/
 
       //получаем активное окно и время выполнения процесса
       try {
