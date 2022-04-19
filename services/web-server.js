@@ -19,14 +19,15 @@ const configs=require('../configs/configs.js'),
 const getCurrenUser=()=>{
   const result=execSync('whoami').toString().slice(0, -1);
   //если есть ещё авторизованные пользователи, то убиваем процессы текущего пользователя
+  //(переделал на уровень демона для эффективного разграничения контроля)
   //чтобы если произошла смена пользователя вызвать перезапуск демоном скрипта запуска юнита
   //для корректной установки пользователя
-  const usersActive=execSync('who').toString().slice(0, -1).split(String.fromCharCode(10));
+  /*const usersActive=execSync('who').toString().slice(0, -1).split(String.fromCharCode(10));
   if (usersActive.length>1) {
       console.log("killall -w -u "+result);
-      execSync("killall -w -u "+result);  
+      execSync("killall -w -u "+result);
   }
-  /*const resE=execSync('last -1').toString();
+  const resE=execSync('last -1').toString();
   let result=resE[0];
   for (var i = 1; i < resE.length; i++) {
     if (resE[i]!==' ') {
