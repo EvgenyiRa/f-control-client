@@ -10,8 +10,8 @@ function killWaste {
         do
           #в живых должен остаться только один!
           IFS=' ' read -r -a usrA <<< "${usrAcount[0]}";
+          #echo "kill ${usrA[0]}"
           killall -w -u ${usrA[0]};
-          #echo "killall -w -u ${usrA[0]};"
           usr=$(who -s)
           usrFull=$usr;
           IFS=$'\n'; usrAcount=($usr); unset IFS;
@@ -62,6 +62,7 @@ while true ; do
     IFS=$'\n'; psResCount=($psRes); unset IFS;
     if [ ${#psResCount[*]} -eq 1 ]; then
       #если упал, поднимаем
+      echo "reRun Node";
       runNode;
     fi
   fi
