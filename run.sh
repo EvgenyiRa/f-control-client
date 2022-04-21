@@ -6,18 +6,17 @@ function killWaste {
   usrFull=$usr;
   if [[ -n $usr ]]; then
       IFS=$'\n'; usrAcount=($usr); unset IFS;
-      while [[ ${#usrAcount[*]}>1 ]]
-        do
-          #в живых должен остаться только один!
-          IFS=' ' read -r -a usrA <<< "${usrAcount[0]}";
-          #echo "kill ${usrA[0]}"
-          killall -w -u ${usrA[0]};
-          usr=$(who -s)
-          usrFull=$usr;
-          IFS=$'\n'; usrAcount=($usr); unset IFS;
-        done
-      IFS=' ' read -r -a usrA <<< "$usr"
-      usr=${usrA[0]}
+      if [[ ${#usrAcount[*]}>1 ]]; then
+        #в живых должен остаться только один!
+        #первый пользователь всегда убивается (тот который был запущен)
+        #засчет этого больше 2 пользователей не может быть в системе
+        echo "kill $usrRun"
+        killall -w -u $usrRun;
+        usr=$(who -s);
+        usrFull=$usr;
+        IFS=' ' read -r -a usrA <<< "$usr";
+        usr=${usrA[0]};
+      fi
   else
     while [[ -z $usr ]]
       do
@@ -43,7 +42,7 @@ function runNode {
   IFS=' ' read -r -a dispE <<< "${usrD[1]}"
   echo "DISPLAY=${dispE[0]}"
   export DISPLAY=:${dispE[0]}
-  sudo -u $usrRun -g root /bin/sh node . &
+  sudo -u $usrRun -g root node . &
   nodePID=$!;
   echo "nodePID: $nodePID"
   #echo "sudo -u $usrRun -g root /bin/sh node ."
