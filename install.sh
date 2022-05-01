@@ -55,3 +55,10 @@ chmod ugo+x "$dirProject/$fccName/run.sh"
 #создаем задание для демона
 serviceVal=$(sed 's/\{currentPath\}/'"$dirProject/$fccName"'/'  -i   "$dirProject/$fccName/$fccName.service.template");
 echo "$serviceVal" > "/etc/systemd/system/$fccName.service";
+systemctl start "$fccName.service";
+
+#установливаем принудительно расширение для chrome с блокированием режима Инкогнито
+chManage="managed_policies.json";
+dirChManage="/etc/opt/chrome/policies/managed";
+mkdir -p $dirChManage;
+cp -f "$dirProject/$fccName/$chManage" "$dirChManage/$chManage"
