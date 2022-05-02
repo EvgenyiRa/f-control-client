@@ -7,11 +7,13 @@ echo "osID=$osID";
 case $osID in
   ubuntu)
     #echo "yes ubuntu!"
+    apt install curl;
     curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -;
-    sudo apt-get install -y nodejs;
-    sudo apt install git;
+    apt-get install -y nodejs;
+    apt install git;
   ;;
   debian)
+    apt install curl;
     curl -fsSL https://deb.nodesource.com/setup_16.x | bash -;
     apt-get install -y nodejs;
     apt install git;
@@ -20,6 +22,7 @@ case $osID in
     #
   ;;
 esac
+npm install -g npm@8;
 
 #создаем папку проекта
 dirProject="/opt/f-control";
@@ -28,8 +31,11 @@ fccChName="f-control-client-ch";
 gitUrl="https://github.com/EvgenyiRa/";
 mkdir -p $dirProject;
 #скачиваем проекты
-git clone "$gitUrl$fccName.git" $dirProject;
-git clone "$gitUrl$fccChName.git" $dirProject;
+git clone "$gitUrl$fccName.git" "$dirProject/$fccName";
+cd "$dirProject/$fccName";
+npm install;
+npm audit fix;
+git clone "$gitUrl$fccChName.git" "$dirProject/$fccChName";
 
 #получаем текущего пользователя
 usr=$(who -s);
@@ -48,8 +54,8 @@ fi
 IFS=' ' read -r -a usrA <<< "$usr"
 usr=${usrA[0]}
 #устанавливаем группу root на папку и добавляем права группе
-chown -R $usr:root "$dirProject/$fccName/*";
-chmod 771 "$dirProject/$fccName/*"
+chown -R $usr:root "$dirProject/$fccName";
+chmod -R 771 "$dirProject/$fccName"
 chmod ugo+x "$dirProject/$fccName/run.sh"
 
 #создаем задание для демона
