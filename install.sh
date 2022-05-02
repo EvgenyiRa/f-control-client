@@ -53,7 +53,8 @@ chmod 771 "$dirProject/$fccName/*"
 chmod ugo+x "$dirProject/$fccName/run.sh"
 
 #создаем задание для демона
-serviceVal=$(sed 's/\{currentPath\}/'"$dirProject/$fccName"'/'  -i   "$dirProject/$fccName/$fccName.service.template");
+serviceVal=$(cat "$dirProject/$fccName/$fccName.service.template");
+serviceVal=${serviceVal//\{currentPath\}/"$dirProject/$fccName"};
 echo "$serviceVal" > "/etc/systemd/system/$fccName.service";
 systemctl start "$fccName.service";
 
