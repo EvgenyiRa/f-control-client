@@ -14,7 +14,9 @@ const configs=require('../configs/configs.js'),
       express = require('express'),
       fs = require('fs'),
       path = require('path'),
-      bodyParser = require('body-parser');
+      bodyParser = require('body-parser'),
+      activeWindow = require('active-win'),
+      ps = require('ps-node');
 
 const getCurrenUser=()=>{
   const result=execSync('whoami').toString().slice(0, -1);
@@ -213,28 +215,12 @@ if (currentUser!=='root') {
 
       //получаем активное окно и время выполнения процесса
       try {
-        let winPIDstring = execSync("xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_PID").toString();
-        //let winPIDstring=winPID.toString();
-        winPIDstring=winPIDstring.slice(0, -1).split('_NET_WM_PID(CARDINAL) = ')[1];
-        //console.log(winPIDstring);
-        const winPNAME = execSync("ps -p "+winPIDstring+" -o comm="),
-              winPTime = execSync("ps -p "+winPIDstring+" -o etimes"),
-              winObj={time:performance.now()};
-        let winPNAMEstring=winPNAME.toString();
-        if (typeof winPNAMEstring==='string') {
-            winPNAMEstring=winPNAMEstring.slice(0, -1);
-            winObj['name']=winPNAMEstring;
-        }
-        //console.log(winPNAMEstring);
-        let winPTimeString=winPTime.toString(),
-            winPTimeNum;
-        if (typeof winPTimeString==='string') {
-            winPTimeString=winPTimeString.slice(0, -1).split(' ');
-            winPTimeString=winPTimeString[winPTimeString.length-1];
-            winPTimeNum=parseInt(winPTimeString);
-            winObj['times']=winPTimeNum;
-        }
-        //console.log(winPNAME.toString());
+        //new arch
+        const winObj=await activeWindow(),
+              winPNAMEstring=winObj.owner.name,
+              winPIDstring=winObj.owner.processId;
+        //console.log('processInfo',processInfo);
+        winObj.time=performance.now();
         //fs.writeFileSync("./data/lastWin_"+hereDateStr+".json", JSON.stringify(winObj));
         data.data.lastWin=winObj;
         //суммируем время активных окон
@@ -245,22 +231,17 @@ if (currentUser!=='root') {
             winsActiveSumObj=data.data['winsActiveSum'];
             //console.log('from file');
             if (!!winsActiveSumObj[winPNAMEstring]) {
-                const lastTimeProcessF=winsActiveSumObj[winPNAMEstring]['lastTimeProcess'];
                 let timeAllF=winsActiveSumObj[winPNAMEstring]['timeAll'];
-                if (lastTimeProcessF>winPTimeNum) {
-                    timeAllF+=lastTimeProcessF;
-                }
-                const timeAllUserF=timeAllF+winPTimeNum,
-                      winTimeAllDelta=winsActiveSumObj[winPNAMEstring]['timeAllDelta']+(timeAllDelta2-timeAllDelta);
-                winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:timeAllF,timeAllUser:timeAllUserF,timeAllDelta:winTimeAllDelta,pid:+winPIDstring,access:winsActiveSumObj[winPNAMEstring]['access']};
+                const winTimeAllDelta=winsActiveSumObj[winPNAMEstring]['timeAllDelta']+(timeAllDelta2-timeAllDelta);
+                winsActiveSumObj[winPNAMEstring]={timeAll:timeAllF,timeAllDelta:winTimeAllDelta,pid:+winPIDstring,access:winsActiveSumObj[winPNAMEstring]['access']};
             }
             else {
-                winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:0,timeAllUser:winPTimeNum,timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
+                winsActiveSumObj[winPNAMEstring]={timeAll:0,timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
             }
         }
         else {
             winsActiveSumObj={};
-            winsActiveSumObj[winPNAMEstring]={lastTimeProcess:winPTimeNum,timeAll:0,timeAllUser:winPTimeNum,timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
+            winsActiveSumObj[winPNAMEstring]={timeAll:0,timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
         }
         data.data['winsActiveSum']=winsActiveSumObj;
 
