@@ -41,15 +41,16 @@ git clone "$gitUrl$fccChName.git" "$dirProject/$fccChName";
 usr=$(who -s);
 countUsr=$(echo "$usr"|wc -l);
 if [ $countUsr -gt 1 ]; then
-  echo "$usr" | while read usr
+  while read line
   do
     #echo "usr=$usr"
-    IFS=' ' read -r -a usrA <<< "$usr";
+    IFS=' ' read -r -a usrA <<< "$line";
     if [[ "${usrA[1]}" == *":"* ]]; then
-      usrFull=$usr;
+      usr=$line;
+      usrFull=$line;
       break;
     fi
-  done;
+  done <<< "$usr";
 fi
 IFS=' ' read -r -a usrA <<< "$usr"
 usr=${usrA[0]}
