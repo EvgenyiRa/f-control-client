@@ -12,18 +12,26 @@ function searchUsr {
         #пользователь должен быть только один
         #но команда who может вернуть несколько вариантов одного и того же пользователя
         #echo "for uaOne in";
-        echo "$usr" | while read usr
+        while read line
         do
           #echo "usr=$usr"
-          IFS=' ' read -r -a usrA <<< "$usr";
+          IFS=' ' read -r -a usrA <<< "$line";
           if [[ "${usrA[1]}" == *":"* ]]; then
-            usrFull=$usr;
+            usr=$line;
+            usrFull=$line;
             break;
           fi
-        done;
+        done <<< "$usr"
       fi
+
       IFS=' ' read -r -a usrA <<< "$usr"
-      usr=${usrA[0]}
+      usr=${usrA[0]};
+      echo "pre exex user: $usr"
+      IFS=':'; usrD=($usrFull); unset IFS;
+      IFS=' ' read -r -a dispE <<< "${usrD[1]}"
+      echo "DISPLAY=${dispE[0]}"
+      export DISPLAY=:${dispE[0]}
+      exec sudo -u $usr -g root node .
   fi
 }
 if [[ -n $usr ]]; then
@@ -39,10 +47,3 @@ else
       #echo "usrW2=$usr"
     done
 fi
-echo "pre exex user: $usr"
-IFS=':'; usrD=($usrFull); unset IFS;
-IFS=' ' read -r -a dispE <<< "${usrD[1]}"
-echo "DISPLAY=${dispE[0]}"
-export DISPLAY=:${dispE[0]}
-exec sudo -u $usr -g root /bin/sh - << eof
-node .
