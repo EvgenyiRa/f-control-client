@@ -9,10 +9,11 @@ case $osID in
     #echo "yes ubuntu!"
     #удаляем firefox
     apt-get purge firefox
+    snap remove --purge firefox
     #устанавливаем chrome
     wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
     sudo dpkg -i --force-depends google-chrome-stable_current_amd64.deb
-    #отключаем и перезапускаем wayland
+    #отключаем wayland и перезапускаем графику
     daemonConfVal="";
     prSearch=false;
     dirDaemonConf="/etc/gdm3/daemon.conf";
