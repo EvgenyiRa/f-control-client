@@ -17,20 +17,20 @@ case $osID in
     daemonConfVal="";
     prSearch=false;
     dirDaemonConf="/etc/gdm3/daemon.conf";
-    perenos=$'\x10';
-    wDisStr="WaylandEnable = false$perenos";
+    perenos="\n";
+    wDisStr="WaylandEnable = false";
     while IFS= read -r line
     do
       if [[ "$line" == *"WaylandEnable"* ]]; then
         line=$wDisStr;
         prSearch=true;
       fi
-      daemonConfVal="${daemonConfVal}$line";
+      daemonConfVal="${daemonConfVal}${perenos}$line";
     done < "$dirDaemonConf"
     if [ "$prSearch" = false ] ; then
       daemonConfVal="${daemonConfVal}$wDisStr";
     fi
-    echo "$daemonConfVal" > "$dirDaemonConf";
+    echo -e "$daemonConfVal" > "$dirDaemonConf";
     if [ "$XDG_SESSION_TYPE" != "x11" ]; then
         service gdm3 restart;
     fi
