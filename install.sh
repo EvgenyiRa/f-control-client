@@ -69,4 +69,5 @@ systemctl start "$fccName.service";
 chManage="managed_policies.json";
 dirChManage="/etc/opt/chrome/policies/managed";
 mkdir -p $dirChManage;
-cp -f "$dirProject/$fccName/$chManage" "$dirChManage/$chManage"
+cp -f "$dirProject/$fccName/$chManage" "$dirChManage/$chManage";
+chmod 774 "$dirChManage/$chManage";
