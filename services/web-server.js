@@ -184,10 +184,12 @@ const dataToFilePost=async (hereDateStrIn)=>{
     }
 }
 
-if (currentUser!=='root') {
-  //под рутом только первая инициализация, далее текущий пользователь
+if ((!!configs.adminLogin) && (!!configs.adminPwd)) {
   loadDataLocal();
-  webSocketClient.init(data);
+  if ((!!configs.webServerIP) && (!!configs.repUserId) && (!!configs.keyForWebServer)) {
+    //если не первый запуск/запуск до настроек
+    webSocketClient.init(data);
+  }
   //интервальня обработка:
   //1)активности окон пользователя
   //2)периодическое сохранение данных в файл и их отправка на сервер по вебсокету
