@@ -104,3 +104,6 @@ dist
 .tern-port
 /run0.sh
 /run_test.sh
+
+#Configs prod
+configs/configs.js

@@ -1,7 +1,7 @@
 const configs={
   webServerIP: undefined,
-  webServerProtocol: 'http',
-  webSocketProtocol:'ws',
+  webServerProtocol: 'https',
+  webSocketProtocol:'wss',
   repUserId: undefined,
   keyForWebServer:undefined,
   countMSsave:90000,

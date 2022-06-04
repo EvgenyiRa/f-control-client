@@ -14,7 +14,8 @@ async function post(req, res, next) {
           data.data.browser[host].urls.push(req.body.url);
       }
       data.data.browserLastHost=host;
-      const resObj={result:'ok'}
+      const resObj={result:'ok'};
+      console.log('set url ok');
       res.status(200).json(resObj);
       //res.status(404).end();
     } catch (err) {

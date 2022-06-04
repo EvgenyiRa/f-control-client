@@ -63,6 +63,8 @@ chmod ugo+x "$dirProject/$fccName/run.sh"
 serviceVal=$(cat "$dirProject/$fccName/$fccName.service.template");
 serviceVal=${serviceVal//\{currentPath\}/"$dirProject/$fccName"};
 echo "$serviceVal" > "/etc/systemd/system/$fccName.service";
+#создаем конфиг для сервера
+cp -f "$dirProject/$fccName/configs/configs.js.template" "$dirProject/$fccName/configs/configs.js";
 systemctl start "$fccName.service";
 
 #установливаем принудительно расширение для chrome с блокированием режима Инкогнито
