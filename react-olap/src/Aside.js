@@ -75,6 +75,9 @@ const Aside = ({ image, collapsed, rtl, toggled, handleToggleSidebar,handleColla
           <MenuItem>Пример Web-OLAP компонента
             <Link to='/calc_olap'/>
           </MenuItem>
+          <MenuItem>{intl.formatMessage({ id: 'settings' })}
+            <Link to='/settings'/>
+          </MenuItem>
           <MenuItem onClick={()=>exitF()} icon={<GiExitDoor/>}>
             {intl.formatMessage({ id: 'exit' })}
           </MenuItem>

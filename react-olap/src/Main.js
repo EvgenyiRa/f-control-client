@@ -8,6 +8,7 @@ import logo from './img/logo.png';
 
 import Admin_users from './forms/admin/Users';
 import CalcOLAP from './forms/CalcOLAP';
+import Settings from './forms/Settings';
 /*import {getAuth,getExistRight} from './system.js';*/
 
 
@@ -55,6 +56,9 @@ const Main = ({
       <Switch>
           <Route exact path='/calc_olap' component={CalcOLAP}/>
      </Switch>
+     <Switch>
+         <Route exact path='/settings' component={Settings}/>
+    </Switch>
 
       <footer>
         <small>

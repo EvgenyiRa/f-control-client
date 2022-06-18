@@ -87,16 +87,16 @@ function set_cookie( name, value, houreLife, path, domain, secure)
 export function setAuth(data,callback) {
   axiosInstance.post('/auth/set',data)
   .then(function(response) {
-    authorization=false;
-    localStorage.setItem('authorization', 'n');
+    authorization=0;
+    localStorage.setItem('authorization', '0');
     if (response.status !== 200) {
       console.log('Authentication failed.' + response.status);
     }
     else {
       if (typeof response.data.authorization==='boolean') {
         if (response.data.authorization) {
-            localStorage.setItem('authorization', 'y');
-            authorization=true;
+            localStorage.setItem('authorization', '1');
+            authorization=1;
         }
       }
     }
@@ -106,16 +106,14 @@ export function setAuth(data,callback) {
 
 export function getAuthorization() {
   //console.log(process.env);
+  authorization=0;
   if (typeof authorization!=='boolean') {
-     const authorizationRes=localStorage.getItem('authorization');
-     if (authorizationRes==='y') {
-         authorization=true;
-     }
-     else {
-         authorization=false;
+     const authorizationRes=+localStorage.getItem('authorization');
+     if (!isNaN(authorizationRes)) {
+        authorization=authorizationRes
      }
   }
-  if (!authorization) {
+  if (authorization!==1) {
     //смотрим конфиги, возможно первый запуск
     $.ajax({
       type: "POST",
@@ -125,7 +123,7 @@ export function getAuthorization() {
       success: function(data) {
         if (typeof data.result==='boolean') {
           if (data.result===true) {
-            authorization=true;
+            authorization=2;
           }
         }
       },
@@ -304,8 +302,7 @@ export function getParamDiff(t_paramGroup,p_paramGroup,parParentID) {
 }
 
 export function getSQLRun(data,callback,stateLoadObj) {
-  getAuthorization(data,function(result){
-    if (result) {
+    if ([1,2].indexOf(getAuthorization()>-1)) {
       if (!!stateLoadObj) {
           stateLoadObj.current.setState((state) => ({vis:++state.vis}));
       }
@@ -345,7 +342,6 @@ export function getSQLRun(data,callback,stateLoadObj) {
       }
       axiosInstanceFunc();
     }
-  });
 }
 
 export function getSQLRunPromise(data,stateLoadObj) {
@@ -360,8 +356,7 @@ export function getSQLRunPromise(data,stateLoadObj) {
 }
 
 export function getHashPwd(data,callback,stateLoadObj) {
-  getAuthorization(data,function(result){
-      if (result) {
+  if ([1,2].indexOf(getAuthorization()>-1)) {      
       if (!!stateLoadObj) {
           stateLoadObj.current.setState((state) => ({vis:++state.vis}));
       }
@@ -387,13 +382,11 @@ export function getHashPwd(data,callback,stateLoadObj) {
         });
       }
       axiosInstanceFunc();
-    }
-  });
+  }
 }
 
 export function getSQLRun2(data,callback,stateLoadObj) {
-  getAuthorization(data,function(result){
-    if (result) {
+  if ([1,2].indexOf(getAuthorization()>-1)) {
       if (!!stateLoadObj) {
         stateLoadObj.current.setState((state) => ({vis:++state.vis}));
       }
@@ -430,7 +423,6 @@ export function getSQLRun2(data,callback,stateLoadObj) {
       }
       axiosInstanceFunc();
     }
-  });
 }
 
 export function getAuth(callback,stateLoadObj) {
@@ -439,7 +431,7 @@ export function getAuth(callback,stateLoadObj) {
   }
   else {
     let data={};
-    getAuthorization(data,function(){
+    if ([1,2].indexOf(getAuthorization()>-1)) {
       if (!!stateLoadObj) {
           stateLoadObj.current.setState((state) => ({vis:++state.vis}));
       }
@@ -466,7 +458,7 @@ export function getAuth(callback,stateLoadObj) {
         });
       }
       axiosInstanceFunc();
-    });
+    };
   }
 }
 

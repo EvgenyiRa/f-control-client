@@ -9,19 +9,19 @@ import {getAuthorization} from './system.js';;
 
 function App() {
   const [locale, setLocale] = useState('ru');
-  const [isAuth, setIsAuth] = useState(getAuthorization());
+  const [numAuth, setNumAuth] = useState(getAuthorization());
   const caseStatus=function() {
-      if (isAuth) {
+      if ([1,2].indexOf(numAuth)>-1) {
         return (
           <HashRouter>
-            <Layout setLocale={setLocale}  setIsAuth={setIsAuth}/>
+            <Layout setLocale={setLocale}  setIsAuth={setNumAuth}/>
           </HashRouter>
         );
       }
       else {
         return (
           <HashRouter>
-            <Enter setIsAuth={setIsAuth}/>
+            <Enter setIsAuth={setNumAuth}/>
           </HashRouter>
         );
       }
