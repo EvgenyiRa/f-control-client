@@ -80,9 +80,9 @@ const server = http.createServer(async (req, res) => {
     res.statusCode = 404;
     res.end('"File is not found"');
   }
-}).listen(configs.webServer.port,configs.webServer.host)
+}).listen(configs.webClientPort,configs.webClientIP)
   .on('listening', async () => {
-      console.log(`Web server listening on ${configs.webServer.host}:${configs.webServer.port}`);
+      console.log(`Web server listening on ${configs.webClientIP}:${configs.webClientPort}`);
     })
   .on('error', err => {
     console.error(err);
