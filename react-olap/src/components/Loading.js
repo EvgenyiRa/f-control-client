@@ -1,5 +1,5 @@
 import React from 'react';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 
 class Loading extends React.Component {
   constructor(props) {
@@ -9,17 +9,6 @@ class Loading extends React.Component {
       this.handleHide = this.handleHide.bind(this);
       this.state = {
         vis:0
-      };
-      this.LPStyle={
-        root: {
-          width: '100%',
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          height:'1.001em',
-          zIndex: 8
-        },
-        hidden: {display:'none'}
       };
   }
 
@@ -32,11 +21,11 @@ class Loading extends React.Component {
   }
 
   render() {
-    return (
-      <div style={ (this.state.vis>0)? this.LPStyle.root:this.LPStyle.hidden }>
-        <LinearProgress />
-      </div>
-    );
+      return (
+        <div className="divLoading" style={ (this.state.vis>0)? {display:'block'}:{display:'none'} }>
+          <ProgressBar animated now={0} />
+        </div>
+      );    
   }
 }
 

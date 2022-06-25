@@ -106,4 +106,4 @@ dist
 /run_test.sh
 
 #Configs prod
-configs/configs.js
+/configs/configs.js

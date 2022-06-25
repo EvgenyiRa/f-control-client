@@ -1,12 +1,12 @@
 const configs={
-  webServerIP: "192.168.1.57:3777",
-  webServerProtocol: 'http',
-  webSocketProtocol:'ws',
-  repUserId: 1,
-  keyForWebServer:'e0c0c7d7502e3b41c1136a15e71d6f955781385349e4042134d109c5403360d3',
-  countMSsave:10000,
-  counMSupd:5000,
-  test:true,
+  webServerIP: undefined,
+  webServerProtocol: 'https',
+  webSocketProtocol:'wss',
+  repUserId: undefined,
+  keyForWebServer:undefined,
+  countMSsave:90000,
+  counMSupd:10000,
+  test:false,
   webClientIP:"127.0.0.1",
   webClientPort:"4777",
   https:false,
@@ -14,5 +14,10 @@ const configs={
   adminPwd:undefined
 };
 configs.webServer=configs.webServerProtocol+'://'+configs.webServerIP;
-configs.webSocketServer=configs.webSocketProtocol+'://'+configs.webServerIP+'/ws';
+if (!!configs.webServerIP) {
+    configs.webSocketServer=configs.webSocketProtocol+'://'+configs.webServerIP+'/ws';
+}
+else {
+    configs.webSocketServer=undefined;
+}
 module.exports = configs;

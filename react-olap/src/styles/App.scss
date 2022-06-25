@@ -733,11 +733,11 @@ input.form-control:-webkit-autofill:focus {
   border-color:#ced4da;
 }
 
-.divForRadioGroup {
+.divForRadioGroupBC {
   margin: 0.7rem 0.7rem 0 0;
 }
 
-.divForRadioGroup div.MuiFormControl-root {
+.divForRadioGroupBC div.MuiFormControl-root {
     border: 1px solid rgba(0, 0, 0, 0.2);
     outline: none;
     padding: 0.5rem 0.5rem 0 0.5rem;
@@ -746,12 +746,12 @@ input.form-control:-webkit-autofill:focus {
     background: white;
 }
 
-.divForRadioGroup div.MuiFormControl-root:focus-within {
+.divForRadioGroupBC div.MuiFormControl-root:focus-within {
   border:1px solid #80bdff !important;
   box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }
 
-.divForRadioGroup div.MuiFormControl-root legend.MuiFormLabel-root {
+.divForRadioGroupBC div.MuiFormControl-root legend.MuiFormLabel-root {
   position:absolute;
   background: white;
   width: auto;
@@ -983,4 +983,137 @@ button.close {
 
 div.react-bootstrap-table table tbody tr.checked {
   background-color: #ccfcfc;
+}
+
+.divRootCheckboxBC .form-check-input.change:before,
+.divForRadioGroupBC .form-check-input.change:before,
+.divRootCheckboxBC .form-check-input.change:after,
+.divForRadioGroupBC .form-check-input.change:after {
+  background: radial-gradient(white,#0C549C);
+  content: "";
+  position: absolute;
+  left: -75%;
+  top: -70%;
+  width: 250%;
+  height: 250%;
+  border-radius: 50%;
+  filter: blur(13px);
+  z-index: -1;
+  opacity: 1;
+  -webkit-animation: form-check-input-move 1s 1; /* Chrome, Safari, Opera */
+  animation: form-check-input-move 1s 1;
+}
+
+.divForRadioGroupBC .form-check-input.change:before,
+.divForRadioGroupBC .form-check-input.change:after {
+  z-index: 0;
+}
+
+/* Chrome, Safari, Opera */
+@-webkit-keyframes form-check-input-move {
+    100% {opacity: 0;}
+}
+
+/* Стандартный синтаксис */
+@keyframes form-check-input-move {
+    100% {opacity: 0;}
+}
+
+.divLoading {
+  position: absolute;
+  width: 100%;
+  top:0;
+  left:0;
+}
+
+.divLoading div.progress-bar-animated {
+  width: 0;
+  -webkit-animation: progress-bar-animated-move 3s infinite; /* Chrome, Safari, Opera */
+  animation: progress-bar-animated-move 3s infinite;
+}
+
+/* Chrome, Safari, Opera */
+@-webkit-keyframes progress-bar-animated-move {
+    100% {width: 100%;}
+}
+
+/* Стандартный синтаксис */
+@keyframes progress-bar-animated-move {
+    100% {width: 100%;}
+}
+
+.form-check-input {
+    width: 1em;
+    height: 1em;
+    margin-top: 0.25em;
+    vertical-align: top;
+    background-color: #fff;
+    background-repeat: no-repeat;
+    background-position: 50%;
+    background-size: contain;
+    border: 1px solid rgba(0,0,0,.25);
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+.form-check-input:checked[type=checkbox] {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3E%3C/svg%3E");
+}
+.form-check-input[type=checkbox] {
+    border-radius: 0.25em;
+}
+
+div.divForRadioGroupBC {
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    width: fit-content;
+}
+
+div.divForRadioGroupBC:focus-within,div.divForRadioGroupBC:focus {
+    color: #495057;
+    background-color: #fff;
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+}
+
+div.divForRadioGroupBC label.labelForInputBC {
+  left: 1.5rem;
+}
+
+.form-check-input:checked[type=radio] {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3E%3Ccircle r='2' fill='%23fff'/%3E%3C/svg%3E")
+}
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+.form-check-input[type=radio] {
+    border-radius: 50%;
+}
+.form-check-reverse .form-check-input {
+    float: right;
+    margin-right: -1.5em;
+    margin-left: 0;
+}
+.form-check .form-check-input {
+    float: left;
+    margin-left: -1.5em;
+}
+
+.form-check-input:focus {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, .25);
 }
