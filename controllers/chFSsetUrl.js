@@ -1,6 +1,6 @@
 const lurl=require('url');
 
-async function post(req, res, next) {
+async function post(req, res) {
     try {
       const {host}=lurl.parse(req.body.url),
             data=req.body.data;
@@ -18,7 +18,7 @@ async function post(req, res, next) {
       res.status(200).json(resObj);
       //res.status(404).end();
     } catch (err) {
-      next(err);
+      console.error(err);
     }
 }
 

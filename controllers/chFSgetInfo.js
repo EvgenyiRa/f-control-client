@@ -1,6 +1,6 @@
 const configs=require('../configs/configs.js');
 
-async function get(req, res, next) {
+async function get(req, res) {
     try {
       if ((!!req.body.data.data.timeAll) & (!!req.body.data.lims.sys.TIME_ALL)) {
         const timeAll=req.body.data.data.timeAll/1000,
@@ -99,7 +99,7 @@ async function get(req, res, next) {
       }
       //res.status(404).end();
     } catch (err) {
-      next(err);
+      console.error(err);
     }
 }
 
