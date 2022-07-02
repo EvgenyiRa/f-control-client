@@ -14,6 +14,18 @@ class BootstrapInput extends React.Component {
 
   }
 
+  componentDidMount() {
+      if (!!this.props.obj.componentDidMount) {
+          this.props.obj.componentDidMount(this)
+      }
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+      if (!!this.props.obj.componentDidUpdate) {
+          this.props.obj.componentDidUpdate(this,prevProps, prevState, snapshot);
+      }
+  }
+
   render() {
     return (
       <div className="bootstrapInputContainer">

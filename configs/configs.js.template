@@ -9,12 +9,11 @@ const configs={
   test:false,
   webClientIP:"127.0.0.1",
   webClientPort:"4777",
-  https:false,
   adminLogin:undefined,
   adminPwd:undefined
 };
-configs.webServer=configs.webServerProtocol+'://'+configs.webServerIP;
 if (!!configs.webServerIP) {
+    configs.webServer=configs.webServerProtocol+'://'+configs.webServerIP;
     configs.webSocketServer=configs.webSocketProtocol+'://'+configs.webServerIP+'/ws';
 }
 else {

@@ -1,12 +1,32 @@
-import React,{ useState,useRef } from 'react';
+import React,{ useState,useRef,useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import BootstrapInput from '../components/BootstrapInput';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import {api} from '../ws.js';
+import {getParamDiff} from '../system.js';
 
 function Settings() {
   const intl = useIntl();
+
+  const [paramGroup, setParamGroup] = useState(undefined);
+  useEffect(() => {
+    setConfigs();
+    //console.log(api);
+  },[api]);
+  const setConfigs=async()=> {
+     if (!!api.getConfigs) {
+        const res=await api.getConfigs();
+        setParamGroup(res);
+        if (!!res.adminLogin) {
+            refInputAlogin.current.setState({value:res.adminLogin})
+        }
+        if (!!res.adminPwd) {
+            refInputApwd.current.setState({value:res.adminPwd})
+        }
+     }
+  }
 
   const refInputAlogin=useRef(),
         refInputApwd=useRef();
@@ -14,7 +34,8 @@ function Settings() {
   const inputAloginObj={
     label:'Пароль',
     id:"admPwd",
-    defaultValue:''
+    defaultValue:'',
+    type:'password'
   };
 
   const inputApwdObj={

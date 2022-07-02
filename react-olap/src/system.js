@@ -1,5 +1,4 @@
 import {init,api,wsAbort} from './ws.js';
-import axios from "axios";
 import $ from 'jquery';
 
 let dataServer,
@@ -7,8 +6,7 @@ let dataServer,
     tagExit=false,
     dbtype='mssql',
     prErrorData=false,
-    authorization=undefined,
-    axiosInstance;
+    authorization=undefined;
 
 //получаем файл конфигурации
 $.ajax({
@@ -20,10 +18,7 @@ $.ajax({
     dataServer=data.dataServer;
     if (!!data.dbtype) {
       dbtype=data.dbtype;
-    }
-    axiosInstance= axios.create({
-      baseURL: data.dataServer
-    });
+    };
   },
   error: function(xhr, status, error) {
       alert("Не удалось прочитать файл конфигурации");
@@ -86,7 +81,7 @@ function set_cookie( name, value, houreLife, path, domain, secure)
 }
 
 export function setAuth(data,callback) {
-  axiosInstance.post('/auth/set',data)
+  /*axiosInstance.post('/auth/set',data)
   .then(function(response) {
     authorization=0;
     localStorage.setItem('authorization', '0');
@@ -102,7 +97,7 @@ export function setAuth(data,callback) {
       }
     }
     callback(authorization);
-  });
+  });*/
 }
 
 export function getAuthorization() {
@@ -292,130 +287,6 @@ export function getParamDiff(t_paramGroup,p_paramGroup,parParentID) {
       return result;
 }
 
-export function getSQLRun(data,callback,stateLoadObj) {
-    if ([1,2].indexOf(getAuthorization()>-1)) {
-      if (!!stateLoadObj) {
-          stateLoadObj.current.setState((state) => ({vis:++state.vis}));
-      }
-      function axiosInstanceFunc() {
-        axiosInstance.post('/'+dbtype+'/sqlrun',data)
-        .then(function(response) {
-          if (response.status !== 200) {
-            console.log('Authentication failed.' + response.status);
-          }
-          if (!!stateLoadObj) {
-            if (stateLoadObj.current!==null) {
-              stateLoadObj.current.setState((state) => ({vis:--state.vis}));
-            }
-          }
-          if (!!!response.data.message) {
-            //set_cookie('tokenOne',response.data.tokenOne, houreLifeCookies);
-            localStorage.setItem('tokenOne', response.data.tokenOne);
-            const responseNew={data:response.data.rows};
-            if ((!!response.data.output) & (dbtype==='mssql')) {
-                //для mssql
-                responseNew.output=response.data.output;
-            }
-            else if ((!!response.data.data) & (dbtype==='mysql')) {
-                //для mysql
-                responseNew.dataFields=response.data.data;
-            }
-            else if ((!!response.data.fields) & (dbtype==='pg')) {
-                //для mysql
-                responseNew.dataFields=response.data.fields;
-            }
-            callback(responseNew);
-          }
-          else {
-            setDataError();
-          }
-        });
-      }
-      axiosInstanceFunc();
-    }
-}
-
-export function getSQLRunPromise(data,stateLoadObj) {
-  return new Promise((resolve, reject) => {
-      getSQLRun(
-        data,
-        (response)=>{
-          resolve(response);
-        },
-        stateLoadObj);
-  });
-}
-
-export function getHashPwd(data,callback,stateLoadObj) {
-  if ([1,2].indexOf(getAuthorization()>-1)) {
-      if (!!stateLoadObj) {
-          stateLoadObj.current.setState((state) => ({vis:++state.vis}));
-      }
-      function axiosInstanceFunc() {
-        axiosInstance.post('/auth/gethashpwd',data)
-        .then(function(response) {
-          if (response.status !== 200) {
-            console.log('Authentication failed.' + response.status);
-          }
-          if (!!stateLoadObj) {
-            if (stateLoadObj.current!==null) {
-              stateLoadObj.current.setState((state) => ({vis:--state.vis}));
-            }
-          }
-          if (!!!response.data.message) {
-            //set_cookie('tokenOne',response.data.tokenOne, houreLifeCookies);
-            localStorage.setItem('tokenOne', response.data.tokenOne);
-            callback({sol:response.data.sol,hash:response.data.hash});
-          }
-          else {
-            setDataError();
-          }
-        });
-      }
-      axiosInstanceFunc();
-  }
-}
-
-export function getSQLRun2(data,callback,stateLoadObj) {
-  if ([1,2].indexOf(getAuthorization()>-1)) {
-      if (!!stateLoadObj) {
-        stateLoadObj.current.setState((state) => ({vis:++state.vis}));
-      }
-      function axiosInstanceFunc() {
-        axiosInstance.post('/'+dbtype+'/sqlrun2',data)
-        .then(function(response) {
-          if (response.status !== 200) {
-            console.log('Authentication failed.' + response.status);
-          }
-          if (!!stateLoadObj) {
-            stateLoadObj.current.setState((state) => ({vis:--state.vis}));
-          }
-          if (!!!response.data.message) {
-            //set_cookie('tokenOne',response.data.tokenOne, houreLifeCookies);
-            localStorage.setItem('tokenOne', response.data.tokenOne);
-            if (dbtype==='ora') {
-              let responseDR={...response.data.rows};
-              delete response.data;
-              response.data=responseDR;
-              callback(response);
-            }
-            else if (['mssql','mysql','pg'].indexOf(dbtype)>-1) {
-              let responseNew={result:response.data.result}
-              callback(responseNew);
-            }
-          }
-          else {
-            setDataError();
-          }
-        })
-        .catch((error) => {
-            console.log(error);
-        });
-      }
-      axiosInstanceFunc();
-    }
-}
-
 export function getAuth(callback,stateLoadObj) {
   if (!!userInfo) {
       callback(userInfo);
@@ -427,7 +298,7 @@ export function getAuth(callback,stateLoadObj) {
           stateLoadObj.current.setState((state) => ({vis:++state.vis}));
       }
       function axiosInstanceFunc() {
-        axiosInstance.post('/auth/get',data)
+        /*axiosInstance.post('/auth/get',data)
         .then(function(response) {
           if (response.status !== 200) {
             console.log('Authentication failed.' + response.status);
@@ -446,7 +317,7 @@ export function getAuth(callback,stateLoadObj) {
           else {
             setDataError();
           }
-        });
+        });*/
       }
       axiosInstanceFunc();
     };
@@ -500,7 +371,7 @@ export function getTableOLAP(data,callback,stateLoadObj) {
     if (!!stateLoadObj) {
         stateLoadObj.current.setState((state) => ({vis:++state.vis}));
     }
-    function axiosInstanceFunc() {
+    /*function axiosInstanceFunc() {
       axiosInstance.post('/olap/gettable',data)
       .then(function(response) {
         if (response.status !== 200) {
@@ -531,7 +402,7 @@ export function getTableOLAP(data,callback,stateLoadObj) {
     }
     else {
       axiosInstanceFunc();
-    }
+    }*/
   });
 }
 
