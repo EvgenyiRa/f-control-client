@@ -1,5 +1,6 @@
+import {init,api,wsAbort} from './ws.js';
 import axios from "axios";
-import $ from 'jquery'
+import $ from 'jquery';
 
 let dataServer,
     userInfo,
@@ -105,35 +106,25 @@ export function setAuth(data,callback) {
 }
 
 export function getAuthorization() {
-  //console.log(process.env);
-  authorization=0;
-  if (typeof authorization!=='boolean') {
-     const authorizationRes=+localStorage.getItem('authorization');
-     if (!isNaN(authorizationRes)) {
-        authorization=authorizationRes
-     }
-  }
-  if (authorization!==1) {
-    //смотрим конфиги, возможно первый запуск
-    $.ajax({
-      type: "POST",
-      url: dataServer+'/auth/is_first_run',
-      dataType:'json',
-      async:false,
-      success: function(data) {
-        if (typeof data.result==='boolean') {
-          if (data.result===true) {
-            authorization=2;
+  return new Promise((resolve) => {
+    localStorage.clear();
+    if (typeof authorization!=='number') {
+       const authorizationRes=localStorage.getItem('authorization');
+       if (authorizationRes!==null) {
+          authorization=+authorizationRes;
+       }
+       else  {
+          authorization=0;
+       }
+       init().then((resWsCon) => {
+          if (resWsCon) {
+              authorization=2;
           }
-        }
-      },
-      error: function(xhr, status, error) {
-          alert("Ошибка получения данных о конфигурации");
-          console.log(xhr.responseText + '|\n' + status + '|\n' +error);
-      }
-    });
-  }
-  return authorization;
+          localStorage.setItem('authorization',authorization);
+          resolve(authorization);
+       })
+    }
+  });
 }
 
 export function delAuth(prReload) {
@@ -356,7 +347,7 @@ export function getSQLRunPromise(data,stateLoadObj) {
 }
 
 export function getHashPwd(data,callback,stateLoadObj) {
-  if ([1,2].indexOf(getAuthorization()>-1)) {      
+  if ([1,2].indexOf(getAuthorization()>-1)) {
       if (!!stateLoadObj) {
           stateLoadObj.current.setState((state) => ({vis:++state.vis}));
       }

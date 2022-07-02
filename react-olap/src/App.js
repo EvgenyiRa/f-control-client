@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import {HashRouter} from 'react-router-dom'
 import { IntlProvider } from 'react-intl';
 import Layout from './Layout';
@@ -9,9 +9,18 @@ import {getAuthorization} from './system.js';;
 
 function App() {
   const [locale, setLocale] = useState('ru');
-  const [numAuth, setNumAuth] = useState(getAuthorization());
-  const caseStatus=function() {
-      if ([1,2].indexOf(numAuth)>-1) {
+  const [numAuth, setNumAuth] = useState(-1);
+  useEffect(() => {
+    setAuth();
+  },[]);
+  const setAuth=async()=> {
+     if (numAuth===-1) {
+       const res=await getAuthorization();
+       setNumAuth(res);
+     }
+  }
+  const caseStatus=function(numAuthIn) {
+      if ([1,2].indexOf(numAuthIn)>-1) {
         return (
           <HashRouter>
             <Layout setLocale={setLocale}  setIsAuth={setNumAuth}/>
@@ -28,7 +37,7 @@ function App() {
   }
   return (
     <IntlProvider locale={locale} messages={messages[locale]}>
-      {caseStatus()}
+      {caseStatus(numAuth)}
     </IntlProvider>
   );
 }

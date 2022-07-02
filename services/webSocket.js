@@ -16,7 +16,7 @@ wss.on('connection', async (wsf, request, socket, api)=> {
 
       if (!auth) {
         if (dataP.type==='auth') {
-            auth=authM.set(dataP.key);
+            auth=authM.set(/*dataP.key*/);
             const result={
                       auth:auth
                   };

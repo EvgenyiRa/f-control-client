@@ -63,12 +63,13 @@ console.log('Initializing functions');
 console.dir({ api });
 
 console.log('Initializing web server module');
+const sockets = new Set();
 const server = http.createServer(async (req, res) => {
   const url = req.url === '/' ? '/index.html' : req.url;
   const [file] = url.substring(1).split('/');
   const path = `./react-olap/build/${file}`;
   try {
-    if (url.indexOf('/ch_fc')>1) {
+    if (url==='/ch_fc') {
       req.router='/ch_fc';
       routerChFC(req,res);
     }
@@ -102,6 +103,7 @@ const server = http.createServer(async (req, res) => {
           else {
             console.log('Новый пользователь '+ip);
             request.ip=ip;
+            sockets.add(socket);
             wss.handleUpgrade(request, socket, head, function done(ws) {
               wss.emit('connection', ws, request, socket, api);
             });
@@ -120,6 +122,9 @@ async function shutdown(e) {
   function closeServer() {
     return new Promise((resolve, reject) => {
       //redis.client.disconnect();
+      for(let socket of sockets) {
+        socket.destroy();
+      }
       server.close((err) => {
         if (err) {
           reject(err);
