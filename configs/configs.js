@@ -4,7 +4,7 @@ const configs={
   repUserId: undefined,
   keyForWebServer:undefined,
   countMSsave:90000,
-  counMSupd:10000,
+  countMSupd:10000,
   test:false,
   webClientIP:"127.0.0.1",
   webClientPort:"4777",

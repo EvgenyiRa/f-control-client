@@ -390,5 +390,5 @@ let lastDate=hereDateStr,
      } catch (e) {
        console.error(e); // should contain code (exit code) and signal (that caused the termination).
      }
-   },configs.counMSupd);
+   },configs.countMSupd);
  }

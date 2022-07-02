@@ -2,6 +2,7 @@ import React,{ useState,useRef,useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import BootstrapInput from '../components/BootstrapInput';
 import MultiselectBoot from '../components/MultiselectBoot';
+import BootstrapCheckbox from '../components/BootstrapCheckbox';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -39,6 +40,22 @@ function Settings() {
         if (!!res.keyForWebServer) {
             refInputWSkey.current.setState({value:res.keyForWebServer})
         }
+
+        if (!!res.webClientIP) {
+            refInputLSip.current.setState({value:res.webClientIP})
+        }
+        if (!!res.webClientPort) {
+            refInputLSport.current.setState({value:res.webClientPort})
+        }
+        if (!!res.countMSsave) {
+            refInputLScountMSsave.current.setState({value:res.countMSsave})
+        }
+        if (!!res.countMSupd) {
+            refInputLScountMSupd.current.setState({value:res.countMSupd})
+        }
+        if (typeof res.test==='boolean') {
+            refCheckboxLStest.current.setState({checked:res.test})
+        }
      }
   }
 
@@ -47,7 +64,12 @@ function Settings() {
         refmSelectWSprotocol=useRef(),
         refInputWShost=useRef(),
         refInputWSuserID=useRef(),
-        refInputWSkey=useRef();
+        refInputWSkey=useRef(),
+        refInputLSip=useRef(),
+        refInputLSport=useRef(),
+        refInputLScountMSsave=useRef(),
+        refInputLScountMSupd=useRef(),
+        refCheckboxLStest=useRef();
 
   const inputAloginObj={
     label:'Пароль',
@@ -59,7 +81,6 @@ function Settings() {
   const inputApwdObj={
     label:'Логин',
     id:"admLogin",
-    defaultValue:''
   };
 
   const mSelectWSprotocolObj={
@@ -73,23 +94,46 @@ function Settings() {
 
   const inputWShostObj={
     label:'Хост',
-    id:"wsHost",
-    defaultValue:'',
-    type:'text'
+    id:"wsHost"
   };
 
   const inputWSuserIDObj={
     label:'ID пользователя',
     id:"wsUserID",
-    defaultValue:'',
     type:'number'
   };
 
   const inputWSkeyObj={
     label:'Ключ пользователя',
-    id:"wsUserKey",
-    defaultValue:'',
+    id:"wsUserKey"
+  };
+
+  const inputLSipObj={
+    label:'IP',
+    id:"lsIP"
+  };
+
+  const inputLSportObj={
+    label:'Порт',
+    id:"lsPort"
+  };
+
+  const inputLScountMSsaveObj={
+    label:'Кол-во МС сохранения',
+    id:"lsCountMSsave",
     type:'number'
+  };
+
+  const inputLScountMSupdObj={
+    label:'Кол-во МС обновления',
+    id:"lsCountMSupd",
+    type:'number'
+  };
+
+  const checkboxLStestObj={
+    label:'Тестовый режим',
+    id:"lsTest",
+    beginChecked:false
   };
 
   return (
@@ -144,6 +188,37 @@ function Settings() {
           </Col>
           <Col>
             <BootstrapInput ref={refInputWSkey} obj={inputWSkeyObj}/>
+          </Col>
+        </Row>
+      </Container>
+      <Container fluid style={{
+            border:'1px solid black',
+            borderRadius:'0.5rem',
+            padding: '1rem',
+            marginTop:'1rem'
+           }}>
+        <Row style={{fontSize:'16px',fontWeight:800,padding:'0 1rem'}}>
+          Локальный WEB-сервер
+        </Row>
+        <Row>
+          <Col>
+            <BootstrapInput ref={refInputLSip} obj={ inputLSipObj }/>
+          </Col>
+          <Col>
+            <BootstrapInput ref={refInputLSport} obj={inputLSportObj}/>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <BootstrapInput ref={refInputLScountMSsave} obj={ inputLScountMSsaveObj }/>
+          </Col>
+          <Col>
+            <BootstrapInput ref={refInputLScountMSupd} obj={inputLScountMSupdObj}/>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <BootstrapCheckbox ref={refCheckboxLStest} obj={checkboxLStestObj}/>
           </Col>
         </Row>
       </Container>
