@@ -1,7 +1,6 @@
 const configs={
   webServerIP: undefined,
   webServerProtocol: 'https',
-  webSocketProtocol:'wss',
   repUserId: undefined,
   keyForWebServer:undefined,
   countMSsave:90000,
@@ -14,7 +13,7 @@ const configs={
 };
 if (!!configs.webServerIP) {
     configs.webServer=configs.webServerProtocol+'://'+configs.webServerIP;
-    configs.webSocketServer=configs.webSocketProtocol+'://'+configs.webServerIP+'/ws';
+    configs.webSocketServer=((configs.webServerProtocol==='https')?'wss':'ws')+'://'+configs.webServerIP+'/ws';
 }
 else {
     configs.webSocketServer=undefined;

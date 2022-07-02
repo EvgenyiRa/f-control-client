@@ -37,6 +37,7 @@ class BootstrapInput extends React.Component {
             id={this.props.obj.id}
             type={this.state.type}
             defaultValue={this.props.obj.defaultValue}
+            value={this.state.value}
             isValid={false}
             isInvalid={this.state.isInvalid}
             readOnly={false}

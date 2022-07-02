@@ -3,19 +3,30 @@ import Multiselect from 'react-bootstrap-multiselect';
 import {getParamForSQL,getParamDiff,getSQLRun,getDBType} from '../system.js';
 import 'react-bootstrap-multiselect/css/bootstrap-multiselect.css';
 
-class MultiselectSQL extends React.Component {
+class MultiselectBoot extends React.Component {
   constructor(props) {
       super(props);
       this.handleDropdownHidden = this.handleDropdownHidden.bind(this);
       this.handleChange = this.handleChange.bind(this);
       this.handleSelectAll = this.handleSelectAll.bind(this);
       this.handleDeselectAll = this.handleDeselectAll.bind(this);
-      this.state = {
-        options: [{'value':-888,'label':'Значения отсутствуют'}],
-        checkedOptions: undefined
+      let selectOptions;
+      if (!this.multiple) {
+        selectOptions=props.obj.options[0].value;
       }
-      this.getOptionsBySQL = this.getOptionsBySQL.bind(this);
-      this.dbtype=getDBType();
+      else {
+        selectOptions=[];
+        for (var i = 0; i < props.obj.options.length; i++) {
+          if (props.obj.options[i].selected) {
+             selectOptions.push(props.obj.options[i].value)
+          }
+        }
+      }
+
+      this.state = {
+        options: props.obj.options,
+        checkedOptions: selectOptions
+      }
       this.type=typeof props.obj.options[0].value;
       this.multiple=false;
       if (typeof props.obj.multiple==='boolean') {
@@ -38,41 +49,17 @@ class MultiselectSQL extends React.Component {
     }
   }
 
-  getOptionsBySQL() {
-    const val=this;
-    var data = {};
-    if (['mysql','pg'].indexOf(this.dbtype)>-1) {
-        data.params=[];
-    }
-    else {
-        data.params={};
-    }
-    data.sql=val.props.obj.sql;
-    getParamForSQL(val.props.obj.paramGroup,val.props.obj.parParentID,data);
-    getSQLRun(data,(response)=> {
-                  if (response.data.length>0) {
-                    this.setState({options:response.data});
-                  }
-                  else {
-                    this.setState({options:this.stateDefaultOptions});
-                  }
-                },
-              val.props.obj.stateLoadObj
-            );
-
-  }
-
   componentDidMount() {
-      if (!!!this.props.obj.parParentID) {
-          this.getOptionsBySQL();
+      if (!!this.props.obj.componentDidMount) {
+          this.props.obj.componentDidMount(this)
       }
   }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-      if (getParamDiff(this.props.obj.paramGroup,prevProps.obj.paramGroup,this.props.obj.parParentID)) {
-          this.getOptionsBySQL();
+  componentDidUpdate(prevProps, prevState, snapshot) {
+      if (!!this.props.obj.componentDidUpdate) {
+          this.props.obj.componentDidUpdate(this,prevProps, prevState, snapshot);
       }
-    }
+  }
 
     handleDropdownHidden() {
       if (!!this.state.checkedOptions){
@@ -123,4 +110,4 @@ class MultiselectSQL extends React.Component {
   }
 }
 
-export default MultiselectSQL;
+export default MultiselectBoot;
