@@ -6,6 +6,7 @@ import BootstrapCheckbox from '../components/BootstrapCheckbox';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
 import {api} from '../ws.js';
 import {getParamDiff} from '../system.js';
 
@@ -29,7 +30,17 @@ function Settings() {
         }
 
         if (!!res.webServerProtocol) {
-            //refmSelectWSprotocol.current.setState({value:res.webServerProtocol})
+            const newOptions=[...refmSelectWSprotocol.current.state.options];
+            newOptions.forEach((item, i) => {
+                newOptions[i].checked=false;
+                if (item.value===res.webServerProtocol) {
+                    newOptions[i].checked=true;
+                }
+            });
+            refmSelectWSprotocol.current.setState({
+              options:newOptions,
+              checkedOptions:res.webServerProtocol
+            })
         }
         if (!!res.webServerIP) {
             refInputWShost.current.setState({value:res.webServerIP})
@@ -58,12 +69,12 @@ function Settings() {
         }
 
         //test ws
-        /*api.getTestWs().then((resTestWs) => {
+        api.test.test2.getTestWs().then((resTestWs) => {
           console.log(resTestWs);
         });
-        api.getTestWs2().then((resTestWs2) => {
+        api.test.test2.getTestWs2().then((resTestWs2) => {
           console.log(resTestWs2);
-        });*/
+        });
      }
   }
 
@@ -144,6 +155,12 @@ function Settings() {
     beginChecked:false
   };
 
+  const ButtonSave=()=>{
+      const handleClick=()=>{
+        alert('Ura!')
+      }
+      return <Button variant="primary" onClick={handleClick}>Сохранить и перезапустить</Button>;
+  }
   return (
     <div className="App">
       <div>
@@ -154,80 +171,90 @@ function Settings() {
 
         </header>
       </div>
-      <Container fluid style={{
-            border:'1px solid black',
-            borderRadius:'0.5rem',
-            padding: '1rem'
-           }}>
-        <Row style={{fontSize:'16px',fontWeight:800,padding:'0 1rem'}}>
-          Администратор
+      <Container fluid>
+        <Row style={{marginBottom:'1rem'}}>
+          <ButtonSave/>
         </Row>
-        <Row
-        >
-          <Col>
-            <BootstrapInput ref={refInputAlogin} obj={inputAloginObj}/>
-          </Col>
-          <Col>
-            <BootstrapInput ref={refInputApwd} obj={ inputApwdObj }/>
-          </Col>
-        </Row>
+        <Row>
+          <Container fluid style={{
+                border:'1px solid black',
+                borderRadius:'0.5rem',
+                padding: '1rem'
+               }}>
+            <Row style={{fontSize:'16px',fontWeight:800,padding:'0 1rem'}}>
+              Администратор
+            </Row>
+            <Row>
+              <Col>
+                <BootstrapInput ref={refInputAlogin} obj={inputAloginObj}/>
+              </Col>
+              <Col>
+                <BootstrapInput ref={refInputApwd} obj={ inputApwdObj }/>
+              </Col>
+            </Row>
+          </Container>
 
-      </Container>
-      <Container fluid style={{
-            border:'1px solid black',
-            borderRadius:'0.5rem',
-            padding: '1rem',
-            marginTop:'1rem'
-           }}>
-        <Row style={{fontSize:'16px',fontWeight:800,padding:'0 1rem'}}>
-          Удаленный WEB-сервер
+          <Container fluid style={{
+                border:'1px solid black',
+                borderRadius:'0.5rem',
+                padding: '1rem',
+                marginTop:'1rem'
+               }}>
+            <Row style={{fontSize:'16px',fontWeight:800,padding:'0 1rem'}}>
+              Удаленный WEB-сервер
+            </Row>
+            <Row>
+              <Col>
+                <MultiselectBoot ref={refmSelectWSprotocol} obj={ mSelectWSprotocolObj }/>
+              </Col>
+              <Col>
+                <BootstrapInput ref={refInputWShost} obj={inputWShostObj}/>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <BootstrapInput ref={refInputWSuserID} obj={ inputWSuserIDObj }/>
+              </Col>
+              <Col>
+                <BootstrapInput ref={refInputWSkey} obj={inputWSkeyObj}/>
+              </Col>
+            </Row>
+          </Container>
+
+          <Container fluid style={{
+                border:'1px solid black',
+                borderRadius:'0.5rem',
+                padding: '1rem',
+                marginTop:'1rem'
+               }}>
+            <Row style={{fontSize:'16px',fontWeight:800,padding:'0 1rem'}}>
+              Локальный WEB-сервер
+            </Row>
+            <Row>
+              <Col>
+                <BootstrapInput ref={refInputLSip} obj={ inputLSipObj }/>
+              </Col>
+              <Col>
+                <BootstrapInput ref={refInputLSport} obj={inputLSportObj}/>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <BootstrapInput ref={refInputLScountMSsave} obj={ inputLScountMSsaveObj }/>
+              </Col>
+              <Col>
+                <BootstrapInput ref={refInputLScountMSupd} obj={inputLScountMSupdObj}/>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <BootstrapCheckbox ref={refCheckboxLStest} obj={checkboxLStestObj}/>
+              </Col>
+            </Row>
+          </Container>
         </Row>
-        <Row>
-          <Col>
-            <MultiselectBoot ref={refmSelectWSprotocol} obj={ mSelectWSprotocolObj }/>
-          </Col>
-          <Col>
-            <BootstrapInput ref={refInputWShost} obj={inputWShostObj}/>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <BootstrapInput ref={refInputWSuserID} obj={ inputWSuserIDObj }/>
-          </Col>
-          <Col>
-            <BootstrapInput ref={refInputWSkey} obj={inputWSkeyObj}/>
-          </Col>
-        </Row>
-      </Container>
-      <Container fluid style={{
-            border:'1px solid black',
-            borderRadius:'0.5rem',
-            padding: '1rem',
-            marginTop:'1rem'
-           }}>
-        <Row style={{fontSize:'16px',fontWeight:800,padding:'0 1rem'}}>
-          Локальный WEB-сервер
-        </Row>
-        <Row>
-          <Col>
-            <BootstrapInput ref={refInputLSip} obj={ inputLSipObj }/>
-          </Col>
-          <Col>
-            <BootstrapInput ref={refInputLSport} obj={inputLSportObj}/>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <BootstrapInput ref={refInputLScountMSsave} obj={ inputLScountMSsaveObj }/>
-          </Col>
-          <Col>
-            <BootstrapInput ref={refInputLScountMSupd} obj={inputLScountMSupdObj}/>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <BootstrapCheckbox ref={refCheckboxLStest} obj={checkboxLStestObj}/>
-          </Col>
+        <Row style={{marginTop:'1rem'}}>
+          <ButtonSave/>
         </Row>
       </Container>
     </div>

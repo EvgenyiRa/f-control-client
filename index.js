@@ -24,30 +24,43 @@ console.log("Start f-control ");
 
 const api = new Map();
 
-const apiPath = './api/';
+const apiPath = 'api';
 
-const cacheFile = (name) => {
-  const filePath = apiPath + name;
-  const key = path.basename(filePath, '.js');
-  try {
-    const libPath = require.resolve(filePath);
-    delete require.cache[libPath];
-  } catch (e) {
-    console.error(e);
-    return;
+const cacheFile = (filePath) => {
+  filePath='.'+path.sep+filePath;
+  const stateF=fs.statSync(filePath);
+  console.log('filePath',filePath);
+  if (!stateF.isDirectory()) {
+    const key=filePath.split(apiPath+path.sep)[1]
+                       .split('.')[0]
+                       .split(path.sep)
+                       .join('.');
+    console.log('key',key);
+    try {
+      const libPath = require.resolve(filePath);
+      delete require.cache[libPath];
+    } catch (e) {
+      console.error(e);
+      return;
+    }
+    try {
+      const method = require(filePath);
+      api.set(key, method);
+    } catch (e) {
+      console.error(e);
+      api.delete(key);
+    }
   }
-  try {
-    const method = require(filePath);
-    api.set(key, method);
-  } catch (e) {
-    console.error(e);
-    api.delete(key);
+  else {
+    cacheFolder(filePath)
   }
 };
 
-const cacheFolder = (path) => {
-  const files=fs.readdirSync(path);
-  files.forEach(cacheFile);
+const cacheFolder = (pathIn) => {
+  const files=fs.readdirSync(pathIn);
+  for (var i = 0; i < files.length; i++) {
+    cacheFile(path.join(pathIn,files[i]));
+  }
 };
 
 const watch = (path) => {

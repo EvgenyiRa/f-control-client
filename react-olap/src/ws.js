@@ -11,38 +11,6 @@ const init=()=> {
   };
   const resolveObj={};
 
-  /*const wsOnMessg(methodIn,argsIn,resolveIn)=>{
-    const getMethod=()=>{
-      wsSend(JSON.stringify({
-        type:"method",
-        method:method,
-        args:argsIn
-      }));
-      const onMessageWs=(eventIn)=>{
-        const result = JSON.parse(eventIn.data);
-        wsClient.removeEventListener('message',onMessageWs);
-        resolveIn(result.data);
-      }
-      wsClient.addEventListener('message',onMessageWs);
-    }
-    if ((wsStat.auth) & (wsStat.connect)) {
-        getMethod();
-    }
-    else if (!wsStat.connect) {
-        init().then((resWsCon) => {
-          if (resWsCon) {
-              getMethod();
-          }
-          else {
-              resolveIn(false);
-          }
-        })
-    }
-    else {
-        resolveIn(false);
-    }
-  }*/
-
   console.log("Подключение к серверу "+getDataServer()+" по WebSocket");
   wsClient = new WebSocket('ws:'+getDataServer()+'/api');
 
@@ -68,35 +36,48 @@ const init=()=> {
         console.log('Auth result',dataP.data);
         if (wsStat.auth) {
           for (const method of dataP.data.methods) {
-            api[method] = (...args) => new Promise((resolve2) => {
-              const getMethod=()=>{
-                const id=performance.now();
-                resolveObj[id]=resolve2;
-                wsSend(JSON.stringify({
-                  type:"method",
-                  method:method,
-                  args:args,
-                  id:id
-                }));
-              }
-              if ((wsStat.auth) & (wsStat.connect)) {
-                  getMethod();
-              }
-              else if (!wsStat.connect) {
-                  init().then((resWsCon) => {
-                    if (resWsCon) {
+            const path=method.split('.');
+            let i=0;
+            const setApiTree=(apiIn,i)=>{
+                if (i===(path.length-1)) {
+                    apiIn[path[i]] = (...args) => new Promise((resolve2) => {
+                    const getMethod=()=>{
+                      const id=performance.now();
+                      resolveObj[id]=resolve2;
+                      wsSend(JSON.stringify({
+                        type:"method",
+                        method:method,
+                        args:args,
+                        id:id
+                      }));
+                    }
+                    if ((wsStat.auth) & (wsStat.connect)) {
                         getMethod();
+                    }
+                    else if (!wsStat.connect) {
+                        init().then((resWsCon) => {
+                          if (resWsCon) {
+                              getMethod();
+                          }
+                          else {
+                              resolve2(false);
+                          }
+                        })
                     }
                     else {
                         resolve2(false);
                     }
-                  })
-              }
-              else {
-                  resolve2(false);
-              }
 
-            });
+                  });
+                }
+                else {
+                    if (!!!apiIn[path[i]]) {
+                      apiIn[path[i]]={};
+                    }
+                    setApiTree(apiIn[path[i]],++i)
+                }
+            }
+            setApiTree(api,i);
           };
           resolve(true);
         }
