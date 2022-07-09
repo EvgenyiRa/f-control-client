@@ -41,7 +41,8 @@ wss.on('connection', async (wsf, request, socket, api)=> {
       else if (dataP.type==='method') {
         //console.log('Received: ' + dataP);
         const method=dataP.method,
-              args=dataP.args;
+              args=dataP.args,
+              id=dataP.id;
         const fn = api.get(method);
         try {
           const result = await fn(...args);
@@ -49,7 +50,7 @@ wss.on('connection', async (wsf, request, socket, api)=> {
             wsf.send('"No result"');
             return;
           }
-          wsf.send(JSON.stringify({data:result}));
+          wsf.send(JSON.stringify({type:dataP.type,data:result,method:method,id:id}));
         } catch (err) {
           console.dir({ err });
           wsf.send('"Server error"');

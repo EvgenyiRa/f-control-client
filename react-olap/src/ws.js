@@ -9,6 +9,39 @@ const init=()=> {
     connect:false,
     auth:false
   };
+  const resolveObj={};
+
+  /*const wsOnMessg(methodIn,argsIn,resolveIn)=>{
+    const getMethod=()=>{
+      wsSend(JSON.stringify({
+        type:"method",
+        method:method,
+        args:argsIn
+      }));
+      const onMessageWs=(eventIn)=>{
+        const result = JSON.parse(eventIn.data);
+        wsClient.removeEventListener('message',onMessageWs);
+        resolveIn(result.data);
+      }
+      wsClient.addEventListener('message',onMessageWs);
+    }
+    if ((wsStat.auth) & (wsStat.connect)) {
+        getMethod();
+    }
+    else if (!wsStat.connect) {
+        init().then((resWsCon) => {
+          if (resWsCon) {
+              getMethod();
+          }
+          else {
+              resolveIn(false);
+          }
+        })
+    }
+    else {
+        resolveIn(false);
+    }
+  }*/
 
   console.log("Подключение к серверу "+getDataServer()+" по WebSocket");
   wsClient = new WebSocket('ws:'+getDataServer()+'/api');
@@ -37,16 +70,14 @@ const init=()=> {
           for (const method of dataP.data.methods) {
             api[method] = (...args) => new Promise((resolve2) => {
               const getMethod=()=>{
+                const id=performance.now();
+                resolveObj[id]=resolve2;
                 wsSend(JSON.stringify({
                   type:"method",
                   method:method,
-                  args:args
+                  args:args,
+                  id:id
                 }));
-                wsClient.onmessage = (event2) => {
-                  //console.log('apiEvent',event);
-                  const result = JSON.parse(event2.data);
-                  resolve2(result.data);
-                };
               }
               if ((wsStat.auth) & (wsStat.connect)) {
                   getMethod();
@@ -64,6 +95,7 @@ const init=()=> {
               else {
                   resolve2(false);
               }
+
             });
           };
           resolve(true);
@@ -71,6 +103,12 @@ const init=()=> {
         else {
           resolve(false);
         }
+      }
+      else if (dataP.type==='method') {
+          if (!!resolveObj[dataP.id]) {
+            resolveObj[dataP.id](dataP.data);
+            delete resolveObj[dataP.id];
+          }
       }
     } catch (err) {
       console.log('try wsServer err msg: ', err);

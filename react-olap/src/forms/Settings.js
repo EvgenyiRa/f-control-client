@@ -56,6 +56,14 @@ function Settings() {
         if (typeof res.test==='boolean') {
             refCheckboxLStest.current.setState({checked:res.test})
         }
+
+        //test ws
+        /*api.getTestWs().then((resTestWs) => {
+          console.log(resTestWs);
+        });
+        api.getTestWs2().then((resTestWs2) => {
+          console.log(resTestWs2);
+        });*/
      }
   }
 
