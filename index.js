@@ -54,9 +54,7 @@ const cacheFile = (filePath) => {
     }
   }
   else {
-    fs.watch(filePath, (event, file) => {
-      cacheFile(path.join(filePath,file));
-    });
+    watch(filePath);
     cacheFolder(filePath);
   }
 };
@@ -69,14 +67,51 @@ const cacheFolder = (pathIn) => {
 };
 
 const watch = (pathIn) => {
-  pathIn='.'+path.sep+pathIn+path.sep;
   fs.watch(pathIn, (event, file) => {
-    cacheFile(file);
+    //console.log(event);
+    const pathNew=path.join(pathIn,file);
+    const delApi=()=>{
+      //console.log('file',file);
+      //console.log('file.length',file.length);
+      if (file.indexOf('.js')>-1) {
+        const key=pathNew.split(apiPath+path.sep)[1]
+                           .split('.')[0]
+                           .split(path.sep)
+                           .join('.');
+        api.delete(key);
+      }
+      else {
+        for (let key of api.keys()) {
+          if (key.indexOf(file+'.')===0) {
+              api.delete(key);
+          }
+          else if (key.indexOf('.'+file+'.')>-1) {
+              api.delete(key);
+          }
+        }
+      }
+    }
+    if (event==='rename') {
+      if (fs.existsSync(pathNew)) {
+          cacheFile(pathNew);
+      }
+      else {
+          delApi();
+      }
+      console.dir({ api });
+    }
+    else if (event==='change') {
+        delApi();
+        console.dir({ api });
+    }
+    else {
+        cacheFile(pathNew);
+    }
   });
 };
 
 cacheFolder(apiPath);
-watch(apiPath);
+watch('.'+path.sep+apiPath+path.sep);
 
 console.log('Initializing functions');
 console.dir({ api });
