@@ -27,15 +27,17 @@ const api = new Map();
 const apiPath = 'api';
 
 const cacheFile = (filePath) => {
-  filePath='.'+path.sep+filePath;
+  if (filePath[0]!=='.') {
+    filePath='.'+path.sep+filePath;
+  }
   const stateF=fs.statSync(filePath);
-  console.log('filePath',filePath);
+  //console.log('filePath',filePath);
   if (!stateF.isDirectory()) {
     const key=filePath.split(apiPath+path.sep)[1]
                        .split('.')[0]
                        .split(path.sep)
                        .join('.');
-    console.log('key',key);
+    //console.log('key',key);
     try {
       const libPath = require.resolve(filePath);
       delete require.cache[libPath];
@@ -52,7 +54,10 @@ const cacheFile = (filePath) => {
     }
   }
   else {
-    cacheFolder(filePath)
+    fs.watch(filePath, (event, file) => {
+      cacheFile(path.join(filePath,file));
+    });
+    cacheFolder(filePath);
   }
 };
 
@@ -63,8 +68,9 @@ const cacheFolder = (pathIn) => {
   }
 };
 
-const watch = (path) => {
-  fs.watch(path, (event, file) => {
+const watch = (pathIn) => {
+  pathIn='.'+path.sep+pathIn+path.sep;
+  fs.watch(pathIn, (event, file) => {
     cacheFile(file);
   });
 };
