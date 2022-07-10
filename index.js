@@ -33,10 +33,7 @@ const cacheFile = (filePath) => {
   const stateF=fs.statSync(filePath);
   //console.log('filePath',filePath);
   if (!stateF.isDirectory()) {
-    const key=filePath.split(apiPath+path.sep)[1]
-                       .split('.')[0]
-                       .split(path.sep)
-                       .join('.');
+    const key=calcKey(filePath);
     //console.log('key',key);
     try {
       const libPath = require.resolve(filePath);
@@ -66,6 +63,13 @@ const cacheFolder = (pathIn) => {
   }
 };
 
+const calcKey=(pathIn)=>{
+  return pathIn.split(apiPath+path.sep)[1]
+               .split('.')[0]
+               .split(path.sep)
+               .join('.');
+}
+
 const watch = (pathIn) => {
   fs.watch(pathIn, (event, file) => {
     //console.log(event);
@@ -74,10 +78,7 @@ const watch = (pathIn) => {
       //console.log('file',file);
       //console.log('file.length',file.length);
       if (file.indexOf('.js')>-1) {
-        const key=pathNew.split(apiPath+path.sep)[1]
-                           .split('.')[0]
-                           .split(path.sep)
-                           .join('.');
+        const key=calcKey(pathNew);
         api.delete(key);
       }
       else {

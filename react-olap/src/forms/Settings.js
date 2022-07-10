@@ -19,8 +19,8 @@ function Settings() {
     //console.log(api);
   },[api]);
   const setConfigs=async()=> {
-     if (!!api.getConfigs) {
-        const res=await api.getConfigs();
+     if (!!api.configs.get) {
+        const res=await api.configs.get();
         setParamGroup(res);
         if (!!res.adminLogin) {
             refInputAlogin.current.setState({value:res.adminLogin})
