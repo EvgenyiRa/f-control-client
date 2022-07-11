@@ -4,14 +4,36 @@ import FormControl from 'react-bootstrap/FormControl';
 class BootstrapInput extends React.Component {
   constructor(props) {
       super(props);
+      this.checkRequired = this.checkRequired.bind(this);
       this.state = {
         value:(!!this.props.obj.defaultValue)?this.props.obj.defaultValue:undefined,
-        isInvalid:(typeof this.props.obj.isInvalid==='boolean')?this.props.obj.isInvalid:false,
         invalidText:(!!this.props.obj.invalidText)?this.props.obj.invalidText:'',
         type:(!!this.props.obj.type)?this.props.obj.type:'text',
-        placeholder:'Введите значение',
+        placeholder:(!!this.props.obj.placeholder)?this.props.obj.placeholder:'Введите значение',
+        readOnly:(typeof this.props.obj.readOnly==='boolean')?this.props.obj.readOnly:false,
+        disabled:(typeof this.props.obj.disabled==='boolean')?this.props.obj.disabled:false,
       };
 
+  }
+
+  checkRequired() {
+    let prOk=true;
+    if (!!!this.state.value) {
+        prOk=false;
+    }
+    else {
+      const value=this.state.value.trim();
+      if (value==='') {
+          prOk=false;
+      }
+    }
+    if ((!prOk) & (this.state.invalidText==='')) {
+        this.setState({invalidText:'Поле обязательно к заполнению'});
+    }
+    else if ((prOk) & (this.state.isInvalid!=='')) {
+        this.setState({invalidText:''});
+    }
+    return prOk;
   }
 
   componentDidMount() {
@@ -39,9 +61,9 @@ class BootstrapInput extends React.Component {
             defaultValue={this.props.obj.defaultValue}
             value={this.state.value}
             isValid={false}
-            isInvalid={this.state.isInvalid}
-            readOnly={false}
-            disabled={false}
+            isInvalid={(this.state.invalidText==='')?false:true}
+            readOnly={this.state.readOnly}
+            disabled={this.state.disabled}
             onChange={(event) => {
                         if (!!this.props.obj.onChange) {
                             this.props.obj.onChange(event,this);

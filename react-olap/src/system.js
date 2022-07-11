@@ -102,20 +102,12 @@ export function setAuth(data,callback) {
 
 export function getAuthorization() {
   return new Promise((resolve) => {
-    localStorage.clear();
     if (typeof authorization!=='number') {
-       const authorizationRes=localStorage.getItem('authorization');
-       if (authorizationRes!==null) {
-          authorization=+authorizationRes;
-       }
-       else  {
-          authorization=0;
-       }
-       init().then((resWsCon) => {
+       authorization=0;
+       init(localStorage.getItem('login'),localStorage.getItem('pwd')).then((resWsCon) => {
           if (resWsCon) {
               authorization=2;
           }
-          localStorage.setItem('authorization',authorization);
           resolve(authorization);
        })
     }

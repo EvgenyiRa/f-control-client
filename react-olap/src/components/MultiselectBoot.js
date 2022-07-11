@@ -50,7 +50,7 @@ class MultiselectBoot extends React.Component {
     const optionValue=(this.type==='number')?+option[0].value:option[0].value;
     if (checked) {
        if (this.multiple) {
-         if (this.state.checkedOptions===undefined) {
+         if (this.state.checkedOptions.length===0) {
             this.setState({checkedOptions:[optionValue]});
          }
          else {
@@ -75,7 +75,7 @@ class MultiselectBoot extends React.Component {
 
   handleSetCheckeds(value) {
     const newOptions=[...this.state.options];
-    if (this.multiple) {
+    if (!this.multiple) {
       newOptions.forEach((item, i) => {
           newOptions[i].checked=false;
           if (item.value===value) {

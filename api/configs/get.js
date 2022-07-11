@@ -2,5 +2,7 @@
 const configs=require('../../configs/configs.js');
 
 module.exports = async (codeCity) => {
-  return configs;
+  const resConfigs={...configs};
+  delete resConfigs.adminPwd;
+  return resConfigs;
 };

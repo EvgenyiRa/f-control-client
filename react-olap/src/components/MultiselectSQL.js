@@ -12,6 +12,10 @@ class MultiselectSQL extends React.Component {
       this.handleDeselectAll = this.handleDeselectAll.bind(this);
       this.handleSetCheckeds = this.handleSetCheckeds.bind(this);
       this.optionsDef= [{'value':-888,'label':'Значения отсутствуют'}];
+      this.multiple=false;
+      if (typeof props.obj.multiple==='boolean') {
+          this.multiple=props.obj.multiple;
+      }
       this.state = {
         options:this.optionsDef,
         checkedOptions: undefined
@@ -19,10 +23,6 @@ class MultiselectSQL extends React.Component {
       this.getOptionsBySQL = this.getOptionsBySQL.bind(this);
       this.dbtype=getDBType();
       this.type=typeof props.obj.options[0].value;
-      this.multiple=false;
-      if (typeof props.obj.multiple==='boolean') {
-          this.multiple=props.obj.multiple;
-      }
   }
 
   handleChange(option, checked) {
@@ -42,7 +42,7 @@ class MultiselectSQL extends React.Component {
 
   handleSetCheckeds(value) {
     const newOptions=[...this.state.options];
-    if (this.multiple) {
+    if (!this.multiple) {
       newOptions.forEach((item, i) => {
           newOptions[i].checked=false;
           if (item.value===value) {

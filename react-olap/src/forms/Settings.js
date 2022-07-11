@@ -25,12 +25,12 @@ function Settings() {
         if (!!res.adminLogin) {
             refInputAlogin.current.setState({value:res.adminLogin})
         }
-        if (!!res.adminPwd) {
+        /*if (!!res.adminPwd) {
             refInputApwd.current.setState({value:res.adminPwd})
-        }
+        }*/
 
         if (!!res.webServerProtocol) {
-            //refmSelectWSprotocol.current.handleSetCheckeds(res.webServerProtocol);
+            refmSelectWSprotocol.current.handleSetCheckeds(res.webServerProtocol);
         }
         if (!!res.webServerIP) {
             refInputWShost.current.setState({value:res.webServerIP})
@@ -59,17 +59,18 @@ function Settings() {
         }
 
         //test ws
-        api.test.test2.getTestWs().then((resTestWs) => {
+        /*api.test.test2.getTestWs().then((resTestWs) => {
           console.log(resTestWs);
         });
         api.test.test2.getTestWs2().then((resTestWs2) => {
           console.log(resTestWs2);
-        });
+        });*/
      }
   }
 
   const refInputAlogin=useRef(),
         refInputApwd=useRef(),
+        refInputApwdOld=useRef(),
         refmSelectWSprotocol=useRef(),
         refInputWShost=useRef(),
         refInputWSuserID=useRef(),
@@ -81,15 +82,20 @@ function Settings() {
         refCheckboxLStest=useRef();
 
   const inputAloginObj={
-    label:'Пароль',
-    id:"admPwd",
-    defaultValue:'',
-    type:'password'
+    label:'Логин',
+    id:"admLogin",
   };
 
   const inputApwdObj={
-    label:'Логин',
-    id:"admLogin",
+    label:'Новый пароль',
+    id:"admPwd",
+    type:'password'
+  };
+
+  const inputApwdOldObj={
+    label:'Старый пароль',
+    id:"admPwd",
+    type:'password'
   };
 
   const mSelectWSprotocolObj={
@@ -147,11 +153,66 @@ function Settings() {
 
   const ButtonSave=()=>{
       const handleClick=()=>{
-        if (!!api.configs.set) {
-          //api.configs.set();
+        console.log(api);
+        if ((!!api.configs.set) & (!!paramGroup)) {
+          //проверки
+          let prOk=refInputAlogin.current.checkRequired();
+          const objNew={
+            webServerIP: refInputWShost.current.state.value,
+            webServerProtocol: refmSelectWSprotocol.current.state.checkedOptions,
+            repUserId: refInputWSuserID.current.state.value,
+            keyForWebServer:refInputWSkey.current.state.value,
+            countMSsave:refInputLScountMSsave.current.state.value,
+            countMSupd:refInputLScountMSupd.current.state.value,
+            test:refCheckboxLStest.current.state.checked,
+            webClientIP:refInputLSip.current.state.value,
+            webClientPort:refInputLSport.current.state.value,
+            adminLogin:refInputAlogin.current.state.value,
+            adminPwd:refInputApwd.current.state.value
+          };
+
+          if (!!paramGroup.adminLogin) {
+              let pwdNew=refInputApwd.current.state.value;
+              if (!!pwdNew) {
+                  pwdNew=pwdNew.trim();
+              }
+              else {
+                  pwdNew='';
+              }
+              if ((pwdNew!=='') || (refInputAlogin.current.state.value!==paramGroup.adminLogin)) {
+                const prOk2=refInputApwdOld.current.checkRequired();
+                if (prOk) {
+                    prOk=prOk2
+                }
+              }
+          }
+          else {
+              prOk=refInputApwd.current.checkRequired();
+              const prOk2=refInputApwdOld.current.checkRequired();
+          }
+          if (prOk) {
+            api.configs.set(objNew);
+          }
         }
       }
       return <Button variant="primary" onClick={handleClick}>Сохранить и перезапустить</Button>;
+  }
+
+  const AdminPwdOld=()=>{
+    let prVis=false;
+    if (!!paramGroup) {
+      if (!!paramGroup.adminLogin) {
+          prVis=true;
+      }
+    }
+    if (prVis) {
+      return <Col>
+              <BootstrapInput ref={refInputApwdOld} obj={ inputApwdOldObj }/>
+            </Col>;
+    }
+    else {
+      return null;
+    }
   }
   return (
     <div className="App">
@@ -183,6 +244,7 @@ function Settings() {
               <Col>
                 <BootstrapInput ref={refInputApwd} obj={ inputApwdObj }/>
               </Col>
+              <AdminPwdOld/>
             </Row>
           </Container>
 
