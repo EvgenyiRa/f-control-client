@@ -77,6 +77,16 @@ class BootstrapInput extends React.Component {
                             this.props.obj.onBlur(event,this);
                         }
                      }}
+             onKeyDown={(event) => {
+                          if (!!this.props.obj.onKeyDown) {
+                              this.props.obj.onKeyDown(event,this);
+                          }
+                       }}
+             onKeyPress={(event) => {
+                         if (!!this.props.obj.onKeyPress) {
+                             this.props.obj.onKeyPress(event,this);
+                         }
+                      }}
           />
           <FormControl.Feedback type="invalid">
               {this.state.invalidText}

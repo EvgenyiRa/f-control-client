@@ -156,20 +156,8 @@ function Settings() {
         console.log(api);
         if ((!!api.configs.set) & (!!paramGroup)) {
           //проверки
-          let prOk=refInputAlogin.current.checkRequired();
-          const objNew={
-            webServerIP: refInputWShost.current.state.value,
-            webServerProtocol: refmSelectWSprotocol.current.state.checkedOptions,
-            repUserId: refInputWSuserID.current.state.value,
-            keyForWebServer:refInputWSkey.current.state.value,
-            countMSsave:refInputLScountMSsave.current.state.value,
-            countMSupd:refInputLScountMSupd.current.state.value,
-            test:refCheckboxLStest.current.state.checked,
-            webClientIP:refInputLSip.current.state.value,
-            webClientPort:refInputLSport.current.state.value,
-            adminLogin:refInputAlogin.current.state.value,
-            adminPwd:refInputApwd.current.state.value
-          };
+          let prOk=refInputAlogin.current.checkRequired(),
+              prOk2;
 
           if (!!paramGroup.adminLogin) {
               let pwdNew=refInputApwd.current.state.value;
@@ -180,17 +168,61 @@ function Settings() {
                   pwdNew='';
               }
               if ((pwdNew!=='') || (refInputAlogin.current.state.value!==paramGroup.adminLogin)) {
-                const prOk2=refInputApwdOld.current.checkRequired();
+                prOk2=refInputApwdOld.current.checkRequired();
                 if (prOk) {
-                    prOk=prOk2
+                    prOk=prOk2;
                 }
               }
           }
           else {
-              prOk=refInputApwd.current.checkRequired();
-              const prOk2=refInputApwdOld.current.checkRequired();
+              prOk2=refInputApwdOld.current.checkRequired();
+              if (prOk) {
+                  prOk=prOk2;
+              }
           }
+
+          const ckeckNum=(refInNum,msCool)=>{
+            prOk2=refInNum.current.checkRequired();
+            if (prOk2) {
+              let countMSsave=parseInt(refInNum.current.state.value);
+              if (!isNaN(countMSsave)) {
+                if (countMSsave<msCool) {
+                    countMSsave=msCool;
+                    prOk2=false;
+                }
+              }
+              else {
+                  prOk2=false;
+                  countMSsave=msCool;
+              }
+              if (!prOk2) {
+                  refInNum.current.setState({
+                      value:countMSsave,
+                      invalidText:'Должно быть не менее '+msCool+' миллисекунд'
+                  });
+              }
+            }
+            if (prOk) {
+              prOk=prOk2;
+            }
+          }
+          ckeckNum(refInputLScountMSsave,10000);
+          ckeckNum(refInputLScountMSupd,1000);
+
           if (prOk) {
+            const objNew={
+              webServerIP: refInputWShost.current.state.value,
+              webServerProtocol: refmSelectWSprotocol.current.state.checkedOptions,
+              repUserId: refInputWSuserID.current.state.value,
+              keyForWebServer:refInputWSkey.current.state.value,
+              countMSsave:refInputLScountMSsave.current.state.value,
+              countMSupd:refInputLScountMSupd.current.state.value,
+              test:refCheckboxLStest.current.state.checked,
+              webClientIP:refInputLSip.current.state.value,
+              webClientPort:refInputLSport.current.state.value,
+              adminLogin:refInputAlogin.current.state.value,
+              adminPwd:refInputApwd.current.state.value
+            };
             api.configs.set(objNew);
           }
         }
