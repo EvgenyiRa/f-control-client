@@ -30,17 +30,7 @@ function Settings() {
         }
 
         if (!!res.webServerProtocol) {
-            const newOptions=[...refmSelectWSprotocol.current.state.options];
-            newOptions.forEach((item, i) => {
-                newOptions[i].checked=false;
-                if (item.value===res.webServerProtocol) {
-                    newOptions[i].checked=true;
-                }
-            });
-            refmSelectWSprotocol.current.setState({
-              options:newOptions,
-              checkedOptions:res.webServerProtocol
-            })
+            //refmSelectWSprotocol.current.handleSetCheckeds(res.webServerProtocol);
         }
         if (!!res.webServerIP) {
             refInputWShost.current.setState({value:res.webServerIP})
@@ -157,7 +147,9 @@ function Settings() {
 
   const ButtonSave=()=>{
       const handleClick=()=>{
-        alert('Ura!')
+        if (!!api.configs.set) {
+          //api.configs.set();
+        }
       }
       return <Button variant="primary" onClick={handleClick}>Сохранить и перезапустить</Button>;
   }

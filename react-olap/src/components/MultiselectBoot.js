@@ -10,9 +10,16 @@ class MultiselectBoot extends React.Component {
       this.handleChange = this.handleChange.bind(this);
       this.handleSelectAll = this.handleSelectAll.bind(this);
       this.handleDeselectAll = this.handleDeselectAll.bind(this);
+      this.handleSetCheckeds = this.handleSetCheckeds.bind(this);
       let selectOptions;
       if (!this.multiple) {
         selectOptions=props.obj.options[0].value;
+        for (var i = 0; i < props.obj.options.length; i++) {
+          if (props.obj.options[i].selected) {
+             selectOptions=props.obj.options[i].value;
+             break;
+          }
+        }
       }
       else {
         selectOptions=[];
@@ -32,20 +39,70 @@ class MultiselectBoot extends React.Component {
       if (typeof props.obj.multiple==='boolean') {
           this.multiple=props.obj.multiple;
       }
+      if ((!!this.props.obj.paramGroup) & (!!this.props.obj.setParamGroup)) {
+        let newObj = { ...this.props.obj.paramGroup };
+        newObj[this.props.obj.parChealdID]=this.state.checkedOptions;
+        this.props.obj.setParamGroup(newObj);
+      }
   }
 
   handleChange(option, checked) {
     const optionValue=(this.type==='number')?+option[0].value:option[0].value;
     if (checked) {
-       if (this.state.checkedOptions===undefined) {
-          this.setState({checkedOptions:[optionValue]});
+       if (this.multiple) {
+         if (this.state.checkedOptions===undefined) {
+            this.setState({checkedOptions:[optionValue]});
+         }
+         else {
+           this.setState({checkedOptions: [...this.state.checkedOptions, optionValue]});
+         }
        }
        else {
-         this.setState({checkedOptions: [...this.state.checkedOptions, optionValue]});
+          this.setState({checkedOptions:optionValue});
        }
     }
     else {
-      this.setState({checkedOptions: this.state.checkedOptions.filter(x => x !== optionValue)});
+      if (this.multiple) {
+        this.setState({checkedOptions: this.state.checkedOptions.filter(x => x !== optionValue)});
+      }
+    }
+    if ((!!this.props.obj.paramGroup) & (!!this.props.obj.setParamGroup)) {
+      let newObj = { ...this.props.obj.paramGroup };
+      newObj[this.props.obj.parChealdID]=this.state.checkedOptions;
+      this.props.obj.setParamGroup(newObj);
+    }
+  }
+
+  handleSetCheckeds(value) {
+    const newOptions=[...this.state.options];
+    if (this.multiple) {
+      newOptions.forEach((item, i) => {
+          newOptions[i].checked=false;
+          if (item.value===value) {
+              newOptions[i].checked=true;
+          }
+      });
+    }
+    else {
+      newOptions.forEach((item, i) => {
+          newOptions[i].checked=false;
+          for (var j = 0; j < value.length; i++) {
+            if (value[j]===item.value) {
+              newOptions[i].checked=true;
+              value.splice(j, 1);
+              break;
+            }
+          }
+      });
+    }
+    this.setState({
+      options:newOptions,
+      checkedOptions:value
+    });
+    if ((!!this.props.obj.paramGroup) & (!!this.props.obj.setParamGroup)) {
+      let newObj = { ...this.props.obj.paramGroup };
+      newObj[this.props.obj.parChealdID]=this.state.checkedOptions;
+      this.props.obj.setParamGroup(newObj);
     }
   }
 
@@ -61,27 +118,27 @@ class MultiselectBoot extends React.Component {
       }
   }
 
-    handleDropdownHidden() {
-      if (!!this.state.checkedOptions){
-        if ((!!this.props.obj.parChealdID) & (!!this.props.obj.setParamGroup) & (!!this.props.obj.paramGroup)) {
-            let newObj = { ...this.props.obj.paramGroup };
-            newObj[this.props.obj.parChealdID]=this.state.checkedOptions;
-            this.props.obj.setParamGroup(newObj);
-        }
+  handleDropdownHidden() {
+    if (!!this.state.checkedOptions){
+      if ((!!this.props.obj.parChealdID) & (!!this.props.obj.setParamGroup) & (!!this.props.obj.paramGroup)) {
+          let newObj = { ...this.props.obj.paramGroup };
+          newObj[this.props.obj.parChealdID]=this.state.checkedOptions;
+          this.props.obj.setParamGroup(newObj);
       }
     }
+  }
 
-    handleSelectAll() {
-      let value=[];
-      this.state.options.forEach(function(item) {
-        value.push(item.value);
-      })
-      this.setState({checkedOptions:value});
-    }
+  handleSelectAll() {
+    let value=[];
+    this.state.options.forEach(function(item) {
+      value.push(item.value);
+    })
+    this.setState({checkedOptions:value});
+  }
 
-    handleDeselectAll() {
-      this.setState({checkedOptions:[]});
-    }
+  handleDeselectAll() {
+    this.setState({checkedOptions:[]});
+  }
 
   render() {
     return (

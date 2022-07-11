@@ -10,8 +10,10 @@ class MultiselectSQL extends React.Component {
       this.handleChange = this.handleChange.bind(this);
       this.handleSelectAll = this.handleSelectAll.bind(this);
       this.handleDeselectAll = this.handleDeselectAll.bind(this);
+      this.handleSetCheckeds = this.handleSetCheckeds.bind(this);
+      this.optionsDef= [{'value':-888,'label':'Значения отсутствуют'}];
       this.state = {
-        options: [{'value':-888,'label':'Значения отсутствуют'}],
+        options:this.optionsDef,
         checkedOptions: undefined
       }
       this.getOptionsBySQL = this.getOptionsBySQL.bind(this);
@@ -38,6 +40,34 @@ class MultiselectSQL extends React.Component {
     }
   }
 
+  handleSetCheckeds(value) {
+    const newOptions=[...this.state.options];
+    if (this.multiple) {
+      newOptions.forEach((item, i) => {
+          newOptions[i].checked=false;
+          if (item.value===value) {
+              newOptions[i].checked=true;
+          }
+      });
+    }
+    else {
+      newOptions.forEach((item, i) => {
+          newOptions[i].checked=false;
+          for (var j = 0; j < value.length; i++) {
+            if (value[j]===item.value) {
+              newOptions[i].checked=true;
+              value.splice(j, 1);
+              break;
+            }
+          }
+      });
+    }
+    this.setState({
+      options:newOptions,
+      checkedOptions:value
+    });
+  }
+
   getOptionsBySQL() {
     const val=this;
     var data = {};
@@ -50,15 +80,69 @@ class MultiselectSQL extends React.Component {
     data.sql=val.props.obj.sql;
     getParamForSQL(val.props.obj.paramGroup,val.props.obj.parParentID,data);
     getSQLRun(data,(response)=> {
-                  if (response.data.length>0) {
-                    this.setState({options:response.data});
+      const setDefault=()=>{
+        this.setState({
+          options:this.optionsDef
+        });
+        if (!this.multiple) {
+          this.state.checkedOptions=this.stateDefaultOptions[0].value;
+        }
+        else {
+          this.state.checkedOptions=[];
+        }
+      }
+      if (!!response.data) {
+        if (response.data.length>0) {
+            this.type=((typeof response.data[0].value==='number')?'number':'string');
+            this.setState({options:response.data});
+            let selectedDefault,
+                selectedDefaultLabel;
+            if (!this.multiple) {
+                selectedDefault=response.data[0];
+                //если присутствует поле selected
+                if (typeof response.data[0].selected!=='undefined') {
+                  for (var i = 0; i < response.data.length; i++) {
+                    if (+response.data[i].selected===1) {
+                      selectedDefault=response.data[i];
+                      break;
+                    }
                   }
-                  else {
-                    this.setState({options:this.stateDefaultOptions});
+                }
+                this.state.checkedOptions=selectedDefault.value;
+            }
+            else {
+                selectedDefault=[];
+                selectedDefaultLabel=[];
+                //если присутствует поле selected
+                if (typeof response.data[0].selected!=='undefined') {
+                  for (var i = 0; i < response.data.length; i++) {
+                    if (+response.data[i].selected===1) {
+                      selectedDefault.push(response.data[i].value);
+                      selectedDefaultLabel.push(response.data[i].label);
+                    }
                   }
-                },
-              val.props.obj.stateLoadObj
-            );
+                }
+                this.state.checkedOptions=selectedDefault;
+            }
+        }
+        else {
+            setDefault();
+        }
+      }
+      else {
+        setDefault();
+      }
+      if ((!!this.props.obj.paramGroup) & (!!this.props.obj.setParamGroup)) {
+        let newObj = { ...this.props.obj.paramGroup };
+        newObj[this.props.obj.parChealdID]=this.state.checkedOptions;
+        this.props.obj.setParamGroup(newObj);
+      }
+      if (!!this.props.obj.afterLoadSQL) {
+          this.props.obj.afterLoadSQL(this,response);
+      }
+    },
+    val.props.obj.stateLoadObj
+  );
 
   }
 
