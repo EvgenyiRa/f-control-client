@@ -158,7 +158,6 @@ function Settings() {
           //проверки
           let prOk=refInputAlogin.current.checkRequired(),
               prOk2;
-
           if (!!paramGroup.adminLogin) {
               let pwdNew=refInputApwd.current.state.value;
               if (!!pwdNew) {
@@ -175,7 +174,7 @@ function Settings() {
               }
           }
           else {
-              prOk2=refInputApwdOld.current.checkRequired();
+              prOk2=refInputApwd.current.checkRequired();
               if (prOk) {
                   prOk=prOk2;
               }
@@ -222,9 +221,10 @@ function Settings() {
               webClientPort:refInputLSport.current.state.value,
               adminLogin:refInputAlogin.current.state.value,
               adminPwd:refInputApwd.current.state.value,
-              adminPwdOld:refInputApwdOld.current.state.value,
+              adminPwdOld:(typeof refInputApwdOld.current!=='undefined')?refInputApwdOld.current.state.value:undefined,
             };
             const resConfigsSet=await api.configs.set(objNew);
+            console.log(resConfigsSet);
           }
         }
       }

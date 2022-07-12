@@ -11,6 +11,7 @@ const configs={
   adminLogin:undefined,
   adminPwd:undefined
 };
+//split
 if (!!configs.webServerIP) {
     configs.webServer=configs.webServerProtocol+'://'+configs.webServerIP;
     configs.webSocketServer=((configs.webServerProtocol==='https')?'wss':'ws')+'://'+configs.webServerIP+'/ws';

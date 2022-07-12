@@ -22,9 +22,11 @@ class BootstrapInput extends React.Component {
         prOk=false;
     }
     else {
-      const value=this.state.value.trim();
-      if (value==='') {
-          prOk=false;
+      if (typeof this.state.value==='string') {
+        const value=this.state.value.trim();
+        if (value==='') {
+            prOk=false;
+        }
       }
     }
     if ((!prOk) & (this.state.invalidText==='')) {

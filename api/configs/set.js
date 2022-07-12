@@ -2,7 +2,9 @@
 const configs=require('../../configs/configs.js'),
       common=require('../../services/common.js'),
       salts=require('../../configs/salts.js'),
-      bcrypt = require('bcryptjs');
+      bcrypt = require('bcryptjs'),
+      path = require('path'),
+      fs = require('fs');
 
 module.exports = async (configsIn) => {
   //проверки
@@ -13,15 +15,13 @@ module.exports = async (configsIn) => {
   if (!prOk) {
       strErr='Поле "Логин администратора" не может быть пустым\n';
   }
+  else {
+      configsIn.adminLogin=configsIn.adminLogin.split("'").join("\\'");
+  }
 
+  let pwdNew;
+  [prOk2,pwdNew]=common.checkRequired(configsIn.adminPwd);
   if (!!configs.adminLogin) {
-      let pwdNew=configsIn.adminPwd;
-      if (!!pwdNew) {
-          pwdNew=pwdNew.trim();
-      }
-      else {
-          pwdNew='';
-      }
       if ((pwdNew!=='') || (configsIn.adminLogin!==configs.adminLogin)) {
         [prOk2,configsIn.adminPwdOld]=common.checkRequired(configsIn.adminPwdOld);
         if (!prOk2) {
@@ -33,10 +33,13 @@ module.exports = async (configsIn) => {
             const oneHash=await bcrypt.hash(configsIn.adminPwdOld, salts[i]);
             //console.log("oneHash:",oneHash);test
             if (oneHash===configs.adminPwd) {
+              configsIn.adminPwd=oneHash;
               prOk2=true;
-              strErr+='Поле "Старый пароль администратора" указано не верно\n';
               break;
             }
+          }
+          if (!prOk2) {
+            strErr+='Поле "Старый пароль администратора" указано не верно\n';
           }
         }
         if (prOk) {
@@ -45,7 +48,6 @@ module.exports = async (configsIn) => {
       }
   }
   else {
-      [prOk2,configsIn.adminPwd]=common.checkRequired(configsIn.adminPwd);
       if (!prOk2) {
           strErr+='Поле "Новый пароль администратора" не может быть пустым\n';
       }
@@ -53,6 +55,11 @@ module.exports = async (configsIn) => {
           prOk=prOk2;
       }
   }
+  if ((prOk) & (pwdNew!=='')) {
+      const indexKey=common.getRandomInRange(0,salts.length-1);
+      configsIn.adminPwd=await bcrypt.hash(pwdNew, indexKey);
+  }
+
 
   const ckeckNum=(refInNum,msCool)=>{
     [prOk2,configsIn[refInNum]]=common.checkRequired(configsIn[refInNum]);
@@ -83,8 +90,46 @@ module.exports = async (configsIn) => {
   ckeckNum('countMSsave',10000);
   ckeckNum('countMSupd',1000);
 
+  if (!configsIn.hasOwnProperty('webServerIP')) {
+    configsIn.webServerIP=undefined;
+  }
+  if (!configsIn.hasOwnProperty('repUserId')) {
+    configsIn.repUserId=undefined;
+  }
+  if (!configsIn.hasOwnProperty('keyForWebServer')) {
+    configsIn.keyForWebServer=undefined;
+  }
+  if (configsIn.hasOwnProperty('adminPwdOld')) {
+    delete configsIn.adminPwdOld;
+  }
+
+  if (!!configsIn.webServerIP) {
+    configsIn.webServerIP=configsIn.webServerIP.split("'").join("\\'");
+  }
+  configsIn.webClientIP=configsIn.webClientIP.split("'").join("\\'");
+  if (!!configsIn.keyForWebServer) {
+    configsIn.keyForWebServer=configsIn.keyForWebServer.split("'").join("\\'");
+  }
+
   if (prOk) {
-      //считываем шаблон, заносим данные, вырубаем процесс сервера (должно возобновиться автоматически демоном)
+      //считываем шаблон, заносим данные, вырубаем процесс сервера на следующем шаге (должно возобновиться автоматически демоном)
+      let configsT='const configs={\n';
+      for (var key in configsIn) {
+          let val;
+          if (typeof configsIn[key]==='string') {
+              val="'"+configsIn[key]+"'";
+          }
+          else {
+              val=configsIn[key];
+          }
+          configsT+='  '+key+':'+val+',\n';
+      }
+      configsT+='};';
+      const pathConfigs=path.join(path.dirname(path.dirname(__dirname)),'configs');
+      //console.log('pathConfigs',pathConfigs);
+      configsT+= fs.readFileSync(path.join(pathConfigs,'configs.js.template'), 'utf8')
+                   .split('//split')[1];
+      fs.writeFileSync(path.join(pathConfigs,'configs.js'), configsT);
   }
   return {prOk:prOk,strErr:strErr};
 };

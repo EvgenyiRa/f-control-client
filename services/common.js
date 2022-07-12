@@ -12,12 +12,19 @@ module.exports.checkRequired=(valueIn)=> {
       value=valueIn;
   if (!!!valueIn) {
       prOk=false;
+      value='';
   }
   else {
-    value=valueIn.trim();
-    if (value==='') {
-        prOk=false;
+    if (typeof valueIn==='string') {
+      value=valueIn.trim();
+      if (value==='') {
+          prOk=false;
+      }
     }
   }
   return [prOk,value];
+}
+
+module.exports.getRandomInRange=(min, max)=> {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
