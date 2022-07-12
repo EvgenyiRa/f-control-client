@@ -1,7 +1,7 @@
 #!/usr/bin/node
 'use strict';
 const configs=require('./configs/configs.js'),
-      common=require('./services/common.js'),
+      //common=require('./services/common.js'),
       http = require('http'),
       path = require('path'),
       fs = require('fs'),
@@ -72,7 +72,7 @@ const calcKey=(pathIn)=>{
 
 const watch = (pathIn) => {
   fs.watch(pathIn, (event, file) => {
-    //console.log(event);
+    console.log(event);
     const pathNew=path.join(pathIn,file);
     const delApi=()=>{
       //console.log('file',file);
@@ -102,8 +102,13 @@ const watch = (pathIn) => {
       console.dir({ api });
     }
     else if (event==='change') {
-        delApi();
-        console.dir({ api });
+      if (fs.existsSync(pathNew)) {
+          cacheFile(pathNew);
+      }
+      else {
+          delApi();
+      }
+      console.dir({ api });
     }
     else {
         cacheFile(pathNew);

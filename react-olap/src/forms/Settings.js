@@ -152,7 +152,7 @@ function Settings() {
   };
 
   const ButtonSave=()=>{
-      const handleClick=()=>{
+      const handleClick=async ()=>{
         console.log(api);
         if ((!!api.configs.set) & (!!paramGroup)) {
           //проверки
@@ -221,9 +221,10 @@ function Settings() {
               webClientIP:refInputLSip.current.state.value,
               webClientPort:refInputLSport.current.state.value,
               adminLogin:refInputAlogin.current.state.value,
-              adminPwd:refInputApwd.current.state.value
+              adminPwd:refInputApwd.current.state.value,
+              adminPwdOld:refInputApwdOld.current.state.value,
             };
-            api.configs.set(objNew);
+            const resConfigsSet=await api.configs.set(objNew);
           }
         }
       }

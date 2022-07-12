@@ -6,3 +6,18 @@ const getIP=(req)=>{
   return ip;
 }
 module.exports.getIP=getIP;
+
+module.exports.checkRequired=(valueIn)=> {
+  let prOk=true,
+      value=valueIn;
+  if (!!!valueIn) {
+      prOk=false;
+  }
+  else {
+    value=valueIn.trim();
+    if (value==='') {
+        prOk=false;
+    }
+  }
+  return [prOk,value];
+}
