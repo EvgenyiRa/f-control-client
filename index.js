@@ -212,6 +212,7 @@ async function shutdown(e) {
     process.exit(0);
   }
 }
+module.exports.shutdown=shutdown;
 
 process.on('SIGTERM', () => {
   console.log('Received SIGTERM');
@@ -294,7 +295,7 @@ let lastDate=hereDateStr,
            const dataForWSS={type:'dataUpdate',data:dataSend, date: hereDateStrIn};
            data.wsStat.connection.sendUTF(JSON.stringify(dataForWSS));
          }
-         else if ((!data.wsStat.connect) & (!!configs.webServerIP) && (!!configs.repUserId) && (!!configs.keyForWebServer)) {               
+         else if ((!data.wsStat.connect) & (!!configs.webServerIP) && (!!configs.repUserId) && (!!configs.keyForWebServer)) {
              webSocketClient.init(data);
          }
      } catch (err) {
@@ -314,7 +315,7 @@ let lastDate=hereDateStr,
      //если не первый запуск/запуск до настроек
      webSocketClient.init(data);
    }
-   //интервальня обработка:
+   //интервальная обработка:
    //1)активности окон пользователя
    //2)периодическое сохранение данных в файл и их отправка на сервер по вебсокету
    const timerId = setInterval(async ()=> {

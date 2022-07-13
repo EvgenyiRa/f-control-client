@@ -10,9 +10,11 @@ class AlertPlus extends React.Component {
       super(props);
       this.handleClick = this.handleClick.bind(this);
       this.handleShow = this.handleShow.bind(this);
+      this.handleShowFocus = this.handleShowFocus.bind(this);
       this.state = {
         show:false,
-        text:''
+        text:'',
+        size:'sm'
       };
   }
 
@@ -20,13 +22,22 @@ class AlertPlus extends React.Component {
     this.setState({show:false,text:''});
   }
 
-  handleShow() {
+  handleShowFocus() {
     $('div.fade.modal.show div.modal-footer button').focus();
+  }
+
+  handleShow(textIn,sizeIn) {
+      if (!!!sizeIn) {
+          sizeIn='sm';
+      }
+      this.setState({show:true,
+                     text:textIn,
+                     size:sizeIn});
   }
 
   render() {
     return (
-      <Modal onEntered={ this.handleShow } size="sm" show={ this.state.show } centered onHide={()=>this.handleClick()} aria-labelledby="contained-modal-title-vcenter">
+      <Modal onEntered={ this.handleShowFocus } size={this.state.size} show={ this.state.show } centered onHide={()=>this.handleClick()} aria-labelledby="contained-modal-title-vcenter">
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title-vcenter">
             Сообщение

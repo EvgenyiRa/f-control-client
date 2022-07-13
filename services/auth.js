@@ -13,7 +13,7 @@ module.exports.set=async (login,pwd)=>{
         if (login===configs.adminLogin) {
           for (var i = 0; i < salts.length; i++) {
             const oneHash=await bcrypt.hash(pwd, salts[i]);
-            console.log('oneHash',oneHash);            
+            //console.log('oneHash',oneHash);            
             //console.log("oneHash:",oneHash);test
             if (oneHash===configs.adminPwd) {
               result=true;

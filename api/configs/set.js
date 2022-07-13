@@ -61,6 +61,9 @@ module.exports = async (configsIn) => {
       console.log('pwdNew',pwdNew);*/
       configsIn.adminPwd=await bcrypt.hash(pwdNew, salts[indexKey]);
   }
+  else if ((prOk) & (pwdNew===''))  {
+      configsIn.adminPwd=configs.adminPwd;
+  }
 
   [prOk2,configsIn.webClientIP]=common.checkRequired(configsIn.webClientIP);
   if (prOk) {

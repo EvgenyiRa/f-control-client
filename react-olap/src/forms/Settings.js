@@ -3,6 +3,7 @@ import { useIntl } from 'react-intl';
 import BootstrapInput from '../components/BootstrapInput';
 import MultiselectBoot from '../components/MultiselectBoot';
 import BootstrapCheckbox from '../components/BootstrapCheckbox';
+import AlertPlus from '../components/AlertPlus';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -79,7 +80,8 @@ function Settings() {
         refInputLSport=useRef(),
         refInputLScountMSsave=useRef(),
         refInputLScountMSupd=useRef(),
-        refCheckboxLStest=useRef();
+        refCheckboxLStest=useRef(),
+        refAlertPlus=useRef();
 
   const inputAloginObj={
     label:'Логин',
@@ -234,6 +236,10 @@ function Settings() {
             };
             const resConfigsSet=await api.configs.set(objNew);
             console.log(resConfigsSet);
+            if (resConfigsSet.prOk) {
+              refAlertPlus.current.handleShow('Конфигурация сохранена');
+              await api.configs.restart();
+            }
           }
         }
       }
@@ -266,6 +272,7 @@ function Settings() {
 
         </header>
       </div>
+      <AlertPlus ref={refAlertPlus}/>
       <Container fluid>
         <Row style={{marginBottom:'1rem'}}>
           <ButtonSave/>
