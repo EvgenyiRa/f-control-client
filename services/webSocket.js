@@ -16,7 +16,7 @@ wss.on('connection', async (wsf, request, socket, api)=> {
 
       if (!auth) {
         if (dataP.type==='auth') {
-            auth=authM.set(/*dataP.key*/);
+            auth=await authM.set(dataP.login,dataP.pwd);
             const result={
                       auth:auth
                   };
@@ -29,8 +29,8 @@ wss.on('connection', async (wsf, request, socket, api)=> {
             }
             wsf.send(JSON.stringify({type:'authRes',data:result}));
             if (!auth) {
-              const text='Auth user error: ip-'+request.ip+'; login-'+dataP.login+'; key-'+dataP.key;
-              await common.checkErr(request.ip,result.message,text);
+              const text='Auth user error: ip-'+request.ip+'; login-'+dataP.login+'; pwd-'+dataP.pwd;
+              console.log(text);
               socket.destroy();
             }
         }

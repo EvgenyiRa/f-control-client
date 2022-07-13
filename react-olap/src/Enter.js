@@ -6,21 +6,15 @@ import {setAuth} from './system.js';
 
 function Enter({setIsAuth}) {
   let [resultAuth,setResultAuth]=useState(null);
-  const handleEnterClick=()=>{
+  const handleEnterClick=async ()=>{
     let userL=document.getElementById('user').value.trim(),
         passwordL=document.getElementById('password').value.trim();
     if ((userL.length>0) & (passwordL.length>0)) {
-      setAuth({"login":userL,"password":passwordL},
-        function(response) {
-          if ((response.status===200) & (!!response.data.token)) {
-              setIsAuth(true);
-          }
-          else {
-            setResultAuth('Неправильное сочетание логин/пароль');
-            setIsAuth(false);
-          }
-        }
-      );
+      const res=await setAuth(userL,passwordL);
+      setIsAuth(res);
+      if (!res) {
+        setResultAuth('Неправильное сочетание логин/пароль');
+      }
     }
     else {
       setResultAuth('Заполните поля "Логин" и "Пароль"');

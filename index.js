@@ -294,7 +294,7 @@ let lastDate=hereDateStr,
            const dataForWSS={type:'dataUpdate',data:dataSend, date: hereDateStrIn};
            data.wsStat.connection.sendUTF(JSON.stringify(dataForWSS));
          }
-         else if (!data.wsStat.connect) {
+         else if ((!data.wsStat.connect) & (!!configs.webServerIP) && (!!configs.repUserId) && (!!configs.keyForWebServer)) {               
              webSocketClient.init(data);
          }
      } catch (err) {

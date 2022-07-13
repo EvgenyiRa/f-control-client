@@ -3,7 +3,7 @@ import {getDataServer} from './system.js';
 
 const api={};
 let wsClient;
-const init=()=> {
+const init=(login,pwd)=> {
   return new Promise((resolve) => {
   const wsStat={
     connect:false,
@@ -26,8 +26,9 @@ const init=()=> {
           // посылаем сообщение серверу
           const request={
             type:'auth',
-            message:"it's my, open!"/*,
-            key:configs.webServerConfigs.key*/
+            message:"it's my, open!",
+            login:login,
+            pwd:pwd
           };
           wsSend(JSON.stringify(request));
       }
@@ -55,7 +56,7 @@ const init=()=> {
                         getMethod();
                     }
                     else if (!wsStat.connect) {
-                        init().then((resWsCon) => {
+                        init(login,pwd).then((resWsCon) => {
                           if (resWsCon) {
                               getMethod();
                           }

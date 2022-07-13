@@ -57,9 +57,25 @@ module.exports = async (configsIn) => {
   }
   if ((prOk) & (pwdNew!=='')) {
       const indexKey=common.getRandomInRange(0,salts.length-1);
-      configsIn.adminPwd=await bcrypt.hash(pwdNew, indexKey);
+      /*console.log('indexKey',indexKey);
+      console.log('pwdNew',pwdNew);*/
+      configsIn.adminPwd=await bcrypt.hash(pwdNew, salts[indexKey]);
   }
 
+  [prOk2,configsIn.webClientIP]=common.checkRequired(configsIn.webClientIP);
+  if (prOk) {
+      prOk=prOk2;
+  }
+  if (!prOk2) {
+      strErr+='Поле "IP локального WEB-сервера" не может быть пустым\n';
+  }
+  [prOk2,configsIn.webClientPort]=common.checkRequired(configsIn.webClientPort);
+  if (prOk) {
+      prOk=prOk2;
+  }
+  if (!prOk2) {
+      strErr+='Поле "Порт локального WEB-сервера" не может быть пустым\n';
+  }
 
   const ckeckNum=(refInNum,msCool)=>{
     [prOk2,configsIn[refInNum]]=common.checkRequired(configsIn[refInNum]);

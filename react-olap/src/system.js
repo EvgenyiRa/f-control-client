@@ -80,24 +80,18 @@ function set_cookie( name, value, houreLife, path, domain, secure)
   document.cookie = cookie_string;
 }
 
-export function setAuth(data,callback) {
-  /*axiosInstance.post('/auth/set',data)
-  .then(function(response) {
-    authorization=0;
-    localStorage.setItem('authorization', '0');
-    if (response.status !== 200) {
-      console.log('Authentication failed.' + response.status);
-    }
-    else {
-      if (typeof response.data.authorization==='boolean') {
-        if (response.data.authorization) {
-            localStorage.setItem('authorization', '1');
+export function setAuth(login,pwd) {
+  return new Promise((resolve) => {
+     init(login,pwd).then((resWsCon) => {
+        authorization=0;
+        if (resWsCon) {
+            localStorage.setItem('login',login);
+            localStorage.setItem('pwd',pwd);
             authorization=1;
         }
-      }
-    }
-    callback(authorization);
-  });*/
+        resolve(authorization);
+     })
+  });
 }
 
 export function getAuthorization() {
@@ -110,6 +104,9 @@ export function getAuthorization() {
           }
           resolve(authorization);
        })
+    }
+    else {
+        resolve(authorization);
     }
   });
 }

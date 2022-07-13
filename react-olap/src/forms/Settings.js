@@ -180,6 +180,15 @@ function Settings() {
               }
           }
 
+          prOk2=refInputLSip.current.checkRequired();
+          if (prOk) {
+              prOk=prOk2;
+          }
+          prOk2=refInputLSport.current.checkRequired();
+          if (prOk) {
+              prOk=prOk2;
+          }
+
           const ckeckNum=(refInNum,msCool)=>{
             prOk2=refInNum.current.checkRequired();
             if (prOk2) {
