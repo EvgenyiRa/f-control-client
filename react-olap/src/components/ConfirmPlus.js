@@ -13,6 +13,7 @@ class ConfirmPlus extends React.Component {
         show:false,
         text:'',
         callback:undefined,
+        size:'sm'
       };
   }
 
@@ -24,13 +25,23 @@ class ConfirmPlus extends React.Component {
     }
   }
 
-  handleShow() {
+  handleShowFocus() {
     $('div.fade.modal.show div.modal-footer button:first').focus();
+  }
+
+  handleShow(textIn,callbackIn,sizeIn) {
+      if (!!!sizeIn) {
+          sizeIn='sm';
+      }
+      this.setState({show:true,
+                     text:textIn,
+                     callback:callbackIn,
+                     size:sizeIn});
   }
 
   render() {
     return (
-      <Modal onEntered={ this.handleShow } size="sm" show={ this.state.show } centered onHide={()=>this.handleClick(false)} aria-labelledby="contained-modal-title-vcenter">
+      <Modal onEntered={ this.handleShowFocus } size={this.state.size} show={ this.state.show } centered onHide={()=>this.handleClick(false)} aria-labelledby="contained-modal-title-vcenter">
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title-vcenter">
             Подтвердите действие

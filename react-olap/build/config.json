@@ -1,4 +1,1 @@
-{
-  "dataServer": "http://127.0.0.1:4777",
-  "dbtype": "mysql"
-}
+{"dataServer":"127.0.0.1:4777","dbtype":"mysql"}

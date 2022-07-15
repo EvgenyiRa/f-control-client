@@ -44,18 +44,18 @@ class MultiselectSQL extends React.Component {
     const newOptions=[...this.state.options];
     if (!this.multiple) {
       newOptions.forEach((item, i) => {
-          newOptions[i].checked=false;
+          delete newOptions[i].selected;
           if (item.value===value) {
-              newOptions[i].checked=true;
+              newOptions[i].selected=true;
           }
       });
     }
     else {
       newOptions.forEach((item, i) => {
-          newOptions[i].checked=false;
+          delete newOptions[i].selected;
           for (var j = 0; j < value.length; i++) {
             if (value[j]===item.value) {
-              newOptions[i].checked=true;
+              newOptions[i].selected=true;
               value.splice(j, 1);
               break;
             }
@@ -66,6 +66,11 @@ class MultiselectSQL extends React.Component {
       options:newOptions,
       checkedOptions:value
     });
+    if ((!!this.props.obj.paramGroup) & (!!this.props.obj.setParamGroup)) {
+      let newObj = { ...this.props.obj.paramGroup };
+      newObj[this.props.obj.parChealdID]=value;
+      this.props.obj.setParamGroup(newObj);
+    }
   }
 
   getOptionsBySQL() {

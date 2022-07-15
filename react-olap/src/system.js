@@ -12,7 +12,7 @@ let dataServer,
 $.ajax({
   type: "GET",
   url: '/config.json',
-  //dataType:'json',
+  dataType:'json',
   async:false,
   success: function(data) {
     dataServer=data.dataServer;

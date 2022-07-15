@@ -144,11 +144,17 @@ module.exports = async (configsIn) => {
           configsT+='  '+key+':'+val+',\n';
       }
       configsT+='};';
-      const pathConfigs=path.join(path.dirname(path.dirname(__dirname)),'configs');
+      const pathRoot=path.dirname(path.dirname(__dirname)),
+            pathConfigs=path.join(pathRoot,'configs');
       //console.log('pathConfigs',pathConfigs);
       configsT+= fs.readFileSync(path.join(pathConfigs,'configs.js.template'), 'utf8')
                    .split('//split')[1];
       fs.writeFileSync(path.join(pathConfigs,'configs.js'), configsT);
+      //записываем новые данные о сервере в Реакт
+      const pathRconfigs=path.join(pathRoot,'react-olap','build','config.json'),
+            dataRconfigs=JSON.parse(fs.readFileSync(pathRconfigs, 'utf8'));
+      dataRconfigs.dataServer=configsIn.webClientIP+':'+configsIn.webClientPort;
+      fs.writeFileSync(pathRconfigs, JSON.stringify(dataRconfigs));     
   }
   return {prOk:prOk,strErr:strErr};
 };

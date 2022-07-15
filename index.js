@@ -126,15 +126,16 @@ console.log('Initializing web server module');
 const sockets = new Set();
 const server = http.createServer(async (req, res) => {
   const url = req.url === '/' ? '/index.html' : req.url;
-  const [file] = url.substring(1).split('/');
-  const path = `./react-olap/build/${file}`;
+  //console.log('req',req);
   try {
-    if (url==='/ch_fc') {
+    if (url.indexOf('/ch_fc/')>-1) {
       req.router='/ch_fc';
       routerChFC(req,res);
     }
     else {
-      const data = await fs.promises.readFile(path);
+      const path = `./react-olap/build/${url.substring(1)}`;
+      console.log('path',path);
+      const data = fs.readFileSync(path);
       res.end(data);
     }
   } catch (err) {
@@ -417,6 +418,12 @@ let lastDate=hereDateStr,
                }
              }
            }
+           else {
+              data.data.access=true;
+           }
+         }
+         else {
+           data.data.access=true;
          }
 
          if (!data.data.access) {

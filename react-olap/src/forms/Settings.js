@@ -237,8 +237,13 @@ function Settings() {
             const resConfigsSet=await api.configs.set(objNew);
             console.log(resConfigsSet);
             if (resConfigsSet.prOk) {
-              refAlertPlus.current.handleShow('Конфигурация сохранена');
-              await api.configs.restart();
+              refAlertPlus.current.handleShow('Конфигурация сохранена',(val)=>{
+                api.configs.restart();
+                setTimeout(()=>{
+                    document.location.href=window.location.protocol+'//'+refInputLSip.current.state.value+':'+refInputLSport.current.state.value+'/'+window.location.hash;
+                    //http://localhost:3000/#/settings
+                }, 3000);
+              });
             }
           }
         }

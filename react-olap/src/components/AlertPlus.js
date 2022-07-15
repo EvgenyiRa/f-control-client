@@ -14,25 +14,32 @@ class AlertPlus extends React.Component {
       this.state = {
         show:false,
         text:'',
-        size:'sm'
+        size:'sm',
+        callback:undefined
       };
   }
 
   handleClick() {
     this.setState({show:false,text:''});
+    if (!!this.state.callback) {
+      this.state.callback(this);
+      this.setState({callback:undefined});
+    }
   }
 
   handleShowFocus() {
     $('div.fade.modal.show div.modal-footer button').focus();
   }
 
-  handleShow(textIn,sizeIn) {
+  handleShow(textIn,callbackIn,sizeIn) {
       if (!!!sizeIn) {
           sizeIn='sm';
       }
       this.setState({show:true,
                      text:textIn,
-                     size:sizeIn});
+                     size:sizeIn,
+                     callback:callbackIn
+                   });
   }
 
   render() {
