@@ -134,7 +134,7 @@ const server = http.createServer(async (req, res) => {
     }
     else {
       const path = `./react-olap/build/${url.substring(1)}`;
-      console.log('path',path);
+      //console.log('path',path);
       const data = fs.readFileSync(path);
       res.end(data);
     }
@@ -279,7 +279,7 @@ let lastDate=hereDateStr,
        //console.log(e);
    }
    try {
-     const dataStr=fs.readFileSync("./data/lims_"+currentUser+".json",
+     const dataStr=fs.readFileSync("./data/lims/"+currentUser+".json",
                                    {encoding:'utf8', flag:'r'});
      data.lims=JSON.parse(dataStr);
    } catch (e) {

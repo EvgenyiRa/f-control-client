@@ -151,7 +151,7 @@ const loadDataLocal=()=>{
       //console.log(e);
   }
   try {
-    const dataStr=fs.readFileSync("./data/lims_"+currentUser+".json",
+    const dataStr=fs.readFileSync("./data/lims/"+currentUser+".json",
                                   {encoding:'utf8', flag:'r'});
     data.lims=JSON.parse(dataStr);
   } catch (e) {

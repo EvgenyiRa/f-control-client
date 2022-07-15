@@ -69,11 +69,8 @@ const Aside = ({ image, collapsed, rtl, toggled, handleToggleSidebar,handleColla
 
       <SidebarContent>
         <Menu iconShape="circle">
-          <MenuItem>{intl.formatMessage({ id: 'init' })}
-            <Link to='/admin'/>
-          </MenuItem>
-          <MenuItem>Пример Web-OLAP компонента
-            <Link to='/calc_olap'/>
+          <MenuItem>{intl.formatMessage({ id: 'control' })}
+            <Link to='/control'/>
           </MenuItem>
           <MenuItem>{intl.formatMessage({ id: 'settings' })}
             <Link to='/settings'/>

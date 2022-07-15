@@ -309,14 +309,6 @@ span.multiselect-native-select button.btn.btn-default.multiselect-clear-filter {
   border-radius: 0 .25rem  .25rem 0;
 }
 
-span.multiselect-native-select button.multiselect.dropdown-toggle.btn.btn-default {
-    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
-    background-color: white;
-    background-repeat: repeat-x;
-    min-width: 13rem;
-    height: 3.5rem;
-}
-
 span.multiselect-native-select div.btn-group.show button.multiselect.dropdown-toggle.btn.btn-default {
   border-color: #80bdff;
   outline:none;
@@ -325,6 +317,11 @@ span.multiselect-native-select div.btn-group.show button.multiselect.dropdown-to
 span.multiselect-native-select div.btn-group button.multiselect.dropdown-toggle.btn.btn-default {
   border:1px solid rgba(0, 0, 0, 0.2);
   outline:none;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+  background-color: white;
+  background-repeat: repeat-x;
+  width: 20em;
+  height: 3.5rem;
 }
 
 span.multiselect-native-select div.input-group {
@@ -1120,4 +1117,5 @@ div.divForRadioGroupBC label.labelForInputBC {
 
 div.bootstrapMultiselectContainer div.btn-group.show ul.multiselect-container.dropdown-menu {
   display: block;
+  width: 100%;
 }

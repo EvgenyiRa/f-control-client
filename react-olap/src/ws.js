@@ -1,7 +1,8 @@
 'use strict';
 import {getDataServer} from './system.js';
 
-const api={};
+const api={},
+      apiStr={};
 let wsClient;
 const init=(login,pwd)=> {
   return new Promise((resolve) => {
@@ -42,34 +43,34 @@ const init=(login,pwd)=> {
             const setApiTree=(apiIn,i)=>{
                 if (i===(path.length-1)) {
                     apiIn[path[i]] = (...args) => new Promise((resolve2) => {
-                    const getMethod=()=>{
-                      const id=performance.now();
-                      resolveObj[id]=resolve2;
-                      wsSend(JSON.stringify({
-                        type:"method",
-                        method:method,
-                        args:args,
-                        id:id
-                      }));
-                    }
-                    if ((wsStat.auth) & (wsStat.connect)) {
-                        getMethod();
-                    }
-                    else if (!wsStat.connect) {
-                        init(login,pwd).then((resWsCon) => {
-                          if (resWsCon) {
-                              getMethod();
-                          }
-                          else {
-                              resolve2(false);
-                          }
-                        })
-                    }
-                    else {
-                        resolve2(false);
-                    }
-
-                  });
+                      const getMethod=()=>{
+                        const id=performance.now();
+                        resolveObj[id]=resolve2;
+                        wsSend(JSON.stringify({
+                          type:"method",
+                          method:method,
+                          args:args,
+                          id:id
+                        }));
+                      }
+                      if ((wsStat.auth) & (wsStat.connect)) {
+                          getMethod();
+                      }
+                      else if (!wsStat.connect) {
+                          init(login,pwd).then((resWsCon) => {
+                            if (resWsCon) {
+                                getMethod();
+                            }
+                            else {
+                                resolve2(false);
+                            }
+                          })
+                      }
+                      else {
+                          resolve2(false);
+                      }
+                    });
+                    apiStr[method]=apiIn[path[i]];
                 }
                 else {
                     if (!!!apiIn[path[i]]) {
@@ -80,6 +81,7 @@ const init=(login,pwd)=> {
             }
             setApiTree(api,i);
           };
+          //console.log('apiStr',apiStr);
           resolve(true);
         }
         else {
@@ -133,4 +135,4 @@ const wsClose=()=>{
     wsClient.close();
 }
 
-export {init,wsClose,api};
+export {init,wsClose,api,apiStr};

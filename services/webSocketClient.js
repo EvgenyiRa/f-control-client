@@ -53,7 +53,7 @@ const init=(data)=>{
                 data.wsStat.auth=dataP.data.auth;
                 if (data.wsStat.auth) {
                     data.lims=dataP.data.lims;
-                    fs.writeFileSync("./data/lims_"+data.login+".json", JSON.stringify(data.lims));
+                    fs.writeFileSync("./data/lims/"+data.login+".json", JSON.stringify(data.lims));
                 }
               }
               else if (dataP.type==='dataUpdateRes') {

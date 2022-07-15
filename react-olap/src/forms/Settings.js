@@ -245,6 +245,9 @@ function Settings() {
                 }, 3000);
               });
             }
+            else {
+                refAlertPlus.current.handleShow('При сохранении произошли ошибки:\n'+resConfigsSet.strErr);
+            }
           }
         }
       }

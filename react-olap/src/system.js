@@ -123,7 +123,19 @@ function delete_cookie( cookie_name )
   document.cookie = cookie_name += "=; expires=" + cookie_date.toGMTString();
 }
 
-export function getParamForSQL(paramGroup,parParentID,data) {
+export function getParamForAPI(t_props) {
+  const paramGroup=t_props.paramGroup,
+        parParentID=t_props.parParentID,
+        params={};
+  if ((!!paramGroup) & (!!parParentID)) {
+    parParentID.forEach(function(item) {
+      params[item]=paramGroup[item];
+    });
+  }
+  return params;
+}
+
+/*export function getParamForSQL(paramGroup,parParentID,data) {
       if ((!!paramGroup) & (!!parParentID)) {
         if (['mysql','pg'].indexOf(dbtype)===-1) {
           parParentID.forEach(function(item) {
@@ -230,7 +242,7 @@ export function getParamForSQL(paramGroup,parParentID,data) {
 
         }
       }
-}
+}*/
 
 export function getDiffArray(a,b) {
   var result=false;
@@ -255,25 +267,29 @@ export function getDiffArray(a,b) {
   return result;
 }
 
-export function getParamDiff(t_paramGroup,p_paramGroup,parParentID) {
-      var result=false;
-      if ((!!t_paramGroup) & (!!p_paramGroup) & (!!parParentID)) {
-        for (var j = 0; j < parParentID.length; j++) {
-            if (!Array.isArray(t_paramGroup[parParentID[j]])) {
-              if (t_paramGroup[parParentID[j]]!==p_paramGroup[parParentID[j]]) {
-                  result=true;
-                  break;
-              }
+export function getParamDiff(t_props,p_props) {
+    const t_paramGroup=t_props.paramGroup,
+          p_paramGroup=p_props.paramGroup,
+          parParentID=t_props.parParentID;
+    var result=false;
+    if ((!!t_paramGroup) & (!!p_paramGroup) & (!!parParentID)) {
+      for (var j = 0; j < parParentID.length; j++) {
+          if (!Array.isArray(t_paramGroup[parParentID[j]])) {
+            if (t_paramGroup[parParentID[j]]!==p_paramGroup[parParentID[j]]) {
+                result=true;
+                break;
             }
-            else {
-              if (getDiffArray(t_paramGroup[parParentID[j]],p_paramGroup[parParentID[j]])) {
-                  result=true;
-                  break;
-              }
+          }
+          else {
+            if (getDiffArray(t_paramGroup[parParentID[j]],p_paramGroup[parParentID[j]])) {
+                result=true;
+                break;
             }
-        }
+          }
       }
-      return result;
+    }
+
+    return result;
 }
 
 export function getAuth(callback,stateLoadObj) {

@@ -6,10 +6,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import logo from './img/logo.png';
 
-/*import Admin_users from './forms/admin/Users';
-import CalcOLAP from './forms/CalcOLAP';*/
 import Settings from './forms/Settings';
-/*import {getAuth,getExistRight} from './system.js';*/
+import Control from './forms/Control';
 
 
 const Main = ({
@@ -50,12 +48,9 @@ const Main = ({
       <Switch>
         <Route exact path='/' component={Home}/>
       </Switch>
-      {/*<Switch>
-          <Route exact path='/admin' component={Admin_users}/>
-      </Switch>
       <Switch>
-          <Route exact path='/calc_olap' component={CalcOLAP}/>
-     </Switch>*/}
+          <Route exact path='/Control' component={Control}/>
+      </Switch>
      <Switch>
          <Route exact path='/settings' component={Settings}/>
     </Switch>
