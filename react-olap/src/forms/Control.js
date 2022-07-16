@@ -3,6 +3,7 @@ import { useIntl } from 'react-intl';
 import Loading from '../components/Loading';
 import AlertPlus from '../components/AlertPlus';
 import MultiselectAPI from '../components/MultiselectAPI';
+import TableAPI from '../components/TableAPI';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
