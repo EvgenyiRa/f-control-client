@@ -14,7 +14,22 @@ function Control() {
   const refLoading=useRef(),
         refAlertPlus=useRef();
 
+  const [lims, setLims] = useState(undefined);
   const [paramGroup, setParamGroup] = useState({user:-777});
+  useEffect(() => {
+    setLimsState();
+    //console.log(api);
+  },[api]);
+  const setLimsState=async()=> {
+     if (!!api.control.getLims) {
+        const res=await api.control.getLims();
+        setLims(res);
+        refLoading.current.handleHide();
+     }
+     else {
+       refLoading.current.handleShow();
+     }
+  }
 
   //объект для выпадающего списка с данными из БД
   const selectUserObj={
@@ -25,7 +40,15 @@ function Control() {
     //наименование параметра для зависимых(дочерних) элементов
     parChealdID:"user",
     //необходимо наличие двух полей с именами value,label
-    apiMethod:'control.getUsers',
+    //apiMethod:'control.getUsers',
+    apiData:lims,
+    apiDataFunc:(data,params,thisV)=>{
+        const res=[];
+        for (var key in data) {
+            res.push({value:key,label:key});
+        }
+        return res;
+    },
     id:"selectUsers"
    };
 
