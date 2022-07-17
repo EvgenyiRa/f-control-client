@@ -145,16 +145,15 @@ class TableAPI extends React.Component {
         }
     }
 
-    getRowsByAPI() {
-      if (!!this.props.obj.stateLoadObj) {
+    getRowsByAPI(prevProps) {
+      if (this.props.obj.stateLoadObj.current!==null) {
         this.props.obj.stateLoadObj.current.handleShow();
       }
       const thisV=this;
-      var data = {params:{}};
       const parForAPI=getParamForAPI(thisV.props.obj);
       let prOk=true;
       if (!!thisV.props.obj.beforeGetAPI) {
-          prOk=thisV.props.obj.beforeGetAPI(thisV,parForAPI);
+          prOk=thisV.props.obj.beforeGetAPI(thisV,parForAPI,prevProps);
       }
       if (prOk) {
         const setRes=(res)=>{
@@ -162,7 +161,7 @@ class TableAPI extends React.Component {
           if (!!thisV.props.obj.afterLoadRows) {
               thisV.props.obj.afterLoadRows(thisV,res);
           }
-          if (!!this.props.obj.stateLoadObj) {
+          if (this.props.obj.stateLoadObj.current!==null) {
             this.props.obj.stateLoadObj.current.handleHide();
           }
         }
@@ -173,7 +172,7 @@ class TableAPI extends React.Component {
             setRes(res);
           }
           else if (!!this.props.obj.apiDataFunc) {
-              const res=await this.props.obj.apiDataFunc(this.props.obj.apiData,parForAPI,this);
+              const res=await this.props.obj.apiDataFunc(this.props.obj.apiData,parForAPI,this,prevProps);
               setRes(res);
           }
         }
@@ -189,6 +188,9 @@ class TableAPI extends React.Component {
             }, 100);
         }
 
+      }
+      else if (this.props.obj.stateLoadObj.current!==null) {
+        this.props.obj.stateLoadObj.current.handleHide();
       }
     }
 
@@ -292,11 +294,11 @@ class TableAPI extends React.Component {
         // Популярный пример (не забудьте сравнить пропсы):
         //console.log(this.props);
         if (getParamDiff(this.props.obj,prevProps.obj)) {
-            this.getRowsByAPI();
+            this.getRowsByAPI(prevProps.obj);
         }
         else if ((!!this.props.obj.apiData) & (!!this.props.obj.apiDataFunc)) {
             if (this.props.obj.apiData!==prevProps.obj.apiData) {
-                this.getRowsByAPI();
+                this.getRowsByAPI(prevProps.obj);
             }
         }
         if (!!this.props.obj.componentDidUpdate) {

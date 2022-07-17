@@ -27,15 +27,33 @@ class MultiselectAPI extends React.Component {
   handleChange(option, checked) {
     const optionValue=(this.typeValue==='number')?+option[0].value:option[0].value;
     if (checked) {
-       if (this.state.checkedOptions===undefined) {
-          this.setState({checkedOptions:[optionValue]});
-       }
-       else {
-         this.setState({checkedOptions: [...this.state.checkedOptions, optionValue]});
-       }
+       if (!this.multiple) {
+        this.setState({
+          checkedOptions: optionValue
+        });
+        //для единичного выбора обрабатываем изменение параметров формы здесь
+        if ((!!this.props.obj.parChealdID) & (!!this.props.obj.setParamGroup) & (!!this.props.obj.paramGroup)) {
+            let newObj = { ...this.props.obj.paramGroup };
+            newObj[this.props.obj.parChealdID]=optionValue;
+            this.props.obj.setParamGroup(newObj);
+        }
+      }
+      else {
+         if (this.state.checkedOptions===undefined) {
+            this.setState({checkedOptions:[optionValue]});
+         }
+         else {
+           this.setState({checkedOptions: [...this.state.checkedOptions, optionValue]});
+        }
+      }
     }
     else {
-      this.setState({checkedOptions: this.state.checkedOptions.filter(x => x !== optionValue)});
+      if (this.multiple) {
+        this.setState({checkedOptions: this.state.checkedOptions.filter(x => x !== optionValue)});
+      }
+    }
+    if (!!this.props.obj.handleChange) {
+        this.props.obj.handleChange(option, checked, this);
     }
   }
 
@@ -72,8 +90,8 @@ class MultiselectAPI extends React.Component {
     }
   }
 
-  getOptionsByAPI() {
-    if (!!this.props.obj.stateLoadObj) {
+  getOptionsByAPI(prevProps) {
+    if (this.props.obj.stateLoadObj.current!==null) {
       this.props.obj.stateLoadObj.current.handleShow();
     }
     const thisV=this;
@@ -81,7 +99,7 @@ class MultiselectAPI extends React.Component {
     const parForAPI=getParamForAPI(thisV.props.obj);
     let prOk=true;
     if (!!thisV.props.obj.beforeGetAPI) {
-        prOk=thisV.props.obj.beforeGetAPI(thisV,parForAPI);
+        prOk=thisV.props.obj.beforeGetAPI(thisV,parForAPI,prevProps);
     }
     if (prOk) {
       const setRes=(res)=>{
@@ -143,7 +161,7 @@ class MultiselectAPI extends React.Component {
         if (!!this.props.obj.afterLoadData) {
             this.props.obj.afterLoadData(this,res);
         }
-        if (!!this.props.obj.stateLoadObj) {
+        if (this.props.obj.stateLoadObj.current!==null) {
           this.props.obj.stateLoadObj.current.handleHide();
         }
       }
@@ -154,7 +172,7 @@ class MultiselectAPI extends React.Component {
           setRes(res);
         }
         else if (!!this.props.obj.apiDataFunc) {
-            const res=await this.props.obj.apiDataFunc(this.props.obj.apiData,parForAPI,this);
+            const res=await this.props.obj.apiDataFunc(this.props.obj.apiData,parForAPI,this,prevProps);
             setRes(res);
         }
       }
@@ -170,6 +188,9 @@ class MultiselectAPI extends React.Component {
           }, 100);
       }
 
+    }
+    else if (this.props.obj.stateLoadObj.current!==null) {
+      this.props.obj.stateLoadObj.current.handleHide();      
     }
     /*getSQLRun(data,(response)=> {
       const setDefault=()=>{
@@ -250,11 +271,11 @@ class MultiselectAPI extends React.Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     //if (getParamDiff(this.props.obj.paramGroup,prevProps.obj.paramGroup,this.props.obj.parParentID)) {
     if (getParamDiff(this.props.obj,prevProps.obj)) {
-          this.getOptionsByAPI();
+          this.getOptionsByAPI(prevProps.obj);
     }
     else if ((!!this.props.obj.apiData) & (!!this.props.obj.apiDataFunc)) {
         if (this.props.obj.apiData!==prevProps.obj.apiData) {
-            this.getOptionsByAPI();
+            this.getOptionsByAPI(prevProps.obj);
         }
     }
     if (!!this.props.obj.componentDidUpdate) {

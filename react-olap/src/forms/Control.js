@@ -22,21 +22,18 @@ function Control() {
 
   const tekDate=new Date();
 
-  const [apiData, setApiData] = useState(undefined);
-  const [apiData2, setApiData2] = useState(undefined);
+  const [apiData, setApiData] = useState({lims:undefined,data:undefined});
   const [paramGroup, setParamGroup] = useState({user:-777,date:format(tekDate,'dd-MM-yyyy')});
-  useEffect(() => {
-    setApiDataState();
-    //console.log(api);
+  useEffect(async () => {
+    if (!!api.control.getLims) {
+       if (refLoading.current!==null)
+          refLoading.current.handleShow();
+       const res=await api.control.getLims();
+       setApiData({lims:res});
+       if (refLoading.current!==null)
+          refLoading.current.handleHide();
+    }
   },[api]);
-  const setApiDataState=async()=> {
-     if (!!api.control.getLims) {
-        refLoading.current.handleShow();
-        const res=await api.control.getLims();
-        setApiData({lims:res});
-        refLoading.current.handleHide();
-     }
-  }
 
   //объект для выпадающего списка с данными из БД
   const selectUserObj={
@@ -49,14 +46,34 @@ function Control() {
     //необходимо наличие двух полей с именами value,label
     //apiMethod:'control.getUsers',
     apiData:apiData,
-    apiDataFunc:(data,params,thisV)=>{
+    apiDataFunc:(data,params,thisV,prevProps)=>{
         const res=[];
         for (var key in data.lims) {
             res.push({value:key,label:key});
         }
         return res;
     },
-    id:"selectUsers"
+    beforeGetAPI:(thisV,parForAPI,prevProps)=>{
+      if (thisV.props.obj.apiData.lims===prevProps.apiData.lims) {
+        return false;
+      }
+      else {
+        return true;
+      }
+    },
+    setApiData:setApiData,
+    id:"selectUsers",
+    afterLoadData:(thisV,res)=>{
+        thisV.props.obj.handleChange(res,true,thisV);
+    },
+    handleChange:async (option, checked, thisV)=>{
+      refLoading.current.handleShow();
+      const res=await api.control.getData(option[0].value,thisV.props.obj.paramGroup.date),
+            newApiData={...apiData};
+      newApiData.data=res;
+      thisV.props.obj.setApiData(newApiData);
+      refLoading.current.handleHide();
+    }
    };
 
    //объект для таблицы с данными из БД
@@ -66,9 +83,7 @@ function Control() {
       bodyClasses:'body_row_dblclick',
       tab_id:"tab1",
       paramGroup:paramGroup,
-      parParentID:['user','date'],
-      setApiData:setApiData2,
-      apiData:apiData,
+      parParentID:['user','date'],      
      keyField:'id',
      columns:[
        {dataField:'lim',text:'Ограничение',headerAttrs: (column, colIndex) => ({ 'width': `150px` })},
@@ -76,15 +91,11 @@ function Control() {
      ],
      apiData:apiData,
      apiDataFunc:async (data,params,thisV)=>{
-       if (thisV.props.obj.paramGroup.user!==-777) {
-         refLoading.current.handleShow();
-         const res=await api.control.getData(thisV.props.obj.paramGroup.user,thisV.props.obj.paramGroup.date);
-         thisV.props.obj.setApiData(res);
-         refLoading.current.handleHide();
+       if ((!!data.lims) & (!!data.data)) {
          return [{
            id:1,
            lim:data.lims[thisV.props.obj.paramGroup.user].sys.TIME_ALL.toFixed(0),
-           value:res.timeAll.toFixed(0)
+           value:(data.data.timeAll/1000).toFixed(0)
          }];
        }
        else {
