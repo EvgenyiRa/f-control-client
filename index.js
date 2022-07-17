@@ -253,8 +253,9 @@ const getCurrenUser=()=>{
 }
 
 let currentUser=getCurrenUser();
-const dataDefault={
-        data:{timeAll:0,access:true},
+const dataDataDefault={timeAll:0,access:true},
+      dataDefault={
+        data:dataDataDefault,
         lims:{},
         repUserId:configs.repUserId,
         key:configs.keyForWebServer,
@@ -325,7 +326,8 @@ let lastDate=hereDateStr,
              hereDateStrNew=dfns.format(hereDateTimeNew, 'dd-MM-yyyy');
        if (hereDateStrNew!==lastDate) {
            await dataToFilePost(lastDate);
-           data.data={};
+           data.data=dataDataDefault;
+           timeAllDelta=performance.now(),
            lastDate=hereDateStrNew;
        }
        const currentUserNew=getCurrenUser();

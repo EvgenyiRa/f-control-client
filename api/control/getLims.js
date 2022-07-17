@@ -2,7 +2,7 @@
 const path = require('path'),
       fs = require('fs');
 
-module.exports = async (codeCity) => {
+module.exports = async () => {
   const pathRoot=path.dirname(path.dirname(__dirname)),
         dir=path.join('data','lims'),
         files=fs.readdirSync(dir),

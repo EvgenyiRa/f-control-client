@@ -166,15 +166,14 @@ class TableAPI extends React.Component {
             this.props.obj.stateLoadObj.current.handleHide();
           }
         }
-        const getApi=()=>{
+        const getApi=async ()=>{
           //console.log(apiStr);
           if (!!this.props.obj.apiMethod) {
-            apiStr[thisV.props.obj.apiMethod](parForAPI).then((res)=>{
-                setRes(res);
-            });
+            const res=await apiStr[thisV.props.obj.apiMethod](parForAPI);
+            setRes(res);
           }
           else if (!!this.props.obj.apiDataFunc) {
-              const res=this.props.obj.apiDataFunc(this.props.obj.apiData,parForAPI,this);
+              const res=await this.props.obj.apiDataFunc(this.props.obj.apiData,parForAPI,this);
               setRes(res);
           }
         }
