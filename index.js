@@ -157,8 +157,8 @@ const server = http.createServer((req, res) => {
         try {
           const ip=request.connection.remoteAddress;
           //console.log('ip',ip);
-          //проверяем ip на нахождение в блокировке
-          if (request.connection.remoteAddress!=='127.0.0.1') {
+          //только локальный
+          if (ip!=='127.0.0.1') {
               socket.destroy();
               console.log('Недопустимое подключение по вебсокету');
           }

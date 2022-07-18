@@ -128,24 +128,49 @@ function Control() {
      bodyClasses:'body_row_dblclick',
      tab_id:"tab2",
      paramGroup:paramGroup,
+     parParentID:['user','date'],
      keyField:'name',
     columns:[
       {dataField:'name',text:'Наименование',headerAttrs: (column, colIndex) => ({ 'width': `150px` })},
       {dataField:'pid',text:'PID',headerAttrs: (column, colIndex) => ({ 'width': `100px` })},
       {dataField:'timeAllDelta',text:'Время, потраченное на окно процесса',headerAttrs: (column, colIndex) => ({ 'width': `150px` })},
+      {dataField:'lim',text:'Ограничение',headerAttrs: (column, colIndex) => ({ 'width': `150px` })},
       {dataField:'access',text:'Разрешение на запуск процесса',headerAttrs: (column, colIndex) => ({ 'width': `100px` })},
     ],
     apiData:apiData,
     apiDataFunc:async (data,params,thisV)=>{
       if ((!!data.lims) & (!!data.data)) {
         const res=[];
+        let proc;
+        if (!!data.lims[params.user].proc) {
+          proc={};
+          data.lims[params.user].proc.forEach((item) => {
+              proc[item.PRC_NAME]=item.LIM;
+          });
+        }
         if (!!data.data.winsActiveSum) {
           for (var key in data.data.winsActiveSum) {
             const winsActiveSum={...data.data.winsActiveSum[key]};
-            winsActiveSum.timeAllDelta=(winsActiveSum.timeAllDelta/1000).toFixed(0)
+            winsActiveSum.timeAllDelta=(winsActiveSum.timeAllDelta/1000).toFixed(0);
+            winsActiveSum.name=key;
+            winsActiveSum.lim='';
+            if (!!proc) {
+              if (!!proc[key]) {
+                  winsActiveSum.lim=proc[key];
+                  delete proc[key];
+              }
+            }
+            res.push(winsActiveSum);
+          }
+        }
+        if (!!proc) {
+          for (var key in proc) {
             res.push({
-                ...{name:key},
-                ...winsActiveSum
+                name:key,
+                pid:'',
+                timeAllDelta:'',
+                lim:proc[key],
+                access:true
             });
           }
         }
