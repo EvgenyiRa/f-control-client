@@ -33,6 +33,31 @@ function Control() {
        if (refLoading.current!==null)
           refLoading.current.handleHide();
     }
+
+  /*const url='https://developer.mozilla.org/en-US/docs/Web/API/URL#properties',
+        urlServer = 'http://127.0.0.1:4777/ch_fc/set_url',
+        data = { url: url };
+  //console.log(url);
+  const request = new Request(urlServer,{
+    method: 'POST', // или 'PUT'
+    body: JSON.stringify(data), // данные могут быть 'строкой' или {объектом}!
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+  try {
+    fetch(request)
+      .then((response) => {
+        response.json().then((response2) => {
+          console.log(response2);
+        });
+      })
+      .then((data) => {
+        console.log(data);
+      });
+  } catch (error) {
+    console.error('Ошибка:', error);
+  }*/
   },[api]);
 
   //объект для выпадающего списка с данными из БД
@@ -83,7 +108,7 @@ function Control() {
       bodyClasses:'body_row_dblclick',
       tab_id:"tab1",
       paramGroup:paramGroup,
-      parParentID:['user','date'],      
+      parParentID:['user','date'],
      keyField:'id',
      columns:[
        {dataField:'lim',text:'Ограничение',headerAttrs: (column, colIndex) => ({ 'width': `150px` })},
@@ -118,6 +143,56 @@ function Control() {
     },
     filterFactory:filterFactory*/
   };
+
+  const tableAPIprocObj={
+    stateLoadObj:refLoading,
+     tableContainerClass:'max-content',
+     bodyClasses:'body_row_dblclick',
+     tab_id:"tab2",
+     paramGroup:paramGroup,
+     keyField:'name',
+    columns:[
+      {dataField:'name',text:'Наименование',headerAttrs: (column, colIndex) => ({ 'width': `150px` })},
+      {dataField:'pid',text:'PID',headerAttrs: (column, colIndex) => ({ 'width': `100px` })},
+      {dataField:'timeAllDelta',text:'Время, потраченное на окно процесса',headerAttrs: (column, colIndex) => ({ 'width': `150px` })},
+      {dataField:'access',text:'Разрешение на запуск процесса',headerAttrs: (column, colIndex) => ({ 'width': `100px` })},
+    ],
+    apiData:apiData,
+    apiDataFunc:async (data,params,thisV)=>{
+      if ((!!data.lims) & (!!data.data)) {
+        const res=[];
+        if (!!data.data.winsActiveSum) {
+          for (var key in data.data.winsActiveSum) {
+            const winsActiveSum={...data.data.winsActiveSum[key]};
+            winsActiveSum.timeAllDelta=(winsActiveSum.timeAllDelta/1000).toFixed(0)
+            res.push({
+                ...{name:key},
+                ...winsActiveSum
+            });
+          }
+        }
+        return res;
+      }
+      else {
+        return [];
+      }
+    },
+    //действия панели таблицы
+   /*paginationFactory:paginationFactory,
+   paginationOptions:{
+     paginationSize: 7,
+     sizePerPageList: [{
+         text: '10', value: 10
+       }, {
+         text: '50', value: 50
+       }, {
+         text: '100', value:100
+       }, {
+         text: '500', value:500
+       }]
+   },
+   filterFactory:filterFactory*/
+ };
 
   const inputDateObj={
     label:'Дата',
@@ -159,6 +234,11 @@ function Control() {
         <Row>
           <Col>
             <TableAPI obj={tableAPIObj}/>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <TableAPI obj={tableAPIprocObj}/>
           </Col>
         </Row>
       </Container>

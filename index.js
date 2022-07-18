@@ -124,12 +124,13 @@ console.dir({ api });
 
 console.log('Initializing web server module');
 const sockets = new Set();
-const server = http.createServer(async (req, res) => {
+const server = http.createServer((req, res) => {
   const url = req.url === '/' ? '/index.html' : req.url;
-  //console.log('req',req);
+  //console.log('url',url);
   try {
     if (url.indexOf('/ch_fc/')>-1) {
       req.router='/ch_fc';
+      req.indexData=data;
       routerChFC(req,res);
     }
     else {
@@ -139,8 +140,8 @@ const server = http.createServer(async (req, res) => {
       res.end(data);
     }
   } catch (err) {
+    console.error(err);
     res.statusCode = 404;
-    res.end('"File is not found"');
   }
 }).listen(configs.webClientPort,configs.webClientIP)
   .on('listening', async () => {

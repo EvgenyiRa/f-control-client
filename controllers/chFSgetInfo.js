@@ -2,9 +2,9 @@ const configs=require('../configs/configs.js');
 
 async function get(req, res) {
     try {
-      if ((!!req.body.data.data.timeAll) & (!!req.body.data.lims.sys.TIME_ALL)) {
-        const timeAll=req.body.data.data.timeAll/1000,
-              limTimeAll=req.body.data.lims.sys.TIME_ALL;
+      if ((!!req.indexData.data.timeAll) & (!!req.indexData.lims.sys.TIME_ALL)) {
+        const timeAll=req.indexData.data.timeAll/1000,
+              limTimeAll=req.indexData.lims.sys.TIME_ALL;
         let limTimeDelta,
             limTimeDeltaH,
             limTimeDeltaMi,
@@ -92,10 +92,11 @@ async function get(req, res) {
   </div>
   </body>
 </html>`;
-        res.status(200).send(html);
+        res.statusCode = 200;
+        res.end(html);
       }
       else {
-        res.status(404).end();
+        res.statusCode = 404;
       }
       //res.status(404).end();
     } catch (err) {
