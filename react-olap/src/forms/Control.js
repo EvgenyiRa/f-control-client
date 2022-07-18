@@ -24,40 +24,18 @@ function Control() {
 
   const [apiData, setApiData] = useState({lims:undefined,data:undefined});
   const [paramGroup, setParamGroup] = useState({user:-777,date:format(tekDate,'dd-MM-yyyy')});
-  useEffect(async () => {
-    if (!!api.control.getLims) {
-       if (refLoading.current!==null)
-          refLoading.current.handleShow();
-       const res=await api.control.getLims();
-       setApiData({lims:res});
-       if (refLoading.current!==null)
-          refLoading.current.handleHide();
+  useEffect(() => {
+    const getLims=async ()=>{
+      if (!!api.control.getLims) {
+         if (refLoading.current!==null)
+            refLoading.current.handleShow();
+         const res=await api.control.getLims();
+         setApiData({lims:res});
+         if (refLoading.current!==null)
+            refLoading.current.handleHide();
+      }
     }
-
-  /*const url='https://developer.mozilla.org/en-US/docs/Web/API/URL#properties',
-        urlServer = 'http://127.0.0.1:4777/ch_fc/set_url',
-        data = { url: url };
-  //console.log(url);
-  const request = new Request(urlServer,{
-    method: 'POST', // или 'PUT'
-    body: JSON.stringify(data), // данные могут быть 'строкой' или {объектом}!
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
-  try {
-    fetch(request)
-      .then((response) => {
-        response.json().then((response2) => {
-          console.log(response2);
-        });
-      })
-      .then((data) => {
-        console.log(data);
-      });
-  } catch (error) {
-    console.error('Ошибка:', error);
-  }*/
+    getLims();
   },[api]);
 
   //объект для выпадающего списка с данными из БД
@@ -178,21 +156,65 @@ function Control() {
       }
     },
     //действия панели таблицы
-   /*paginationFactory:paginationFactory,
+   paginationFactory:paginationFactory,
    paginationOptions:{
      paginationSize: 7,
-     sizePerPageList: [{
-         text: '10', value: 10
-       }, {
-         text: '50', value: 50
-       }, {
-         text: '100', value:100
-       }, {
-         text: '500', value:500
-       }]
+     sizePerPageList: [
+       {text: '50', value: 50},
+       {text: '100', value: 100},
+       {text: '250', value:250},
+       {text: '500', value:500}
+     ]
    },
-   filterFactory:filterFactory*/
+   filterFactory:filterFactory
  };
+
+ const tableAPIurlObj={
+   stateLoadObj:refLoading,
+    tableContainerClass:'max-content',
+    bodyClasses:'body_row_dblclick',
+    tab_id:"tab3",
+    paramGroup:paramGroup,
+    keyField:'name',
+   columns:[
+     {dataField:'name',text:'Хост',headerAttrs: (column, colIndex) => ({ 'width': `200px` })},
+     {dataField:'timeAll',text:'Время, потраченное на хост',headerAttrs: (column, colIndex) => ({ 'width': `150px` })},
+     {dataField:'urls',text:'URL',headerAttrs: (column, colIndex) => ({ 'width': `300px` })},
+   ],
+   apiData:apiData,
+   apiDataFunc:async (data,params,thisV)=>{
+     if ((!!data.lims) & (!!data.data)) {
+       const res=[];
+       if (!!data.data.browser) {
+         for (var key in data.data.browser) {
+           const oneHost={...data.data.browser[key]};
+           oneHost.timeAll=(oneHost.timeAll/1000).toFixed(0);
+           oneHost.urls=oneHost.urls.join(';\n')
+           res.push({
+               ...{name:key},
+               ...oneHost
+           });
+         }
+       }
+       return res;
+     }
+     else {
+       return [];
+     }
+   },
+   //действия панели таблицы
+  paginationFactory:paginationFactory,
+  paginationOptions:{
+    paginationSize: 7,
+    sizePerPageList: [
+      {text: '50', value: 50},
+      {text: '100', value: 100},
+      {text: '250', value:250},
+      {text: '500', value:500}
+    ]
+  },
+  filterFactory:filterFactory
+};
 
   const inputDateObj={
     label:'Дата',
@@ -239,6 +261,11 @@ function Control() {
         <Row>
           <Col>
             <TableAPI obj={tableAPIprocObj}/>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <TableAPI obj={tableAPIurlObj}/>
           </Col>
         </Row>
       </Container>
