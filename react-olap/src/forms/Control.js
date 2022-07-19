@@ -89,8 +89,8 @@ function Control() {
       parParentID:['user','date'],
      keyField:'id',
      columns:[
-       {dataField:'lim',text:'Ограничение',headerAttrs: (column, colIndex) => ({ 'width': `150px` })},
-       {dataField:'value',text:'Текущее значение',headerAttrs: (column, colIndex) => ({ 'width': `150px` })}
+       {dataField:'lim',text:'Ограничение',headerAttrs: (column, colIndex) => ({ 'width': `200px` })},
+       {dataField:'value',text:'Текущее значение',headerAttrs: (column, colIndex) => ({ 'width': `200px` })}
      ],
      apiData:apiData,
      apiDataFunc:async (data,params,thisV)=>{
@@ -131,8 +131,16 @@ function Control() {
      parParentID:['user','date'],
      keyField:'name',
     columns:[
-      {dataField:'name',text:'Наименование',headerAttrs: (column, colIndex) => ({ 'width': `150px` })},
-      {dataField:'pid',text:'PID',headerAttrs: (column, colIndex) => ({ 'width': `100px` })},
+      {dataField:'name',text:'Наименование',headerAttrs: (column, colIndex) => ({ 'width': `150px` }),
+       filter: textFilter({
+         delay: 1000,
+         placeholder: '...',
+       })},
+      {dataField:'pid',text:'PID',headerAttrs: (column, colIndex) => ({ 'width': `100px` }),
+       filter: textFilter({
+         delay: 1000,
+         placeholder: '...',
+       })},
       {dataField:'timeAllDelta',text:'Время, потраченное на окно процесса',headerAttrs: (column, colIndex) => ({ 'width': `150px` })},
       {dataField:'lim',text:'Ограничение',headerAttrs: (column, colIndex) => ({ 'width': `150px` })},
       {dataField:'access',text:'Разрешение на запуск процесса',headerAttrs: (column, colIndex) => ({ 'width': `100px` })},
@@ -202,9 +210,17 @@ function Control() {
     paramGroup:paramGroup,
     keyField:'name',
    columns:[
-     {dataField:'name',text:'Хост',headerAttrs: (column, colIndex) => ({ 'width': `200px` })},
+     {dataField:'name',text:'Хост',headerAttrs: (column, colIndex) => ({ 'width': `200px` }),
+      filter: textFilter({
+        delay: 1000,
+        placeholder: '...',
+      })},
      {dataField:'timeAll',text:'Время, потраченное на хост',headerAttrs: (column, colIndex) => ({ 'width': `150px` })},
-     {dataField:'urls',text:'URL',headerAttrs: (column, colIndex) => ({ 'width': `300px` })},
+     {dataField:'urls',text:'URL',headerAttrs: (column, colIndex) => ({ 'width': `500px` }),
+      filter: textFilter({
+        delay: 1000,
+        placeholder: '...',
+      })},
    ],
    apiData:apiData,
    apiDataFunc:async (data,params,thisV)=>{
@@ -279,19 +295,58 @@ function Control() {
           </Col>
         </Row>
         <Row>
-          <Col>
-            <TableAPI obj={tableAPIObj}/>
-          </Col>
+          <Container style={{
+                border:'1px solid black',
+                borderRadius:'0.5rem',
+                padding: '1rem 3.5rem 1rem 3.5rem',
+                margin: '1rem',
+                width: 'auto'
+               }}>
+            <Row style={{fontSize:'16px',fontWeight:800,padding:'0 1rem'}}>
+              Мониторинг и ограничение времени работы в сутки
+            </Row>
+            <Row>
+              <Col>
+                <TableAPI obj={tableAPIObj}/>
+              </Col>
+            </Row>
+          </Container>
         </Row>
         <Row>
-          <Col>
-            <TableAPI obj={tableAPIprocObj}/>
-          </Col>
+          <Container style={{
+                border:'1px solid black',
+                borderRadius:'0.5rem',
+                padding: '1rem 3.5rem 1rem 3.5rem',
+                margin: '0 1rem 1rem 1rem',
+                width: 'auto'
+               }}>
+            <Row style={{fontSize:'16px',fontWeight:800,padding:'0 1rem'}}>
+              Мониторинг и ограничения по процессам
+            </Row>
+            <Row>
+              <Col>
+                <TableAPI obj={tableAPIprocObj}/>
+              </Col>
+            </Row>
+          </Container>
         </Row>
         <Row>
-          <Col>
-            <TableAPI obj={tableAPIurlObj}/>
-          </Col>
+          <Container style={{
+                border:'1px solid black',
+                borderRadius:'0.5rem',
+                padding: '1rem 3.5rem 1rem 3.5rem',
+                margin: '0 1rem 1rem 1rem',
+                width: 'auto'
+               }}>
+            <Row style={{fontSize:'16px',fontWeight:800,padding:'0 1rem'}}>
+              Мониторинг посещения сайтов
+            </Row>
+            <Row>
+              <Col>
+                <TableAPI obj={tableAPIurlObj}/>
+              </Col>
+            </Row>
+          </Container>
         </Row>
       </Container>
     </div>

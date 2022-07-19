@@ -376,7 +376,7 @@ let lastDate=hereDateStr,
          }
          data.data['winsActiveSum']=winsActiveSumObj;
 
-         if (['chrome'].indexOf(winPNAMEstring)>-1) {
+         if (winPNAMEstring.toUpperCase().indexOf('CHROME')>-1) {
            //добавляем время к последнему активному хосту, если это процесс браузера
            //и существуют данные о последнем переходе на страницу
            if (!!data.data.browserLastHost) {

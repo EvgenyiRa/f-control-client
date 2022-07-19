@@ -54,7 +54,27 @@ const init=(login,pwd)=> {
                         }));
                       }
                       if ((wsStat.auth) & (wsStat.connect)) {
-                          getMethod();
+                        if(!wsClient.readyState){
+                            setTimeout(function (){
+                                if(!wsClient.readyState){
+                                    wsStat.connect=false;
+                                    wsClient.close();
+                                    init(login,pwd).then((resWsCon) => {
+                                      if (resWsCon) {
+                                          getMethod();
+                                      }
+                                      else {
+                                          resolve2(false);
+                                      }
+                                    })
+                                }
+                                else {
+                                    getMethod();
+                                }
+                            },3000);
+                        } else {
+                            getMethod();
+                        }
                       }
                       else if (!wsStat.connect) {
                           init(login,pwd).then((resWsCon) => {
@@ -118,15 +138,7 @@ const init=(login,pwd)=> {
 
   const wsSend = (data)=> {
     // readyState - true, если есть подключение
-    if (wsStat.connect) {
-      if(!wsClient.readyState){
-          setTimeout(function (){
-              wsSend(data);
-          },100);
-      } else {
-          wsClient.send(data);
-      }
-    }
+    wsClient.send(data);
   }
 });
 }
