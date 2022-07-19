@@ -126,7 +126,7 @@ class TableAPI extends React.Component {
             }
             if (!!this.cellEditOptions.beforeSaveCell) {
                 this.cellEditOptions.beforeSaveCell=(oldValue, newValue, row, column) => {
-                  this.props.obj.cellEditOptions.beforeSaveCell(oldValue, newValue, row, column, this);
+                  this.props.obj.cellEditOptions.beforeSaveCell(oldValue, newValue, row, column, done, this);
                 }
             }
             if (!!this.cellEditOptions.afterSaveCell) {

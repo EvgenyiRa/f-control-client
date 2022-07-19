@@ -7,6 +7,7 @@ import BootstrapInput from '../components/BootstrapInput';
 import TableAPI from '../components/TableAPI';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
+import cellEditFactory from 'react-bootstrap-table2-editor';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -90,7 +91,7 @@ function Control() {
      keyField:'id',
      columns:[
        {dataField:'lim',text:'Ограничение',headerAttrs: (column, colIndex) => ({ 'width': `200px` })},
-       {dataField:'value',text:'Текущее значение',headerAttrs: (column, colIndex) => ({ 'width': `200px` })}
+       {dataField:'value',text:'Текущее значение',headerAttrs: (column, colIndex) => ({ 'width': `200px` }),editable:false}
      ],
      apiData:apiData,
      apiDataFunc:async (data,params,thisV)=>{
@@ -104,6 +105,15 @@ function Control() {
        else {
          return [];
        }
+     },
+     cellEditFactory: cellEditFactory,
+     cellEditOptions: {
+       mode: 'click',
+       beforeSaveCell:(oldValue, newValue, row, column, done, thisV) => {
+         if (newValue !== oldValue) {
+         }
+       },
+       blurToSave: true,
      },
      //действия панели таблицы
     /*paginationFactory:paginationFactory,
@@ -132,18 +142,20 @@ function Control() {
      keyField:'name',
     columns:[
       {dataField:'name',text:'Наименование',headerAttrs: (column, colIndex) => ({ 'width': `150px` }),
+       editable:false,
        filter: textFilter({
          delay: 1000,
          placeholder: '...',
        })},
       {dataField:'pid',text:'PID',headerAttrs: (column, colIndex) => ({ 'width': `100px` }),
+       editable:false,
        filter: textFilter({
          delay: 1000,
          placeholder: '...',
        })},
-      {dataField:'timeAllDelta',text:'Время, потраченное на окно процесса',headerAttrs: (column, colIndex) => ({ 'width': `150px` })},
+      {dataField:'timeAllDelta',text:'Время, потраченное на окно процесса',headerAttrs: (column, colIndex) => ({ 'width': `150px` }),editable:false},
       {dataField:'lim',text:'Ограничение',headerAttrs: (column, colIndex) => ({ 'width': `150px` })},
-      {dataField:'access',text:'Разрешение на запуск процесса',headerAttrs: (column, colIndex) => ({ 'width': `100px` })},
+      {dataField:'access',text:'Разрешение на запуск процесса',headerAttrs: (column, colIndex) => ({ 'width': `100px` }),editable:false},
     ],
     apiData:apiData,
     apiDataFunc:async (data,params,thisV)=>{
@@ -162,6 +174,7 @@ function Control() {
             winsActiveSum.timeAllDelta=(winsActiveSum.timeAllDelta/1000).toFixed(0);
             winsActiveSum.name=key;
             winsActiveSum.lim='';
+            winsActiveSum.access=(winsActiveSum.access)?'Да':'Нет';
             if (!!proc) {
               if (!!proc[key]) {
                   winsActiveSum.lim=proc[key];
@@ -178,7 +191,7 @@ function Control() {
                 pid:'',
                 timeAllDelta:'',
                 lim:proc[key],
-                access:true
+                access:'Да'
             });
           }
         }
@@ -189,6 +202,15 @@ function Control() {
       }
     },
     //действия панели таблицы
+    cellEditFactory: cellEditFactory,
+    cellEditOptions: {
+      mode: 'click',
+      beforeSaveCell:(oldValue, newValue, row, column, done, thisV) => {
+        if (newValue !== oldValue) {
+        }
+      },
+      blurToSave: true,
+    },
    paginationFactory:paginationFactory,
    paginationOptions:{
      paginationSize: 7,
@@ -216,7 +238,7 @@ function Control() {
         placeholder: '...',
       })},
      {dataField:'timeAll',text:'Время, потраченное на хост',headerAttrs: (column, colIndex) => ({ 'width': `150px` })},
-     {dataField:'urls',text:'URL',headerAttrs: (column, colIndex) => ({ 'width': `500px` }),
+     {dataField:'urls',text:'URL',headerAttrs: (column, colIndex) => ({ 'width': `600px` }),
       filter: textFilter({
         delay: 1000,
         placeholder: '...',
