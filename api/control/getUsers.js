@@ -1,16 +1,17 @@
 'use strict';
-const path = require('path'),
-      fs = require('fs');
+const fs = require('fs');
 
 module.exports = async () => {
-  const pathRoot=path.dirname(path.dirname(__dirname)),
-        dir=path.join('data','lims'),
-        files=fs.readdirSync(dir),
-        result=[];
-  for (var i = 0; i < files.length; i++) {
-    const dirF=path.join(dir,files[i]),
-          name=files[i].split('.json')[0];
-    result.push({value:name,label:name});
-  }
+  const result=[],
+        fileVal=fs.readFileSync('/etc/passwd', 'utf8').split('\n');
+  fileVal.forEach((item, i) => {
+      const user=item.split(':');
+      if ((+user[2]>=1000) & (user[0]!=="nobody")) {
+          result.push({
+            value:+user[2],
+            label:user[0]
+          })
+      }
+  });
   return result;
 };

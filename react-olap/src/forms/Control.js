@@ -59,6 +59,7 @@ function Control() {
          setApiData({lims:res});
          if (refLoading.current!==null)
             refLoading.current.handleHide();
+         console.log(await api.control.getUsers());    
       }
     }
     getLims();
@@ -150,7 +151,7 @@ function Control() {
            const limNew=thisV.props.obj.apiData.lims[thisV.props.obj.paramGroup.user],
                  newTime=parse(newValue, 'HH:mm:ss', new Date());
            limNew.sys.TIME_ALL=newTime.getHours()*3600+newTime.getMinutes()*60+newTime.getSeconds();
-           api.control.saveLim(thisV.props.obj.paramGroup.user,JSON.stringify(limNew));
+           api.control.saveLim(thisV.props.obj.paramGroup.user,limNew);
          }
        },
        blurToSave: true,
@@ -278,7 +279,7 @@ function Control() {
           else {
             limNew.proc[row.limIndex].LIM=seconds;
           }
-          api.control.saveLim(thisV.props.obj.paramGroup.user,JSON.stringify(limNew));
+          api.control.saveLim(thisV.props.obj.paramGroup.user,limNew);
         }
       },
       blurToSave: true,
