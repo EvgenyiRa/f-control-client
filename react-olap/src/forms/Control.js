@@ -13,7 +13,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-import { format } from 'date-fns';
+import { format,parse } from 'date-fns';
 import {api} from '../ws.js';
 import {secondstotime} from '../system.js'
 
@@ -122,7 +122,7 @@ function Control() {
        {dataField:'value',text:'Текущее значение',headerAttrs: (column, colIndex) => ({ 'width': `200px` }),editable:false}
      ],
      apiData:apiData,
-     apiDataFunc:async (data,params,thisV)=>{
+     apiDataFunc:(data,params,thisV)=>{
        if ((!!data.lims) & (!!data.data)) {
          return [{
            id:1,
@@ -137,8 +137,12 @@ function Control() {
      cellEditFactory: cellEditFactory,
      cellEditOptions: {
        mode: 'click',
-       beforeSaveCell:(oldValue, newValue, row, column, done, thisV) => {
+       beforeSaveCell:async (oldValue, newValue, row, column, done, thisV) => {
          if (newValue !== oldValue) {
+           const limNew=thisV.props.obj.apiData.lims[thisV.props.obj.paramGroup.user],
+                 newTime=parse(newValue, 'HH:mm:ss', new Date());
+           limNew.sys.TIME_ALL=newTime.getHours()*3600+newTime.getMinutes()*60+newTime.getSeconds();
+           api.control.saveLim(thisV.props.obj.paramGroup.user,JSON.stringify(limNew));
          }
        },
        blurToSave: true,
@@ -282,7 +286,7 @@ function Control() {
        if (!!data.data.browser) {
          for (var key in data.data.browser) {
            const oneHost={...data.data.browser[key]};
-           oneHost.timeAll=(oneHost.timeAll/1000).toFixed(0);
+           oneHost.timeAll=secondstotime(oneHost.timeAll,0,true,true);
            oneHost.urls=oneHost.urls.join(';\n')
            res.push({
                ...{name:key},
@@ -318,11 +322,20 @@ function Control() {
     paramGroup:paramGroup,
     setParamGroup:setParamGroup,
     parChealdID:"date",
-    onChange:(event,thisV)=>{
-      const newObj = { ...thisV.props.obj.paramGroup };
-      newObj[thisV.props.obj.parChealdID]=format(new Date(event.target.value),'dd-MM-yyyy');
+    apiData:apiData,
+    setApiData:setApiData,
+    onChange:async (event,thisV)=>{
+      const newObj = { ...thisV.props.obj.paramGroup },
+            formatDate=format(new Date(event.target.value),'dd-MM-yyyy');
+      newObj[thisV.props.obj.parChealdID]=formatDate;
       thisV.props.obj.setParamGroup(newObj);
       thisV.setState({value:event.target.value});
+      refLoading.current.handleShow();
+      const res=await api.control.getData(newObj.user,formatDate),
+            newApiData={...apiData};
+      newApiData.data=res;
+      thisV.props.obj.setApiData(newApiData);
+      refLoading.current.handleHide();
     }
   };
 
