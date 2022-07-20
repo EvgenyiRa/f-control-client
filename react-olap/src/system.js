@@ -411,10 +411,13 @@ export function getTableOLAP(data,callback,stateLoadObj) {
   });
 }
 
-export function secondstotime(time01,time00,noMikro)
+export function secondstotime(time01,time00,noMikro,noMilli)
 {
     if (typeof noMikro!=='boolean') {
         noMikro=false;
+    }
+    if (typeof noMilli!=='boolean') {
+        noMilli=false;
     }
     var secs=(time01-time00)/1000,
         t = new Date(1970,0,1);
@@ -422,9 +425,11 @@ export function secondstotime(time01,time00,noMikro)
     var s = t.toTimeString().substr(0,8);
     if(secs > 86399)
         s = Math.floor((t - Date.parse("1/1/70")) / 3600000) + s.substr(2);
-    s+=':'+String((time01-time00) % 1000);
-    if (noMikro) {
-        s=s.split('.')[0];
+    if (!noMilli) {
+      s+=':'+String((time01-time00) % 1000);
+      if (noMikro) {
+          s=s.split('.')[0];
+      }
     }
     return s;
 }

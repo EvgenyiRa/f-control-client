@@ -1,5 +1,6 @@
 import React,{ useState,useRef,useEffect } from 'react';
 import { useIntl } from 'react-intl';
+import PropTypes from 'prop-types';
 import Loading from '../components/Loading';
 import AlertPlus from '../components/AlertPlus';
 import MultiselectAPI from '../components/MultiselectAPI';
@@ -7,13 +8,37 @@ import BootstrapInput from '../components/BootstrapInput';
 import TableAPI from '../components/TableAPI';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
-import cellEditFactory from 'react-bootstrap-table2-editor';
+import cellEditFactory, { Type }  from 'react-bootstrap-table2-editor';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 import { format } from 'date-fns';
 import {api} from '../ws.js';
+import {secondstotime} from '../system.js'
+
+class QualityTime extends React.Component {
+  static propTypes = {
+    value: PropTypes.string,
+    onUpdate: PropTypes.func.isRequired
+  }
+  static defaultProps = {
+    value: undefined
+  }
+  getValue() {
+    return this.time.value;
+  }
+  render() {
+    const { value, onUpdate, ...rest } = this.props;
+    return <input
+            { ...rest }
+            key="time"
+            ref={ node => this.time = node }
+            type="time"
+            step="30"
+          />;
+  }
+}
 
 function Control() {
   const intl = useIntl();
@@ -90,7 +115,10 @@ function Control() {
       parParentID:['user','date'],
      keyField:'id',
      columns:[
-       {dataField:'lim',text:'Ограничение',headerAttrs: (column, colIndex) => ({ 'width': `200px` })},
+       {dataField:'lim',text:'Ограничение',headerAttrs: (column, colIndex) => ({ 'width': `200px` }),
+       editorRenderer: (editorProps, value, row, column, rowIndex, columnIndex) =>
+        <QualityTime { ...editorProps } value={ value }/>
+       },
        {dataField:'value',text:'Текущее значение',headerAttrs: (column, colIndex) => ({ 'width': `200px` }),editable:false}
      ],
      apiData:apiData,
@@ -98,8 +126,8 @@ function Control() {
        if ((!!data.lims) & (!!data.data)) {
          return [{
            id:1,
-           lim:data.lims[thisV.props.obj.paramGroup.user].sys.TIME_ALL.toFixed(0),
-           value:(data.data.timeAll/1000).toFixed(0)
+           lim:(data.lims[thisV.props.obj.paramGroup.user].sys.TIME_ALL<86400)?secondstotime((data.lims[thisV.props.obj.paramGroup.user].sys.TIME_ALL*1000),0,true,true):'23:59:59',
+           value:secondstotime(data.data.timeAll,0,true,true)
          }];
        }
        else {
@@ -154,7 +182,10 @@ function Control() {
          placeholder: '...',
        })},
       {dataField:'timeAllDelta',text:'Время, потраченное на окно процесса',headerAttrs: (column, colIndex) => ({ 'width': `150px` }),editable:false},
-      {dataField:'lim',text:'Ограничение',headerAttrs: (column, colIndex) => ({ 'width': `150px` })},
+      {dataField:'lim',text:'Ограничение',headerAttrs: (column, colIndex) => ({ 'width': `150px` }),
+       editorRenderer: (editorProps, value, row, column, rowIndex, columnIndex) =>
+        <QualityTime { ...editorProps } value={ value }/>
+      },
       {dataField:'access',text:'Разрешение на запуск процесса',headerAttrs: (column, colIndex) => ({ 'width': `100px` }),editable:false},
     ],
     apiData:apiData,
@@ -165,19 +196,19 @@ function Control() {
         if (!!data.lims[params.user].proc) {
           proc={};
           data.lims[params.user].proc.forEach((item) => {
-              proc[item.PRC_NAME]=item.LIM;
+              proc[item.PRC_NAME]=(item.LIM<86400)?secondstotime((item.LIM*1000),0,true,true):'23:59:59';
           });
         }
         if (!!data.data.winsActiveSum) {
           for (var key in data.data.winsActiveSum) {
             const winsActiveSum={...data.data.winsActiveSum[key]};
-            winsActiveSum.timeAllDelta=(winsActiveSum.timeAllDelta/1000).toFixed(0);
+            winsActiveSum.timeAllDelta=secondstotime(winsActiveSum.timeAllDelta,0,true,true);
             winsActiveSum.name=key;
             winsActiveSum.lim='';
             winsActiveSum.access=(winsActiveSum.access)?'Да':'Нет';
             if (!!proc) {
               if (!!proc[key]) {
-                  winsActiveSum.lim=proc[key];
+                  winsActiveSum.lim=proc[key]
                   delete proc[key];
               }
             }
