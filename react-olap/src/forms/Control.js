@@ -121,6 +121,14 @@ function Control() {
        },
        {dataField:'value',text:'Текущее значение',headerAttrs: (column, colIndex) => ({ 'width': `200px` }),editable:false}
      ],
+     beforeGetAPI:(thisV,parForAPI,prevProps)=>{
+       if (thisV.props.obj.apiData===prevProps.apiData) {
+         return false;
+       }
+       else {
+         return true;
+       }
+     },
      apiData:apiData,
      apiDataFunc:(data,params,thisV)=>{
        if ((!!data.lims) & (!!data.data)) {
@@ -192,6 +200,14 @@ function Control() {
       },
       {dataField:'access',text:'Разрешение на запуск процесса',headerAttrs: (column, colIndex) => ({ 'width': `100px` }),editable:false},
     ],
+    beforeGetAPI:(thisV,parForAPI,prevProps)=>{
+      if (thisV.props.obj.apiData===prevProps.apiData) {
+        return false;
+      }
+      else {
+        return true;
+      }
+    },
     apiData:apiData,
     apiDataFunc:async (data,params,thisV)=>{
       if ((!!data.lims) & (!!data.data)) {
@@ -199,8 +215,12 @@ function Control() {
         let proc;
         if (!!data.lims[params.user].proc) {
           proc={};
-          data.lims[params.user].proc.forEach((item) => {
-              proc[item.PRC_NAME]=(item.LIM<86400)?secondstotime((item.LIM*1000),0,true,true):'23:59:59';
+          data.lims[params.user].proc.forEach((item,i) => {
+              proc[item.PRC_NAME]={
+                lim:(item.LIM<86400)?secondstotime((item.LIM*1000),0,true,true):'23:59:59',
+                index:i
+              };
+
           });
         }
         if (!!data.data.winsActiveSum) {
@@ -209,10 +229,12 @@ function Control() {
             winsActiveSum.timeAllDelta=secondstotime(winsActiveSum.timeAllDelta,0,true,true);
             winsActiveSum.name=key;
             winsActiveSum.lim='';
+            winsActiveSum.limIndex=-777;
             winsActiveSum.access=(winsActiveSum.access)?'Да':'Нет';
             if (!!proc) {
               if (!!proc[key]) {
-                  winsActiveSum.lim=proc[key]
+                  winsActiveSum.lim=proc[key].lim;
+                  winsActiveSum.limIndex=proc[key].index;
                   delete proc[key];
               }
             }
@@ -225,7 +247,8 @@ function Control() {
                 name:key,
                 pid:'',
                 timeAllDelta:'',
-                lim:proc[key],
+                lim:proc[key].lim,
+                limIndex:proc[key].index,
                 access:'Да'
             });
           }
@@ -240,8 +263,22 @@ function Control() {
     cellEditFactory: cellEditFactory,
     cellEditOptions: {
       mode: 'click',
-      beforeSaveCell:(oldValue, newValue, row, column, done, thisV) => {
+      beforeSaveCell:async (oldValue, newValue, row, column, done, thisV) => {
         if (newValue !== oldValue) {
+          const limNew=thisV.props.obj.apiData.lims[thisV.props.obj.paramGroup.user],
+                newTime=parse(newValue, 'HH:mm:ss', new Date()),
+                seconds=newTime.getHours()*3600+newTime.getMinutes()*60+newTime.getSeconds();
+          if (row.limIndex===-777) {
+              limNew.proc.push({
+                  PRC_NAME:row.name,
+                  LIM:seconds
+              });
+              row.limIndex=limNew.proc.length-1;
+          }
+          else {
+            limNew.proc[row.limIndex].LIM=seconds;
+          }
+          api.control.saveLim(thisV.props.obj.paramGroup.user,JSON.stringify(limNew));
         }
       },
       blurToSave: true,
@@ -279,6 +316,14 @@ function Control() {
         placeholder: '...',
       })},
    ],
+   beforeGetAPI:(thisV,parForAPI,prevProps)=>{
+     if (thisV.props.obj.apiData===prevProps.apiData) {
+       return false;
+     }
+     else {
+       return true;
+     }
+   },
    apiData:apiData,
    apiDataFunc:async (data,params,thisV)=>{
      if ((!!data.lims) & (!!data.data)) {
