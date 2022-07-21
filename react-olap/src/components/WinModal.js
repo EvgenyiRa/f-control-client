@@ -7,6 +7,12 @@ class WinModal extends React.Component {
     constructor(props) {
         super(props);
         this.setModalShow = this.setModalShow.bind(this);
+        let size='xl';
+        if (!!this.props.obj) {
+            if (!!this.props.obj.size) {
+                size=this.props.obj.size
+            }
+        }
         this.state = {
           modalShow:false,
           header:'',
@@ -17,19 +23,8 @@ class WinModal extends React.Component {
           cancelButtonDisplay:'block',
           handleButtonNext:undefined,
           handleButtonCancel:undefined,
+          size:size
         };
-        if (!!!this.props.obj) {
-            this.props_obj={};
-        }
-        else {
-            this.props_obj=this.props.obj
-        }
-        if (!!this.props_obj.size) {
-          this.size=this.props_obj.size;
-        }
-        else {
-          this.size='xl';
-        }
     }
 
     setModalShow(value) {
@@ -38,7 +33,7 @@ class WinModal extends React.Component {
 
     render() {
         return (
-          <Modal size={this.size} show={this.state.modalShow}
+          <Modal size={this.state.size} show={this.state.modalShow}
                  onHide={() =>{
                            if (!!this.state.handleButtonCancel) {
                                this.state.handleButtonCancel(this)

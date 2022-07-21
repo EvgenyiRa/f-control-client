@@ -6,6 +6,7 @@ import AlertPlus from '../components/AlertPlus';
 import MultiselectAPI from '../components/MultiselectAPI';
 import BootstrapInput from '../components/BootstrapInput';
 import TableAPI from '../components/TableAPI';
+import WinModal from '../components/WinModal';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
 import cellEditFactory, { Type }  from 'react-bootstrap-table2-editor';
@@ -44,7 +45,8 @@ function Control() {
   const intl = useIntl();
 
   const refLoading=useRef(),
-        refAlertPlus=useRef();
+        refAlertPlus=useRef(),
+        refWinModal=useRef();
 
   const tekDate=new Date();
 
@@ -386,6 +388,68 @@ function Control() {
     }
   };
 
+  const handleAddUser=()=>{
+    const tableAddUserObj={
+      stateLoadObj:refLoading,
+      tableContainerClass:'max-content',
+      bodyClasses:'body_row_dblclick',
+      tab_id:"tab4",
+      paramGroup:paramGroup,
+      apiData:apiData,
+      apiDataFunc:(data,params,thisV,prevProps)=>{
+          const res=[];
+          for (var key in data.lims) {
+              res.push({value:key,label:key});
+          }
+          return res;
+      },
+      keyField:'UID',
+      columns:[
+        {dataField:'LOGIN',text:'Логин',headerAttrs: (column, colIndex) => ({ 'width': `200px` })},
+        {dataField:'GNAME',text:'Наименование группы',headerAttrs: (column, colIndex) => ({ 'width': `200px` }),editable:false}
+      ],
+      beforeGetAPI:(thisV,parForAPI,prevProps)=>{
+        const res=[];
+        for (var key in thisV.props.obj.apiData.lims) {
+            res.push(key);
+        }
+        parForAPI.users=res;
+        return true;
+      },
+      apiMethod:'control.getUsers',
+      //действия панели таблицы
+      addRow:(thisV) => {
+        //refWinModal.current.setState(getWinModalUser('add'));
+      },
+      paginationFactory:paginationFactory,
+      paginationOptions:{
+       paginationSize: 7,
+       sizePerPageList: [{
+           text: '10', value: 10
+         }, {
+           text: '50', value: 50
+         }, {
+           text: '100', value:100
+         }, {
+           text: '500', value:500
+         }]
+     },
+      filterFactory:filterFactory
+    };
+    refWinModal.current.setState({
+      modalShow:true,
+      header:'Добавление контролируемого пользователя',
+      nextButtonLabel:'Добавить',
+      body:<Container fluid>
+              <Row>
+                <Col>
+                  <TableAPI obj={tableAddUserObj}/>
+                </Col>
+              </Row>
+            </Container>
+    })
+  }
+
   return (
     <div className="App">
       <div>
@@ -398,11 +462,12 @@ function Control() {
       </div>
       <Loading ref={refLoading} />
       <AlertPlus ref={refAlertPlus}/>
+      <WinModal ref={refWinModal}/>
       <Container fluid>
         <Row>
           <Col>
             <MultiselectAPI obj={selectUserObj}/>
-            <button style={{background: 'none',border: 'none'}} title="Добавить пользователя"><img src={require('../img/add.png')} alt="add user" style={{width:'auto',height:'2.7em',marginLeft:'0.2em',marginRight:'0.5em'}}/></button>
+            <button style={{background: 'none',border: 'none'}} title="Добавить пользователя" onClick={handleAddUser}><img src={require('../img/add.png')} alt="add user" style={{width:'auto',height:'2.7em',marginLeft:'0.2em',marginRight:'0.5em'}}/></button>
           </Col>
           <Col>
             <BootstrapInput obj={inputDateObj}/>
