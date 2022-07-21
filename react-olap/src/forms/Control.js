@@ -59,7 +59,7 @@ function Control() {
          setApiData({lims:res});
          if (refLoading.current!==null)
             refLoading.current.handleHide();
-         console.log(await api.control.getUsers());    
+         console.log(await api.control.getUsers());
       }
     }
     getLims();
@@ -103,7 +103,8 @@ function Control() {
       newApiData.data=res;
       thisV.props.obj.setApiData(newApiData);
       refLoading.current.handleHide();
-    }
+    },
+    styleBMC:{display:'inline-block'}
    };
 
    //объект для таблицы с данными из БД
@@ -401,6 +402,7 @@ function Control() {
         <Row>
           <Col>
             <MultiselectAPI obj={selectUserObj}/>
+            <button style={{background: 'none',border: 'none'}} title="Добавить пользователя"><img src={require('../img/add.png')} alt="add user" style={{width:'auto',height:'2.7em',marginLeft:'0.2em',marginRight:'0.5em'}}/></button>
           </Col>
           <Col>
             <BootstrapInput obj={inputDateObj}/>

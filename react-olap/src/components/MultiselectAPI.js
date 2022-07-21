@@ -19,7 +19,8 @@ class MultiselectAPI extends React.Component {
       }
       this.state = {
         options:this.optionsDef,
-        checkedOptions: undefined
+        checkedOptions: undefined,
+        styleBMC:(!!this.props.obj.styleBMC)?this.props.obj.styleBMC: undefined
       }
       this.getOptionsByAPI = this.getOptionsByAPI.bind(this);
   }
@@ -190,7 +191,7 @@ class MultiselectAPI extends React.Component {
 
     }
     else if (this.props.obj.stateLoadObj.current!==null) {
-      this.props.obj.stateLoadObj.current.handleHide();      
+      this.props.obj.stateLoadObj.current.handleHide();
     }
     /*getSQLRun(data,(response)=> {
       const setDefault=()=>{
@@ -307,7 +308,7 @@ class MultiselectAPI extends React.Component {
 
   render() {
     return (
-      <div className="bootstrapMultiselectContainer" id={this.props.obj.divID}>
+      <div className="bootstrapMultiselectContainer" id={this.props.obj.divID} style={this.state.styleBMC}>
         <label className="labelForBootstrapMultiselect">{ this.props.obj.label }</label>
         <Multiselect
           data={this.state.options}
