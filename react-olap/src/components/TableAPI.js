@@ -12,7 +12,6 @@ class TableAPI extends React.Component {
         this.state = {
           rows: [],
           selectRow:undefined,
-          selectRowFull:undefined,
           columns:props.obj.columns,
           rowStyle:(!!props.obj.rowStyle)? props.obj.rowStyle:{},
           hiddenRowKeys:(!!props.obj.hiddenRowKeys)? props.obj.hiddenRowKeys:[],
@@ -71,9 +70,43 @@ class TableAPI extends React.Component {
                     this.props.obj.selectRowProp.onSelect(row, isSelect, rowIndex, e, this);
                 }
             }
+            else {
+                this.selectRowProp.onSelect=(row, isSelect, rowIndex, e) => {
+                  if (this.selectRowProp.mode!=='radio') {
+                    if (isSelect) {
+                      this.setState(() => ({
+                        selectRow: [...this.state.selectRow, rowIndex]
+                      }));
+                    } else {
+                      this.setState(() => ({
+                        selectRow: this.state.selectRow.filter(x => x !== rowIndex)
+                      }));
+                    }
+                  }
+                  else {
+                    this.setState(() => ({
+                      selectRow: rowIndex
+                    }));
+                  }
+                }
+            }
             if (!!this.props.obj.selectRowProp.onSelectAll) {
                 this.selectRowProp.onSelectAll=(isSelect, rows, e) => {
                     this.props.obj.onSelectAll.onSelect(isSelect, rows, e, this);
+                }
+            }
+            else {
+                this.selectRowProp.onSelectAll=(isSelect, rows, e) => {
+                  if (isSelect) {
+                    const indexs = rows.map((r,i) => i);
+                    this.setState(() => ({
+                      selectRow: indexs
+                    }));
+                  } else {
+                    this.setState(() => ({
+                      selectRow: undefined
+                    }));
+                  }
                 }
             }
         }
@@ -297,7 +330,7 @@ class TableAPI extends React.Component {
         if (getParamDiff(this.props.obj,prevProps.obj)) {
             this.getRowsByAPI(prevProps.obj);
         }
-        else if ((!!this.props.obj.apiData) & (!!this.props.obj.apiDataFunc)) {
+        else if ((!!this.props.obj.apiData) & (!!this.props.obj.apiDataFunc) & (!!!this.props.obj.apiMethod)) {
             if (this.props.obj.apiData!==prevProps.obj.apiData) {
                 this.getRowsByAPI(prevProps.obj);
             }

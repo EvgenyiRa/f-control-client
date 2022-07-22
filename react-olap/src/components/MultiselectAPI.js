@@ -274,7 +274,7 @@ class MultiselectAPI extends React.Component {
     if (getParamDiff(this.props.obj,prevProps.obj)) {
           this.getOptionsByAPI(prevProps.obj);
     }
-    else if ((!!this.props.obj.apiData) & (!!this.props.obj.apiDataFunc)) {
+    else if ((!!this.props.obj.apiData) & (!!this.props.obj.apiDataFunc)  & (!!!this.props.obj.apiMethod)) {
         if (this.props.obj.apiData!==prevProps.obj.apiData) {
             this.getOptionsByAPI(prevProps.obj);
         }

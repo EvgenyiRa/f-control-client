@@ -47,6 +47,7 @@ function Control() {
   const refLoading=useRef(),
         refAlertPlus=useRef(),
         refWinModal=useRef(),
+        refTabUsrAdd=useRef(),
         refBootInAddUsrL1=useRef(),
         refBootInAddUsrL2=useRef(),
         refBootInAddUsrL3=useRef();
@@ -410,8 +411,16 @@ function Control() {
           },
           keyField:'UID',
           columns:[
-            {dataField:'LOGIN',text:'Логин',headerAttrs: (column, colIndex) => ({ 'width': `200px` })},
-            {dataField:'GNAME',text:'Наименование группы',headerAttrs: (column, colIndex) => ({ 'width': `200px` }),editable:false}
+            {dataField:'LOGIN',text:'Логин',headerAttrs: (column, colIndex) => ({ 'width': `200px` }),
+              filter: textFilter({
+                delay: 1000,
+                placeholder: '...',
+              })},
+            {dataField:'GNAME',text:'Наименование группы',headerAttrs: (column, colIndex) => ({ 'width': `200px` }),
+              filter: textFilter({
+                delay: 1000,
+                placeholder: '...',
+              })}
           ],
           beforeGetAPI:(thisV,parForAPI,prevProps)=>{
             const res=[];
@@ -427,6 +436,12 @@ function Control() {
             //refWinModal.current.setState(getWinModalUser('add'));
             //tekWin=refWinModal.current.state;
             refWinModal.current.setState(getWin('addUserLinux'));
+          },
+          selectRowProp:{
+            mode: 'radio',
+            clickToSelect: true,
+            hideSelectColumn: true,
+            bgColor: '#00BFFF'
           },
           paginationFactory:paginationFactory,
           paginationOptions:{
@@ -448,10 +463,31 @@ function Control() {
           header:'Добавление контролируемого пользователя',
           nextButtonLabel:'Добавить',
           handleButtonCancel:undefined,
+          apiData:apiData,
+          setApiData:setApiData,
+          handleButtonNext:async ()=>{
+            //console.log(refTabUsrAdd.current.state.selectRow);
+            if (!!!refTabUsrAdd.current.state.selectRow) {
+              refAlertPlus.current.handleShow('Пользователь не выбран');
+            }
+            else {
+              const selectRow=refTabUsrAdd.current.state.rows[refTabUsrAdd.current.state.selectRow],
+                    res=await api.control.saveLim(selectRow.LOGIN,{
+                        sys:{"TIME_ALL":86399,"REP_USERS_CONTROL_ID":selectRow.UID},
+                        proc:[]
+                    });
+              if (res) {
+                  refAlertPlus.current.handleShow('Пользователь добавлен для контроля');                  
+              }
+              else {
+                  refAlertPlus.current.handleShow('Ошибка при сохранении данных');
+              }
+            }
+          },
           body:<Container fluid>
                   <Row>
                     <Col>
-                      <TableAPI obj={tableAddUserObj}/>
+                      <TableAPI obj={tableAddUserObj} ref={refTabUsrAdd}/>
                     </Col>
                   </Row>
                 </Container>
