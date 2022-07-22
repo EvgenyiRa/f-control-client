@@ -46,7 +46,10 @@ function Control() {
 
   const refLoading=useRef(),
         refAlertPlus=useRef(),
-        refWinModal=useRef();
+        refWinModal=useRef(),
+        refBootInAddUsrL1=useRef(),
+        refBootInAddUsrL2=useRef(),
+        refBootInAddUsrL3=useRef();
 
   const tekDate=new Date();
 
@@ -389,65 +392,123 @@ function Control() {
   };
 
   const handleAddUser=()=>{
-    const tableAddUserObj={
-      stateLoadObj:refLoading,
-      tableContainerClass:'max-content',
-      bodyClasses:'body_row_dblclick',
-      tab_id:"tab4",
-      paramGroup:paramGroup,
-      apiData:apiData,
-      apiDataFunc:(data,params,thisV,prevProps)=>{
-          const res=[];
-          for (var key in data.lims) {
-              res.push({value:key,label:key});
-          }
-          return res;
-      },
-      keyField:'UID',
-      columns:[
-        {dataField:'LOGIN',text:'Логин',headerAttrs: (column, colIndex) => ({ 'width': `200px` })},
-        {dataField:'GNAME',text:'Наименование группы',headerAttrs: (column, colIndex) => ({ 'width': `200px` }),editable:false}
-      ],
-      beforeGetAPI:(thisV,parForAPI,prevProps)=>{
-        const res=[];
-        for (var key in thisV.props.obj.apiData.lims) {
-            res.push(key);
-        }
-        parForAPI.users=res;
-        return true;
-      },
-      apiMethod:'control.getUsers',
-      //действия панели таблицы
-      addRow:(thisV) => {
-        //refWinModal.current.setState(getWinModalUser('add'));
-      },
-      paginationFactory:paginationFactory,
-      paginationOptions:{
-       paginationSize: 7,
-       sizePerPageList: [{
-           text: '10', value: 10
-         }, {
-           text: '50', value: 50
-         }, {
-           text: '100', value:100
-         }, {
-           text: '500', value:500
-         }]
-     },
-      filterFactory:filterFactory
-    };
-    refWinModal.current.setState({
-      modalShow:true,
-      header:'Добавление контролируемого пользователя',
-      nextButtonLabel:'Добавить',
-      body:<Container fluid>
-              <Row>
-                <Col>
-                  <TableAPI obj={tableAddUserObj}/>
-                </Col>
-              </Row>
-            </Container>
-    })
+    const getWin=(type)=>{
+      if (type==='tableAddUser') {
+        const tableAddUserObj={
+          stateLoadObj:refLoading,
+          tableContainerClass:'max-content',
+          bodyClasses:'body_row_dblclick',
+          tab_id:"tab4",
+          paramGroup:paramGroup,
+          apiData:apiData,
+          apiDataFunc:(data,params,thisV,prevProps)=>{
+              const res=[];
+              for (var key in data.lims) {
+                  res.push({value:key,label:key});
+              }
+              return res;
+          },
+          keyField:'UID',
+          columns:[
+            {dataField:'LOGIN',text:'Логин',headerAttrs: (column, colIndex) => ({ 'width': `200px` })},
+            {dataField:'GNAME',text:'Наименование группы',headerAttrs: (column, colIndex) => ({ 'width': `200px` }),editable:false}
+          ],
+          beforeGetAPI:(thisV,parForAPI,prevProps)=>{
+            const res=[];
+            for (var key in thisV.props.obj.apiData.lims) {
+                res.push(key);
+            }
+            parForAPI.users=res;
+            return true;
+          },
+          apiMethod:'control.getUsers',
+          //действия панели таблицы
+          addRow:(thisV) => {
+            //refWinModal.current.setState(getWinModalUser('add'));
+            //tekWin=refWinModal.current.state;
+            refWinModal.current.setState(getWin('addUserLinux'));
+          },
+          paginationFactory:paginationFactory,
+          paginationOptions:{
+           paginationSize: 7,
+           sizePerPageList: [{
+               text: '10', value: 10
+             }, {
+               text: '50', value: 50
+             }, {
+               text: '100', value:100
+             }, {
+               text: '500', value:500
+             }]
+         },
+          filterFactory:filterFactory
+        };
+        return {
+          modalShow:true,
+          header:'Добавление контролируемого пользователя',
+          nextButtonLabel:'Добавить',
+          handleButtonCancel:undefined,
+          body:<Container fluid>
+                  <Row>
+                    <Col>
+                      <TableAPI obj={tableAddUserObj}/>
+                    </Col>
+                  </Row>
+                </Container>
+        };
+      }
+      else if (type==='addUserLinux') {
+        return {
+          modalShow:true,
+          header:'Добавление пользователя ОС',
+          nextButtonLabel:'Добавить',
+          handleButtonNext:async ()=>{
+            const res=await api.control.addUserOS(
+                refBootInAddUsrL1.current.state.value,
+                refBootInAddUsrL2.current.state.value,
+                refBootInAddUsrL3.current.state.value,
+            );
+            if (res.addOk) {
+              refWinModal.current.setState(getWin('tableAddUser'));
+            }
+            else {
+                refAlertPlus.current.handleShow('При создании пользователя произошла ошибка:\n'+res.text);
+            }
+          },
+          handleButtonCancel:()=>{
+              refWinModal.current.setState(getWin('tableAddUser'));
+          },
+          body:<Container fluid>
+                <Row>
+                  <Col>
+                    <BootstrapInput obj={{
+                      label:'Пароль текущего пользователя',
+                      id:"admPwd",
+                      type:'password',
+                    }} ref={refBootInAddUsrL1}/>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col>
+                    <BootstrapInput obj={{
+                      label:'Логин нового пользователя',
+                      id:"loginNew"
+                    }} ref={refBootInAddUsrL2}/>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col>
+                    <BootstrapInput obj={{
+                      label:'Пароль нового пользователя',
+                      id:"pwdNew"
+                    }} ref={refBootInAddUsrL3}/>
+                  </Col>
+                </Row>
+              </Container>
+        };
+      }
+    }
+    refWinModal.current.setState(getWin('tableAddUser'));
   }
 
   return (
