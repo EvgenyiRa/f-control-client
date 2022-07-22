@@ -4,7 +4,7 @@ const execSync = require('child_process').execSync,
       index=require('../../index.js');
 
 module.exports = async () => {
-  let result=true;
+  let result={res:true};
   try {
     index.shutdown();
     const nodeD=execSync('which node').toString().slice(0, -1),
@@ -12,7 +12,7 @@ module.exports = async () => {
     execSync('exec  '+nodeD+' '+dirS);
   } catch (err) {
     console.log(err);
-    result=false;
+    result={res:false};
   }
   return result;
 };

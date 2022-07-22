@@ -91,7 +91,7 @@ class MultiselectAPI extends React.Component {
     }
   }
 
-  getOptionsByAPI(prevProps) {
+  getOptionsByAPI(prevProps,getParamDiff) {
     if (this.props.obj.stateLoadObj.current!==null) {
       this.props.obj.stateLoadObj.current.handleShow();
     }
@@ -100,7 +100,7 @@ class MultiselectAPI extends React.Component {
     const parForAPI=getParamForAPI(thisV.props.obj);
     let prOk=true;
     if (!!thisV.props.obj.beforeGetAPI) {
-        prOk=thisV.props.obj.beforeGetAPI(thisV,parForAPI,prevProps);
+        prOk=thisV.props.obj.beforeGetAPI(thisV,parForAPI,prevProps,getParamDiff);
     }
     if (prOk) {
       const setRes=(res)=>{
@@ -272,11 +272,11 @@ class MultiselectAPI extends React.Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     //if (getParamDiff(this.props.obj.paramGroup,prevProps.obj.paramGroup,this.props.obj.parParentID)) {
     if (getParamDiff(this.props.obj,prevProps.obj)) {
-          this.getOptionsByAPI(prevProps.obj);
+          this.getOptionsByAPI(prevProps.obj,true);
     }
     else if ((!!this.props.obj.apiData) & (!!this.props.obj.apiDataFunc)  & (!!!this.props.obj.apiMethod)) {
         if (this.props.obj.apiData!==prevProps.obj.apiData) {
-            this.getOptionsByAPI(prevProps.obj);
+            this.getOptionsByAPI(prevProps.obj,false);
         }
     }
     if (!!this.props.obj.componentDidUpdate) {

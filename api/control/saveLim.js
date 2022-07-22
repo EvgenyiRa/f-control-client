@@ -9,7 +9,7 @@ module.exports = async (user,value) => {
       fs.writeFileSync(dir,JSON.stringify(value));
   } catch (err) {
     console.log(err);
-    return false;
+    return {res:false};
   }
-  return true;
+  return {res:true};
 };

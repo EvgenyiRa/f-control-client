@@ -81,14 +81,6 @@ function Control() {
     parChealdID:"user",
     //необходимо наличие двух полей с именами value,label
     //apiMethod:'control.getUsers',
-    apiData:apiData,
-    apiDataFunc:(data,params,thisV,prevProps)=>{
-        const res=[];
-        for (var key in data.lims) {
-            res.push({value:key,label:key});
-        }
-        return res;
-    },
     beforeGetAPI:(thisV,parForAPI,prevProps)=>{
       if (thisV.props.obj.apiData.lims===prevProps.apiData.lims) {
         return false;
@@ -96,6 +88,14 @@ function Control() {
       else {
         return true;
       }
+    },
+    apiData:apiData,
+    apiDataFunc:(data,params,thisV,prevProps)=>{
+        const res=[];
+        for (var key in data.lims) {
+            res.push({value:key,label:key});
+        }
+        return res;
     },
     setApiData:setApiData,
     id:"selectUsers",
@@ -106,7 +106,12 @@ function Control() {
       refLoading.current.handleShow();
       const res=await api.control.getData(option[0].value,thisV.props.obj.paramGroup.date),
             newApiData={...apiData};
-      newApiData.data=res;
+      if (Object.keys(res).length>0) {
+        newApiData.data=res;
+      }
+      else {
+        newApiData.data=undefined;
+      }
       thisV.props.obj.setApiData(newApiData);
       refLoading.current.handleHide();
     },
@@ -129,26 +134,19 @@ function Control() {
        },
        {dataField:'value',text:'Текущее значение',headerAttrs: (column, colIndex) => ({ 'width': `200px` }),editable:false}
      ],
-     beforeGetAPI:(thisV,parForAPI,prevProps)=>{
-       if (thisV.props.obj.apiData===prevProps.apiData) {
-         return false;
-       }
-       else {
-         return true;
-       }
-     },
      apiData:apiData,
      apiDataFunc:(data,params,thisV)=>{
-       if ((!!data.lims) & (!!data.data)) {
-         return [{
-           id:1,
-           lim:(data.lims[thisV.props.obj.paramGroup.user].sys.TIME_ALL<86400)?secondstotime((data.lims[thisV.props.obj.paramGroup.user].sys.TIME_ALL*1000),0,true,true):'23:59:59',
-           value:secondstotime(data.data.timeAll,0,true,true)
-         }];
+       let result=[];
+       if (!!data.lims) {
+         if (thisV.props.obj.paramGroup.user!==-777) {
+           result=[{
+             id:1,
+             lim:(data.lims[thisV.props.obj.paramGroup.user].sys.TIME_ALL<86400)?secondstotime((data.lims[thisV.props.obj.paramGroup.user].sys.TIME_ALL*1000),0,true,true):'23:59:59',
+             value:(!!data.data)?secondstotime(data.data.timeAll,0,true,true):''
+           }];
+         }
        }
-       else {
-         return [];
-       }
+       return result;
      },
      cellEditFactory: cellEditFactory,
      cellEditOptions: {
@@ -437,6 +435,29 @@ function Control() {
             //tekWin=refWinModal.current.state;
             refWinModal.current.setState(getWin('addUserLinux'));
           },
+          //console.log(refTabUsrAdd.current.state.selectRow);
+          rowEvents:{
+            onDoubleClick:async (e, row, rowIndex,thisV)=>{
+                const lim={
+                          sys:{"TIME_ALL":86399,"REP_USERS_CONTROL_ID":row.UID},
+                          proc:[]
+                      },
+                      res=await api.control.saveLim(row.LOGIN,lim);
+                if (res) {
+                    refAlertPlus.current.handleShow(`Пользователь "${row.LOGIN}" добавлен для контроля`);
+                    const newRows=[...thisV.state.rows];
+                    newRows.splice(rowIndex,1);
+                    thisV.setState({rows:newRows});
+                    const newApiData={...thisV.props.obj.apiData};
+                    newApiData.lims={...newApiData.lims};
+                    newApiData.lims[row.LOGIN]=lim;
+                    thisV.props.obj.setApiData(newApiData);
+                }
+                else {
+                    refAlertPlus.current.handleShow('Ошибка при сохранении данных');
+                }
+            }
+          },
           selectRowProp:{
             mode: 'radio',
             clickToSelect: true,
@@ -463,27 +484,6 @@ function Control() {
           header:'Добавление контролируемого пользователя',
           nextButtonLabel:'Добавить',
           handleButtonCancel:undefined,
-          apiData:apiData,
-          setApiData:setApiData,
-          handleButtonNext:async ()=>{
-            //console.log(refTabUsrAdd.current.state.selectRow);
-            if (!!!refTabUsrAdd.current.state.selectRow) {
-              refAlertPlus.current.handleShow('Пользователь не выбран');
-            }
-            else {
-              const selectRow=refTabUsrAdd.current.state.rows[refTabUsrAdd.current.state.selectRow],
-                    res=await api.control.saveLim(selectRow.LOGIN,{
-                        sys:{"TIME_ALL":86399,"REP_USERS_CONTROL_ID":selectRow.UID},
-                        proc:[]
-                    });
-              if (res) {
-                  refAlertPlus.current.handleShow('Пользователь добавлен для контроля');                  
-              }
-              else {
-                  refAlertPlus.current.handleShow('Ошибка при сохранении данных');
-              }
-            }
-          },
           body:<Container fluid>
                   <Row>
                     <Col>
