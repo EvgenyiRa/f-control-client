@@ -3,6 +3,7 @@ import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Loading from '../components/Loading';
 import AlertPlus from '../components/AlertPlus';
+import ConfirmPlus from '../components/ConfirmPlus';
 import MultiselectAPI from '../components/MultiselectAPI';
 import BootstrapInput from '../components/BootstrapInput';
 import TableAPI from '../components/TableAPI';
@@ -46,6 +47,7 @@ function Control() {
 
   const refLoading=useRef(),
         refAlertPlus=useRef(),
+        refConfirmPlus=useRef(),
         refWinModal=useRef(),
         refTabUsrAdd=useRef(),
         refBootInAddUsrL1=useRef(),
@@ -115,7 +117,7 @@ function Control() {
       thisV.props.obj.setApiData(newApiData);
       refLoading.current.handleHide();
     },
-    styleBMC:{display:'inline-block'}
+    styleBMC:{display:'inline-block',marginRight: 0}
    };
 
    //объект для таблицы с данными из БД
@@ -547,6 +549,36 @@ function Control() {
     refWinModal.current.setState(getWin('tableAddUser'));
   }
 
+  const handleDelUser=()=>{
+      if (paramGroup.user!==-777) {
+        refConfirmPlus.current.handleShow(
+            `Вы действительно хотите удалить пользователя "${paramGroup.user}"`,
+            async (val)=>{
+                if (val) {
+                  const res=await api.control.delUser(paramGroup.user);
+                  let resTxt='';
+                  if (res.delOk) {
+                      const newApiData={...refConfirmPlus.current.props.obj.apiData};
+                      newApiData.lims={...newApiData.lims};
+                      delete newApiData.lims[paramGroup.user];
+                      refConfirmPlus.current.props.obj.setApiData(newApiData);
+                      resTxt='Пользователь успешно удален';
+                  }
+                  else {
+                      resTxt=`При удалении пользователя произошла ошибка:\n"${res.text}"`;
+                  }
+                  refAlertPlus.current.handleShow(resTxt);
+                }
+            }
+        );
+      }
+      else {
+        refAlertPlus.current.handleShow(
+            'Отсутствуют пользователи для удаления'
+        );
+      }
+  }
+
   return (
     <div className="App">
       <div>
@@ -559,12 +591,17 @@ function Control() {
       </div>
       <Loading ref={refLoading} />
       <AlertPlus ref={refAlertPlus}/>
+      <ConfirmPlus
+        ref={refConfirmPlus}
+        obj={{apiData:apiData,setApiData:apiData}}
+      />
       <WinModal ref={refWinModal}/>
       <Container fluid>
         <Row>
           <Col>
             <MultiselectAPI obj={selectUserObj}/>
-            <button style={{background: 'none',border: 'none'}} title="Добавить пользователя" onClick={handleAddUser}><img src={require('../img/add.png')} alt="add user" style={{width:'auto',height:'2.7em',marginLeft:'0.2em',marginRight:'0.5em'}}/></button>
+            <button style={{background: 'none',border: 'none'}} title="Добавить пользователя" onClick={handleAddUser}><img src={require('../img/add.png')} alt="add user" style={{width:'auto',height:'2.7em'}}/></button>
+            <button style={{background: 'none',border: 'none'}} title="Удалить пользователя" onClick={handleDelUser}><img src={require('../img/rep_del.png')} alt="del user" style={{width:'auto',height:'2.7em',marginRight:'0.5em'}}/></button>
           </Col>
           <Col>
             <BootstrapInput obj={inputDateObj}/>

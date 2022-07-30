@@ -3,8 +3,12 @@ const fs = require('fs');
 
 module.exports = async (inParams) => {
   let users=[];
-  if (Array.isArray(inParams.users)) {
-    users=inParams.users
+  if (typeof inParams!=='undefined') {
+    if (typeof inParams['users']!=='undefined') {
+      if (Array.isArray(inParams.users)) {
+        users=inParams.users
+      }
+    }
   }
   const result=[],
         fileVal=fs.readFileSync('/etc/passwd', 'utf8').split('\n'),
