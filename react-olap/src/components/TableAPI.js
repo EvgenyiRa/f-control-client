@@ -201,7 +201,7 @@ class TableAPI extends React.Component {
         const getApi=async ()=>{
           //console.log(apiStr);
           if (!!this.props.obj.apiMethod) {
-            console.log(apiStr);
+            //console.log(apiStr);
             const res=await apiStr[thisV.props.obj.apiMethod](parForAPI);
             setRes(res);
           }

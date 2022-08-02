@@ -67,7 +67,7 @@ function Control() {
          setApiData({lims:res});
          if (refLoading.current!==null)
             refLoading.current.handleHide();
-         console.log(await api.control.getUsers());
+         //console.log(await api.control.getUsers());
       }
     }
     getLims();
@@ -141,11 +141,13 @@ function Control() {
        let result=[];
        if (!!data.lims) {
          if (thisV.props.obj.paramGroup.user!==-777) {
-           result=[{
-             id:1,
-             lim:(data.lims[thisV.props.obj.paramGroup.user].sys.TIME_ALL<86400)?secondstotime((data.lims[thisV.props.obj.paramGroup.user].sys.TIME_ALL*1000),0,true,true):'23:59:59',
-             value:(!!data.data)?secondstotime(data.data.timeAll,0,true,true):''
-           }];
+           if (!!data.lims[thisV.props.obj.paramGroup.user]) {
+             result=[{
+               id:1,
+               lim:(data.lims[thisV.props.obj.paramGroup.user].sys.TIME_ALL<86400)?secondstotime((data.lims[thisV.props.obj.paramGroup.user].sys.TIME_ALL*1000),0,true,true):'23:59:59',
+               value:(!!data.data)?secondstotime(data.data.timeAll,0,true,true):''
+             }];
+           }
          }
        }
        return result;
@@ -218,20 +220,23 @@ function Control() {
     },
     apiData:apiData,
     apiDataFunc:async (data,params,thisV)=>{
-      if ((!!data.lims) & (!!data.data)) {
+      if (!!data.lims) {
         const res=[];
         let proc;
-        if (!!data.lims[params.user].proc) {
-          proc={};
-          data.lims[params.user].proc.forEach((item,i) => {
-              proc[item.PRC_NAME]={
-                lim:(item.LIM<86400)?secondstotime((item.LIM*1000),0,true,true):'23:59:59',
-                index:i
-              };
+        if (!!data.lims[params.user]) {
+          if (!!data.lims[params.user].proc) {
+            proc={};
+            data.lims[params.user].proc.forEach((item,i) => {
+                proc[item.PRC_NAME]={
+                  lim:(item.LIM<86400)?secondstotime((item.LIM*1000),0,true,true):'23:59:59',
+                  index:i
+                };
 
-          });
+            });
+          }
         }
-        if (!!data.data.winsActiveSum) {
+        if (!!data.data) {
+          if (!!data.data.winsActiveSum) {
           for (var key in data.data.winsActiveSum) {
             const winsActiveSum={...data.data.winsActiveSum[key]};
             winsActiveSum.timeAllDelta=secondstotime(winsActiveSum.timeAllDelta,0,true,true);
@@ -248,6 +253,7 @@ function Control() {
             }
             res.push(winsActiveSum);
           }
+        }
         }
         if (!!proc) {
           for (var key in proc) {
@@ -402,13 +408,7 @@ function Control() {
           tab_id:"tab4",
           paramGroup:paramGroup,
           apiData:apiData,
-          apiDataFunc:(data,params,thisV,prevProps)=>{
-              const res=[];
-              for (var key in data.lims) {
-                  res.push({value:key,label:key});
-              }
-              return res;
-          },
+          setApiData:setApiData,
           keyField:'UID',
           columns:[
             {dataField:'LOGIN',text:'Логин',headerAttrs: (column, colIndex) => ({ 'width': `200px` }),
@@ -453,6 +453,7 @@ function Control() {
                     const newApiData={...thisV.props.obj.apiData};
                     newApiData.lims={...newApiData.lims};
                     newApiData.lims[row.LOGIN]=lim;
+                    thisV.props.obj.apiData=newApiData;
                     thisV.props.obj.setApiData(newApiData);
                 }
                 else {
@@ -484,7 +485,7 @@ function Control() {
         return {
           modalShow:true,
           header:'Добавление контролируемого пользователя',
-          nextButtonLabel:'Добавить',
+          nextButtonDisplay:'none',
           handleButtonCancel:undefined,
           body:<Container fluid>
                   <Row>
@@ -593,7 +594,7 @@ function Control() {
       <AlertPlus ref={refAlertPlus}/>
       <ConfirmPlus
         ref={refConfirmPlus}
-        obj={{apiData:apiData,setApiData:apiData}}
+        obj={{apiData:apiData,setApiData:setApiData}}
       />
       <WinModal ref={refWinModal}/>
       <Container fluid>
