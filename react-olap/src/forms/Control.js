@@ -407,11 +407,24 @@ function Control() {
               refWinModal2.current.setState({
                 modalShow:true,
                 size:'lg',
-                header:'Удаление пользователя',
+                header:'Удаление пользователя из ОС',
                 nextButtonLabel:'Удалить',
+                handleButtonNext:async (thisV2)=>{
+                    const res=await api.control.delUserOS(refInputUdPwd.current.state.value,thisV.state.rows[thisV.state.selectRow].LOGIN);
+                    if (res.delOk) {
+                        refAlertPlus.current.handleShow(`Пользователь "${thisV.state.rows[thisV.state.selectRow].LOGIN}" успешно удален из ОС`);
+                        const newRows=[...thisV.state.rows];
+                        newRows.splice(thisV.state.selectRow,1);
+                        thisV.setState({rows:newRows,selectRow:undefined});
+                        thisV2.setState({modalShow:false});
+                    }
+                    else {
+                        refAlertPlus.current.handleShow('При удалении пользователя из ОС произошла ошибка:\n'+res.text);
+                    }
+                },
                 body:<Container fluid>
                         <Row>
-                          {`Для удаления пользователя "${thisV.state.rows[thisV.state.selectRow].LOGIN}" необходимо ввести пароль текущего пользователя`}
+                          {`Для удаления пользователя "${thisV.state.rows[thisV.state.selectRow].LOGIN}" из ОС необходимо ввести пароль текущего пользователя`}
                         </Row>
                         <Row>
                           <Col>
@@ -535,6 +548,7 @@ function Control() {
           modalShow:true,
           header:'Добавление пользователя ОС',
           nextButtonLabel:'Добавить',
+          nextButtonDisplay:'block',
           handleButtonNext:async ()=>{
             const res=await api.control.addUserOS(
                 refBootInAddUsrL1.current.state.value,
