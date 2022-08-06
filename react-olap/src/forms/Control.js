@@ -1,4 +1,4 @@
-import React,{ useState,useRef,useEffect } from 'react';
+import React,{ useState,useRef,useEffect,createRef } from 'react';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Loading from '../components/Loading';
@@ -401,6 +401,36 @@ function Control() {
   const handleAddUser=()=>{
     const getWin=(type)=>{
       if (type==='tableAddUser') {
+        const handleDelUsrOS=(thisV)=>{
+          if (typeof thisV.state.selectRow!=='undefined') {
+              const refInputUdPwd=createRef();
+              refWinModal2.current.setState({
+                modalShow:true,
+                size:'lg',
+                header:'Удаление пользователя',
+                nextButtonLabel:'Удалить',
+                body:<Container fluid>
+                        <Row>
+                          {`Для удаления пользователя "${thisV.state.rows[thisV.state.selectRow].LOGIN}" необходимо ввести пароль текущего пользователя`}
+                        </Row>
+                        <Row>
+                          <Col>
+                            <BootstrapInput ref={refInputUdPwd} obj={{
+                              label:'Пароль',
+                              id:"pwdUdel",
+                              type:'password',
+                            }}/>
+                          </Col>
+                        </Row>
+                      </Container>
+              });
+          }
+          else {
+              refAlertPlus.current.handleShow('Необходимо кликом левой мыши выбрать пользователя');
+          }
+        }
+
+        const refWinModal2=createRef();
         const tableAddUserObj={
           stateLoadObj:refLoading,
           tableContainerClass:'max-content',
@@ -437,6 +467,9 @@ function Control() {
             //tekWin=refWinModal.current.state;
             refWinModal.current.setState(getWin('addUserLinux'));
           },
+          deleteRow:(thisV) => {
+            handleDelUsrOS(thisV);
+          },
           //console.log(refTabUsrAdd.current.state.selectRow);
           rowEvents:{
             onDoubleClick:async (e, row, rowIndex,thisV)=>{
@@ -449,7 +482,7 @@ function Control() {
                     refAlertPlus.current.handleShow(`Пользователь "${row.LOGIN}" добавлен для контроля`);
                     const newRows=[...thisV.state.rows];
                     newRows.splice(rowIndex,1);
-                    thisV.setState({rows:newRows});
+                    thisV.setState({rows:newRows,selectRow:undefined});
                     const newApiData={...thisV.props.obj.apiData};
                     newApiData.lims={...newApiData.lims};
                     newApiData.lims[row.LOGIN]=lim;
@@ -488,6 +521,7 @@ function Control() {
           nextButtonDisplay:'none',
           handleButtonCancel:undefined,
           body:<Container fluid>
+                  <WinModal ref={refWinModal2}/>
                   <Row>
                     <Col>
                       <TableAPI obj={tableAddUserObj} ref={refTabUsrAdd}/>
