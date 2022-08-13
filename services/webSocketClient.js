@@ -13,6 +13,7 @@ const init=(data)=>{
   data.wsStat.connect=false;
   data.wsStat.auth=false;
   data.wsStat.dataUpdate=false;
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
   wsClient = new WebSocketClient();
   wsClient.on('connect', wsHandler);
   function wsHandler(connection) {
@@ -66,7 +67,7 @@ const init=(data)=>{
     });
   }
   // Подключаемся к нужному ресурсу
-  wsClient.connect(configs.webSocketServer);
+  wsClient.connect(configs.webSocketServer,{ rejectUnauthorized: false });
   //ошибка подключения
   wsClient.on('connectFailed', function(error) {
       console.log('connectFailed ' + error.toString());
