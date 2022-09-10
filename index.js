@@ -362,17 +362,16 @@ let lastDate=hereDateStr,
              winsActiveSumObj=data.data['winsActiveSum'];
              //console.log('from file');
              if (!!winsActiveSumObj[winPNAMEstring]) {
-                 let timeAllF=winsActiveSumObj[winPNAMEstring]['timeAll'];
                  const winTimeAllDelta=winsActiveSumObj[winPNAMEstring]['timeAllDelta']+(timeAllDelta2-timeAllDelta);
-                 winsActiveSumObj[winPNAMEstring]={timeAll:timeAllF,timeAllDelta:winTimeAllDelta,pid:+winPIDstring,access:winsActiveSumObj[winPNAMEstring]['access']};
+                 winsActiveSumObj[winPNAMEstring]={timeAllDelta:winTimeAllDelta,pid:+winPIDstring,access:winsActiveSumObj[winPNAMEstring]['access']};
              }
              else {
-                 winsActiveSumObj[winPNAMEstring]={timeAll:0,timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
+                 winsActiveSumObj[winPNAMEstring]={timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
              }
          }
          else {
              winsActiveSumObj={};
-             winsActiveSumObj[winPNAMEstring]={timeAll:0,timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
+             winsActiveSumObj[winPNAMEstring]={timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
          }
          data.data['winsActiveSum']=winsActiveSumObj;
 
