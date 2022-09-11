@@ -44,9 +44,9 @@ const init=(data)=>{
                   const request={
                     type:'auth',
                     message:"it's my, open!",
-                    repUserId:data.repUserId,
+                    webServerLogin:data.webServerLogin,
                     login:data.login,
-                    key:data.key
+                    webServerPwd:data.webServerPwd
                   };
                   connection.sendUTF(JSON.stringify(request));
               }

@@ -70,7 +70,7 @@ try {
 
 const dataToFilePost=async (hereDateStrIn)=>{
     try {
-      const dataFSBody={repUserId:configs.repUserId,data:data,date:hereDateStrIn,currentUser:currentUser};
+      const dataFSBody={webServerLogin:configs.webServerLogin,data:data,date:hereDateStrIn,currentUser:currentUser};
       const dataS=await rp({
         method: `POST`,
         uri: configs.webServer+'/f-client/save',

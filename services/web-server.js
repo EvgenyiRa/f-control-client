@@ -46,8 +46,8 @@ let currentUser=getCurrenUser();
 const dataDefault={
         data:{timeAll:0,access:true},
         lims:{},
-        repUserId:configs.repUserId,
-        key:configs.keyForWebServer,
+        webServerLogin:configs.webServerLogin,
+        webServerPwd:configs.webServerPwd,
         login:currentUser,
         wsStat:{auth:false,connect:false,dataUpdate:false}
       };
@@ -186,7 +186,7 @@ const dataToFilePost=async (hereDateStrIn)=>{
 
 if ((!!configs.adminLogin) && (!!configs.adminPwd)) {
   loadDataLocal();
-  if ((!!configs.webServerIP) && (!!configs.repUserId) && (!!configs.keyForWebServer)) {
+  if ((!!configs.webServerIP) && (!!configs.webServerLogin) && (!!configs.webServerPwd)) {
     //если не первый запуск/запуск до настроек
     webSocketClient.init(data);
   }

@@ -112,11 +112,11 @@ module.exports = async (configsIn) => {
   if (!configsIn.hasOwnProperty('webServerIP')) {
     configsIn.webServerIP=undefined;
   }
-  if (!configsIn.hasOwnProperty('repUserId')) {
-    configsIn.repUserId=undefined;
+  if (!configsIn.hasOwnProperty('webServerLogin')) {
+    configsIn.webServerLogin=undefined;
   }
-  if (!configsIn.hasOwnProperty('keyForWebServer')) {
-    configsIn.keyForWebServer=undefined;
+  if (!configsIn.hasOwnProperty('webServerPwd')) {
+    configsIn.webServerPwd=undefined;
   }
   if (configsIn.hasOwnProperty('adminPwdOld')) {
     delete configsIn.adminPwdOld;
@@ -126,8 +126,8 @@ module.exports = async (configsIn) => {
     configsIn.webServerIP=configsIn.webServerIP.split("'").join("\\'");
   }
   configsIn.webClientIP=configsIn.webClientIP.split("'").join("\\'");
-  if (!!configsIn.keyForWebServer) {
-    configsIn.keyForWebServer=configsIn.keyForWebServer.split("'").join("\\'");
+  if (!!configsIn.webServerPwd) {
+    configsIn.webServerPwd=configsIn.webServerPwd.split("'").join("\\'");
   }
 
   if (prOk) {

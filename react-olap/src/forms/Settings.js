@@ -36,11 +36,11 @@ function Settings() {
         if (!!res.webServerIP) {
             refInputWShost.current.setState({value:res.webServerIP})
         }
-        if (!!res.repUserId) {
-            refInputWSuserID.current.setState({value:res.repUserId})
+        if (!!res.webServerLogin) {
+            refInputWSlogin.current.setState({value:res.webServerLogin})
         }
-        if (!!res.keyForWebServer) {
-            refInputWSkey.current.setState({value:res.keyForWebServer})
+        if (!!res.webServerPwd) {
+            refInputWSpwd.current.setState({value:res.webServerPwd})
         }
 
         if (!!res.webClientIP) {
@@ -74,8 +74,8 @@ function Settings() {
         refInputApwdOld=useRef(),
         refmSelectWSprotocol=useRef(),
         refInputWShost=useRef(),
-        refInputWSuserID=useRef(),
-        refInputWSkey=useRef(),
+        refInputWSlogin=useRef(),
+        refInputWSpwd=useRef(),
         refInputLSip=useRef(),
         refInputLSport=useRef(),
         refInputLScountMSsave=useRef(),
@@ -115,14 +115,15 @@ function Settings() {
   };
 
   const inputWSuserIDObj={
-    label:'ID пользователя',
+    label:'Логин пользователя',
     id:"wsUserID",
     type:'number'
   };
 
   const inputWSkeyObj={
-    label:'Ключ пользователя',
-    id:"wsUserKey"
+    label:'Пароль пользователя',
+    id:"wsUserKey",
+    type:"password"
   };
 
   const inputLSipObj={
@@ -223,8 +224,8 @@ function Settings() {
             const objNew={
               webServerIP: refInputWShost.current.state.value,
               webServerProtocol: refmSelectWSprotocol.current.state.checkedOptions,
-              repUserId: refInputWSuserID.current.state.value,
-              keyForWebServer:refInputWSkey.current.state.value,
+              webServerLogin: refInputWSlogin.current.state.value,
+              webServerPwd:refInputWSpwd.current.state.value,
               countMSsave:refInputLScountMSsave.current.state.value,
               countMSupd:refInputLScountMSupd.current.state.value,
               test:refCheckboxLStest.current.state.checked,
@@ -324,10 +325,10 @@ function Settings() {
             </Row>
             <Row>
               <Col>
-                <BootstrapInput ref={refInputWSuserID} obj={ inputWSuserIDObj }/>
+                <BootstrapInput ref={refInputWSlogin} obj={ inputWSuserIDObj }/>
               </Col>
               <Col>
-                <BootstrapInput ref={refInputWSkey} obj={inputWSkeyObj}/>
+                <BootstrapInput ref={refInputWSpwd} obj={inputWSkeyObj}/>
               </Col>
             </Row>
           </Container>

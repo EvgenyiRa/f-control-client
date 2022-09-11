@@ -1,8 +1,8 @@
 const configs={
   webServerIP: undefined,
   webServerProtocol: 'https',
-  repUserId: undefined,
-  keyForWebServer:undefined,
+  webServerLogin: undefined,
+  webServerPwd:undefined,
   countMSsave:90000,
   countMSupd:10000,
   test:false,

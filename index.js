@@ -258,8 +258,8 @@ const dataDataDefault={timeAll:0,access:true},
       dataDefault={
         data:dataDataDefault,
         lims:{},
-        repUserId:configs.repUserId,
-        key:configs.keyForWebServer,
+        webServerLogin:configs.webServerLogin,
+        webServerPwd:configs.webServerPwd,
         login:currentUser,
         wsStat:{auth:false,connect:false,dataUpdate:false}
       };
@@ -298,7 +298,7 @@ let lastDate=hereDateStr,
            const dataForWSS={type:'dataUpdate',data:dataSend, date: hereDateStrIn};
            data.wsStat.connection.sendUTF(JSON.stringify(dataForWSS));
          }
-         else if ((!data.wsStat.connect) & (!!configs.webServerIP) && (!!configs.repUserId) && (!!configs.keyForWebServer)) {
+         else if ((!data.wsStat.connect) & (!!configs.webServerIP) && (!!configs.webServerLogin) && (!!configs.webServerPwd)) {
              webSocketClient.init(data);
          }
      } catch (err) {
@@ -314,7 +314,7 @@ let lastDate=hereDateStr,
 
  if ((!!configs.adminLogin) && (!!configs.adminPwd)) {
    loadDataLocal();
-   if ((!!configs.webServerIP) && (!!configs.repUserId) && (!!configs.keyForWebServer)) {
+   if ((!!configs.webServerIP) && (!!configs.webServerLogin) && (!!configs.webServerPwd)) {
      //если не первый запуск/запуск до настроек
      webSocketClient.init(data);
    }
