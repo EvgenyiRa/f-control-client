@@ -159,4 +159,4 @@ const wsClose=()=>{
     }
 }
 
-export {init,wsClose,api,apiStr};
+module.exports={init,wsClose,api,apiStr};
