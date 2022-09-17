@@ -292,11 +292,13 @@ let lastDate=hereDateStr,
  const dataToFilePost=async (hereDateStrIn)=>{
      try {
          if ((data.wsStat.auth) & (data.wsStat.connect)) {
-           const dataSend={...data};
+           /*const dataSend={...data};
            dataSend.wsStat={...dataSend.wsStat};
            delete dataSend.wsStat.connection;
            const dataForWSS={type:'dataUpdate',data:dataSend, date: hereDateStrIn};
-           data.wsStat.connection.sendUTF(JSON.stringify(dataForWSS));
+           data.wsStat.connection.sendUTF(JSON.stringify(dataForWSS));*/
+           const dataSend={...data};
+           //webSocketClient.api.
          }
          else if ((!data.wsStat.connect) & (!!configs.webServerIP) && (!!configs.webServerLogin) && (!!configs.webServerPwd)) {
              webSocketClient.init(data);

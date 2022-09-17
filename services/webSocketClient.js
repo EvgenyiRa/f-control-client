@@ -11,11 +11,8 @@ const api={},
 let wsClient;
 const init=(data)=> {
   return new Promise((resolve) => {
-    const wsStat={
-      connect:false,
-      auth:false,
-      keyAuth:undefined
-    };
+    const wsStat=data.wsStat;
+    wsStat.keyAuth=undefined;
     const resolveObj={};
 
     console.log("Подключение к серверу "+configs.webServer+" по WebSocket");
