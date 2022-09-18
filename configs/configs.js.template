@@ -14,7 +14,7 @@ const configs={
 //split
 if (!!configs.webServerIP) {
     configs.webServer=configs.webServerProtocol+'://'+configs.webServerIP;
-    configs.webSocketServer=((configs.webServerProtocol==='https')?'wss':'ws')+'://'+configs.webServerIP+'/ws';
+    configs.webSocketServer=((configs.webServerProtocol==='https')?'wss':'ws')+'://'+configs.webServerIP;
 }
 else {
     configs.webSocketServer=undefined;
