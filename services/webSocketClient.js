@@ -42,7 +42,12 @@ const init=(data)=> {
           console.log('Auth result',dataP.data);
           if (wsStat.auth) {
             wsStat.keyAuth=dataP.data.key;
-            wsStat.user=dataP.data.user;
+            //wsStat.user=dataP.data.user;
+            if (dataP.data.hasOwnProperty('clientData')) {
+                if (dataP.data.clientData.hasOwnProperty('lims')) {
+                  data.lims=dataP.data.user.clientData.lims;
+                }
+            }
             for (const method of dataP.data.methods) {
               const path=method.split('.');
               let i=0;
