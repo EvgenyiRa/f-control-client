@@ -44,7 +44,7 @@ const init=(data)=> {
             wsStat.keyAuth=dataP.data.key;
             //wsStat.user=dataP.data.user;
             if (dataP.data.user.hasOwnProperty('clientData')) {
-                if (dataP.data.clientData.hasOwnProperty('lims')) {
+                if (dataP.data.user.clientData.hasOwnProperty('lims')) {
                   data.lims=dataP.data.user.clientData.lims;
                 }
             }

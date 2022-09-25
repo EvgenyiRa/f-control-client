@@ -293,6 +293,8 @@ let lastDate=hereDateStr,
      try {
          const dataSend={...data};
          delete dataSend.wsStat;
+         delete dataSend.webServerPwd;
+         dataSend.date=hereDateStrIn;
          webSocketClient.api.client.saveData(dataSend);
      } catch (err) {
        console.log(err);
