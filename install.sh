@@ -66,6 +66,7 @@ echo "$serviceVal" > "/etc/systemd/system/$fccName.service";
 #создаем конфиг для сервера
 cp -f "$dirProject/$fccName/configs/configs.js.template" "$dirProject/$fccName/configs/configs.js";
 systemctl enable "$fccName.service";
+systemctl start "$fccName.service";
 
 #установливаем принудительно расширение для chrome с блокированием режима Инкогнито
 chManage="managed_policies.json";
