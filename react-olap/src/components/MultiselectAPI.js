@@ -104,6 +104,7 @@ class MultiselectAPI extends React.Component {
     }
     if (prOk) {
       const setRes=(res)=>{
+        let selectedDefault;
         const setDefault=()=>{
           this.setState({
             options:this.optionsDef
@@ -115,8 +116,8 @@ class MultiselectAPI extends React.Component {
           else {
             this.state.checkedOptions=[];
           }
+          selectedDefault=this.optionsDef[0];
         }
-        let selectedDefault;
         if (Array.isArray(res)) {
           if (res.length>0) {
               this.setState({options:res});

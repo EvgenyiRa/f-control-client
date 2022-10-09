@@ -4,8 +4,12 @@ const path = require('path'),
 
 module.exports = async (user,value) => {
   const pathRoot=path.dirname(path.dirname(__dirname)),
-        dir=path.join(pathRoot,'data','lims',user+'.json');
+        dirLims=path.join(pathRoot,'data','lims'),
+        dir=path.join(dirLims,user+'.json');
   try {
+      if (!fs.existsSync(dirLims)) {
+        fs.mkdirSync(dirLims, { recursive: true });
+      }
       fs.writeFileSync(dir,JSON.stringify(value));
   } catch (err) {
     console.log(err);

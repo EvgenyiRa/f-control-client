@@ -106,15 +106,17 @@ function Control() {
     },
     handleChange:async (option, checked, thisV)=>{
       refLoading.current.handleShow();
-      const res=await api.control.getData(option[0].value,thisV.props.obj.paramGroup.date),
-            newApiData={...apiData};
-      if (Object.keys(res).length>0) {
-        newApiData.data=res;
+      if (option.length>0) {
+        const res=await api.control.getData(option[0].value,thisV.props.obj.paramGroup.date),
+              newApiData={...apiData};
+        if (Object.keys(res).length>0) {
+          newApiData.data=res;
+        }
+        else {
+          newApiData.data=undefined;
+        }
+        thisV.props.obj.setApiData(newApiData);
       }
-      else {
-        newApiData.data=undefined;
-      }
-      thisV.props.obj.setApiData(newApiData);
       refLoading.current.handleHide();
     },
     styleBMC:{display:'inline-block',marginRight: 0}
