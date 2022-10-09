@@ -116,8 +116,7 @@ function Settings() {
 
   const inputWSuserIDObj={
     label:'Логин пользователя',
-    id:"wsUserID",
-    type:'number'
+    id:"wsUserID"
   };
 
   const inputWSkeyObj={
