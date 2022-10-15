@@ -25,8 +25,11 @@ const init=(data)=> {
 
     wsClient.onmessage = (event) => {
       try {
-        const dataP=JSON.parse(event.data);
-        if (dataP.type==='auth') {
+        let eventData=event.data,
+            tekIndexZ=eventData.indexOf(',');
+        const type=eventData.substring(0,tekIndexZ);
+        eventData=eventData.substring(tekIndexZ+1);
+        if (type==='auth') {
             // посылаем сообщение серверу
             const request={
               type:'authClient',
@@ -37,7 +40,8 @@ const init=(data)=> {
             };
             wsSend(JSON.stringify(request));
         }
-        else if (dataP.type==='authRes') {
+        else if (type==='authRes') {
+          const dataP=JSON.parse(eventData);
           wsStat.auth=dataP.data.auth;
           console.log('Auth result',dataP.data);
           if (wsStat.auth) {
@@ -120,11 +124,15 @@ const init=(data)=> {
             resolve(wsStat);
           }
         }
-        else if (dataP.type==='method') {
-            if (!!resolveObj[dataP.id]) {
-              resolveObj[dataP.id](dataP.data);
-              delete resolveObj[dataP.id];
-            }
+        else if (type==='method') {
+          tekIndexZ=eventData.indexOf(',');
+          const id=eventData.substring(0,tekIndexZ);
+          eventData=eventData.substring(tekIndexZ+1);
+          const dataP=JSON.parse(eventData);
+          if (!!resolveObj[id]) {
+            resolveObj[id](dataP.data);
+            delete resolveObj[id];
+          }
         }
       } catch (err) {
         console.log('try wsServer err msg: ', err);
