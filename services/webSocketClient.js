@@ -23,6 +23,19 @@ const init=(data,apiIn)=> {
         wsStat.connect=true;
     };
 
+    const getMethodApiClient=(method,...args)=>{
+      return new Promise((resolve) => {
+        const fn = apiIn.get('control.saveLim');
+        try {
+          fn(...args).then((result)=>{
+            resolve(result);
+          });
+        } catch (err) {
+          console.error('Ошибка выполнения метода клиента',err);
+          resolve(false);
+        }
+      });
+    }
     wsClient.onmessage = (event) => {
       try {
         let eventData=event.data,
@@ -50,14 +63,9 @@ const init=(data,apiIn)=> {
             if (dataP.data.user.hasOwnProperty('clientData')) {
                 if (dataP.data.user.clientData.hasOwnProperty('lims')) {
                   data.lims=dataP.data.user.clientData.lims;
-                  const fn = apiIn.get('control.saveLim');
-                  try {
-                    fn(data.login,data.lims).then((result)=>{
-                        console.log('Результат сохранения ограничений с сервера', result);
-                    });
-                  } catch (err) {
-                    console.error('Ошибка сохранения ограничений с сервера',err);
-                  }
+                  getMethodApiClient('control.saveLim',data.login,data.lims).then((result)=>{
+                    console.log('Результат сохранения ограничений с сервера', result);
+                  });
                 }
             }
             for (const method of dataP.data.methods) {
