@@ -9,7 +9,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 const api={},
       apiStr={};
 let wsClient;
-const init=(data)=> {
+const init=(data,apiIn)=> {
   return new Promise((resolve) => {
     const wsStat=data.wsStat;
     wsStat.keyAuth=undefined;
@@ -50,6 +50,13 @@ const init=(data)=> {
             if (dataP.data.user.hasOwnProperty('clientData')) {
                 if (dataP.data.user.clientData.hasOwnProperty('lims')) {
                   data.lims=dataP.data.user.clientData.lims;
+                  const fn = apiIn.get('control.saveLim');
+                  try {
+                    const result = await fn(data.login,data.lims);
+                    console.log('Результат сохранения ограничений с сервера', result);
+                  } catch (err) {
+                    console.error('Ошибка сохранения ограничений с сервера',err);
+                  }
                 }
             }
             for (const method of dataP.data.methods) {

@@ -47,13 +47,14 @@ wss.on('connection', async (wsf, request, socket, api)=> {
         try {
           const result = await fn(...args);
           if (!result) {
-            wsf.send('"No result"');
+            wsf.send(JSON.stringify({type:dataP.type,data:null,method:method,id:id});
             return;
           }
           wsf.send(JSON.stringify({type:dataP.type,data:result,method:method,id:id}));
         } catch (err) {
-          console.dir({ err });
-          wsf.send('"Server error"');
+          console.log('Error exist API method');
+          console.error(err);
+          wsf.send(JSON.stringify({type:dataP.type,data:null,method:method,id:id});
         }
       }
     } catch (err) {
