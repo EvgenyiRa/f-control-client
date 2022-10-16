@@ -295,7 +295,9 @@ let lastDate=hereDateStr,
          delete dataSend.wsStat;
          delete dataSend.webServerPwd;
          dataSend.date=hereDateStrIn;
-         webSocketClient.api.client.saveData(dataSend);
+         if (data.wsStat.auth!==false) {
+           webSocketClient.api.client.saveData(dataSend);
+         }
      } catch (err) {
        console.log(err);
      } finally {
@@ -311,7 +313,7 @@ let lastDate=hereDateStr,
    loadDataLocal();
    if ((!!configs.webServerIP) && (!!configs.webServerLogin) && (!!configs.webServerPwd)) {
      //если не первый запуск/запуск до настроек
-     webSocketClient.init(data);
+     webSocketClient.init(data,api);
    }
    //интервальная обработка:
    //1)активности окон пользователя
