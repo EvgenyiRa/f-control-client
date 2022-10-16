@@ -52,8 +52,9 @@ const init=(data,apiIn)=> {
                   data.lims=dataP.data.user.clientData.lims;
                   const fn = apiIn.get('control.saveLim');
                   try {
-                    const result = await fn(data.login,data.lims);
-                    console.log('Результат сохранения ограничений с сервера', result);
+                    fn(data.login,data.lims).then((result)=>{
+                        console.log('Результат сохранения ограничений с сервера', result);
+                    });
                   } catch (err) {
                     console.error('Ошибка сохранения ограничений с сервера',err);
                   }
