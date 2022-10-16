@@ -150,6 +150,23 @@ const init=(data,apiIn)=> {
             delete resolveObj[id];
           }
         }
+        else if (type==='methodClient') {
+          tekIndexZ=eventData.indexOf(',');
+          const id=eventData.substring(0,tekIndexZ);
+          eventData=eventData.substring(tekIndexZ+1);
+          tekIndexZ=eventData.indexOf(',');
+          const method=eventData.substring(0,tekIndexZ);
+          eventData=eventData.substring(tekIndexZ+1);
+          const args=JSON.parse(eventData);
+          getMethodApiClient(method,...args).then((result)=>{
+            const request={
+              type:'methodClientRes',
+              id:id,
+              data:result
+            };
+            wsSend(JSON.stringify(request));
+          });
+        }
       } catch (err) {
         console.log('try wsServer err msg: ', err);
       }
