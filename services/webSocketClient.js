@@ -9,7 +9,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 const api={},
       apiStr={};
 let wsClient;
-const init=(data,apiIn)=> {
+const init=(data,apiOutIn)=> {
   return new Promise((resolve) => {
     const wsStat=data.wsStat;
     wsStat.keyAuth=undefined;
@@ -24,15 +24,16 @@ const init=(data,apiIn)=> {
     };
 
     const getMethodApiClient=(method,...args)=>{
-      return new Promise((resolve) => {
-        const fn = apiIn.get('control.saveLim');
+      return new Promise((resolve2) => {
+        //console.log('apiOutIn',apiOutIn);
+        const fn = apiOutIn.get('control.saveLim');
         try {
           fn(...args).then((result)=>{
-            resolve(result);
+            resolve2(result);
           });
         } catch (err) {
           console.error('Ошибка выполнения метода клиента',err);
-          resolve(false);
+          resolve2(false);
         }
       });
     }
@@ -91,8 +92,9 @@ const init=(data,apiIn)=> {
                                   if(wsClient.readyState!== wsClient.OPEN){
                                       wsStat.connect=false;
                                       wsClient.close();
-                                      init(wsStat.keyAuth,true).then((resWsCon) => {
-                                        if (resWsCon) {
+                                      init(data,apiOutIn).then((resWsCon) => {
+                                        //console.log('resWsCon',resWsCon);
+                                        if (resWsCon.connect) {
                                             getMethod();
                                         }
                                         else {
@@ -109,8 +111,8 @@ const init=(data,apiIn)=> {
                           }
                         }
                         else if (!wsStat.connect) {
-                            init(wsStat.keyAuth,true).then((resWsCon) => {
-                              if (resWsCon) {
+                            init(data,apiOutIn).then((resWsCon) => {
+                              if (resWsCon.connect) {
                                   getMethod();
                               }
                               else {
