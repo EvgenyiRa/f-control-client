@@ -46,13 +46,12 @@ const init=(data,apiOutIn)=> {
         if (type==='auth') {
             // посылаем сообщение серверу
             const request={
-              type:'authClient',
               message:"it's my, open!",
               webServerLogin:data.webServerLogin,
               webServerPwd:data.webServerPwd,
               login:data.login
             };
-            wsSend(JSON.stringify(request));
+            wsSend(`authClient,${JSON.stringify(request)}`);
         }
         else if (type==='authRes') {
           const dataP=JSON.parse(eventData);
@@ -78,13 +77,7 @@ const init=(data,apiOutIn)=> {
                         const getMethod=()=>{
                           const id=performance.now();
                           resolveObj[id]=resolve2;
-                          wsSend(JSON.stringify({
-                            type:"method",
-                            method:method,
-                            args:args,
-                            id:id,
-                            keyAuth:wsStat.keyAuth
-                          }));
+                          wsSend(`method,${method},${id},${JSON.stringify(args)}`);
                         }
                         if ((wsStat.auth) & (wsStat.connect)) {
                           if(wsClient.readyState!== wsClient.OPEN){
@@ -161,12 +154,7 @@ const init=(data,apiOutIn)=> {
           eventData=eventData.substring(tekIndexZ+1);
           const args=JSON.parse(eventData);
           getMethodApiClient(method,...args).then((result)=>{
-            const request={
-              type:'methodClientRes',
-              id:id,
-              data:result
-            };
-            wsSend(JSON.stringify(request));
+            wsSend(`methodClientRes,${id},${JSON.stringify(result)}`);
           });
         }
       } catch (err) {
