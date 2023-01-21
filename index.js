@@ -346,41 +346,43 @@ let lastDate=hereDateStr,
          //new arch
          const winObj=await activeWindow(),
                timeAllDelta2=performance.now();
-         if (winObj.hasOwnProperty('owner')) {
-            const winPNAMEstring=winObj.owner.name,
-                  winPIDstring=winObj.owner.processId;
-            //console.log('processInfo',processInfo);
-            winObj.time=performance.now();
-            //fs.writeFileSync("./data/lastWin_"+hereDateStr+".json", JSON.stringify(winObj));
-            data.data.lastWin=winObj;
-            //суммируем время активных окон
-            let winsActiveSumObj;
-            //console.log(winsActiveSumStr);
-            if (!!data.data['winsActiveSum']) {
-                winsActiveSumObj=data.data['winsActiveSum'];
-                //console.log('from file');
-                if (!!winsActiveSumObj[winPNAMEstring]) {
-                    const winTimeAllDelta=winsActiveSumObj[winPNAMEstring]['timeAllDelta']+(timeAllDelta2-timeAllDelta);
-                    winsActiveSumObj[winPNAMEstring]={timeAllDelta:winTimeAllDelta,pid:+winPIDstring,access:winsActiveSumObj[winPNAMEstring]['access']};
-                }
-                else {
-                    winsActiveSumObj[winPNAMEstring]={timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
-                }
-            }
-            else {
-                winsActiveSumObj={};
-                winsActiveSumObj[winPNAMEstring]={timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
-            }
-            data.data['winsActiveSum']=winsActiveSumObj;
-
-            if (winPNAMEstring.toUpperCase().indexOf('CHROME')>-1) {
-              //добавляем время к последнему активному хосту, если это процесс браузера
-              //и существуют данные о последнем переходе на страницу
-              if (!!data.data.browserLastHost) {
-                  data.data.browser[data.data.browserLastHost].timeAll+=timeAllDelta2-timeAllDelta;
+         if (typeof winObj==='object')  {    
+          if (winObj.hasOwnProperty('owner')) {
+              const winPNAMEstring=winObj.owner.name,
+                    winPIDstring=winObj.owner.processId;
+              //console.log('processInfo',processInfo);
+              winObj.time=performance.now();
+              //fs.writeFileSync("./data/lastWin_"+hereDateStr+".json", JSON.stringify(winObj));
+              data.data.lastWin=winObj;
+              //суммируем время активных окон
+              let winsActiveSumObj;
+              //console.log(winsActiveSumStr);
+              if (!!data.data['winsActiveSum']) {
+                  winsActiveSumObj=data.data['winsActiveSum'];
+                  //console.log('from file');
+                  if (!!winsActiveSumObj[winPNAMEstring]) {
+                      const winTimeAllDelta=winsActiveSumObj[winPNAMEstring]['timeAllDelta']+(timeAllDelta2-timeAllDelta);
+                      winsActiveSumObj[winPNAMEstring]={timeAllDelta:winTimeAllDelta,pid:+winPIDstring,access:winsActiveSumObj[winPNAMEstring]['access']};
+                  }
+                  else {
+                      winsActiveSumObj[winPNAMEstring]={timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
+                  }
               }
-            }
-         }         
+              else {
+                  winsActiveSumObj={};
+                  winsActiveSumObj[winPNAMEstring]={timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
+              }
+              data.data['winsActiveSum']=winsActiveSumObj;
+
+              if (winPNAMEstring.toUpperCase().indexOf('CHROME')>-1) {
+                //добавляем время к последнему активному хосту, если это процесс браузера
+                //и существуют данные о последнем переходе на страницу
+                if (!!data.data.browserLastHost) {
+                    data.data.browser[data.data.browserLastHost].timeAll+=timeAllDelta2-timeAllDelta;
+                }
+              }
+          }
+        }
 
          data.data['timeAll']+=timeAllDelta2-timeAllDelta;
          countMSsaveTek+=timeAllDelta2-timeAllDelta;
