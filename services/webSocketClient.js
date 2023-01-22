@@ -84,6 +84,7 @@ const init=(data,apiOutIn)=> {
                               setTimeout(function (){
                                   if(wsClient.readyState!== wsClient.OPEN){
                                       wsStat.connect=false;
+                                      wsStat.auth=false;
                                       wsClient.close();
                                       init(data,apiOutIn).then((resWsCon) => {
                                         //console.log('resWsCon',resWsCon);
@@ -169,6 +170,7 @@ const init=(data,apiOutIn)=> {
             console.log('Обрыв соединения'); // например, "убит" процесс сервера
         }
         console.log('Код: ' + event.code + ' причина: ' + event.reason);
+        wsStat.auth=false;
         wsStat.connect=false;
         resolve(wsStat);
     };
@@ -176,6 +178,11 @@ const init=(data,apiOutIn)=> {
     wsClient.onerror = function(error) {
         console.log("Ошибка " + error.message);
         wsStat.connect=false;
+        wsStat.auth=false;
+        try {
+          wsClient.close();  
+        } catch (err) {          
+        }
         resolve(wsStat);
     };
 

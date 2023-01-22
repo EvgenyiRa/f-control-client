@@ -295,9 +295,14 @@ let lastDate=hereDateStr,
          delete dataSend.wsStat;
          delete dataSend.webServerPwd;
          dataSend.date=hereDateStrIn;
-         if (data.wsStat.auth!==false) {
-           webSocketClient.api.client.saveData(dataSend);
+         if ((!!configs.webServerIP) && (!!configs.webServerLogin) && (!!configs.webServerPwd)
+              && (data.wsStat.auth===false) && (data.wsStat.connect===false)) {
+          //если есть возможность, переподключаемся
+          await webSocketClient.init(data,api);
          }
+         if (data.wsStat.auth!==false) {
+          webSocketClient.api.client.saveData(dataSend);
+         }        
      } catch (err) {
        console.log(err);
      } finally {
@@ -309,157 +314,160 @@ let lastDate=hereDateStr,
      }
  }
 
- if ((!!configs.adminLogin) && (!!configs.adminPwd)) {
-   loadDataLocal();
-   if ((!!configs.webServerIP) && (!!configs.webServerLogin) && (!!configs.webServerPwd)) {
-     //если не первый запуск/запуск до настроек
-     webSocketClient.init(data,api);
-   }
-   //интервальная обработка:
-   //1)активности окон пользователя
-   //2)периодическое сохранение данных в файл и их отправка на сервер по вебсокету
-   const timerId = setInterval(async ()=> {
-     try {
-       const hereDateTimeNew=new Date(),
-             hereDateStrNew=dfns.format(hereDateTimeNew, 'dd-MM-yyyy');
-       if (hereDateStrNew!==lastDate) {
-           await dataToFilePost(lastDate);
-           data.data=dataDataDefault;
-           timeAllDelta=performance.now(),
-           lastDate=hereDateStrNew;
-       }
-       const currentUserNew=getCurrenUser();
-       /*if ((currentUserNew!==currentUser) & (currentUserNew!='') & (currentUserNew!='reboot')) {
-           //убиваем все процессы пользователя: выход плюс перезапуск скрипта исполнения демоном
-           execSync("killall -w -u "+currentUser);
-           currentUser=currentUserNew;
-           console.log('New User: ',currentUser);
-           data=dataDefault;
-           data.login=currentUser;
-           webSocketClient.wsAbort();
-           loadDataLocal();
-           webSocketClient.init(data);
-       }*/
+const run=async ()=> {
+  if ((!!configs.adminLogin) && (!!configs.adminPwd)) {
+    loadDataLocal();
+    if ((!!configs.webServerIP) && (!!configs.webServerLogin) && (!!configs.webServerPwd)) {
+      //если не первый запуск/запуск до настроек
+      await webSocketClient.init(data,api);
+    }
+    //интервальная обработка:
+    //1)активности окон пользователя
+    //2)периодическое сохранение данных в файл и их отправка на сервер по вебсокету
+    const timerId = setInterval(async ()=> {
+      try {
+        const hereDateTimeNew=new Date(),
+              hereDateStrNew=dfns.format(hereDateTimeNew, 'dd-MM-yyyy');
+        if (hereDateStrNew!==lastDate) {
+            await dataToFilePost(lastDate);
+            data.data=dataDataDefault;
+            timeAllDelta=performance.now(),
+            lastDate=hereDateStrNew;
+        }
+        const currentUserNew=getCurrenUser();
+        /*if ((currentUserNew!==currentUser) & (currentUserNew!='') & (currentUserNew!='reboot')) {
+            //убиваем все процессы пользователя: выход плюс перезапуск скрипта исполнения демоном
+            execSync("killall -w -u "+currentUser);
+            currentUser=currentUserNew;
+            console.log('New User: ',currentUser);
+            data=dataDefault;
+            data.login=currentUser;
+            webSocketClient.wsAbort();
+            loadDataLocal();
+            webSocketClient.init(data);
+        }*/
 
-       //получаем активное окно и время выполнения процесса
-       try {
-         //new arch
-         const winObj=await activeWindow(),
-               timeAllDelta2=performance.now();
-         if (typeof winObj==='object')  {    
-          if (winObj.hasOwnProperty('owner')) {
-              const winPNAMEstring=winObj.owner.name,
-                    winPIDstring=winObj.owner.processId;
-              //console.log('processInfo',processInfo);
-              winObj.time=performance.now();
-              //fs.writeFileSync("./data/lastWin_"+hereDateStr+".json", JSON.stringify(winObj));
-              data.data.lastWin=winObj;
-              //суммируем время активных окон
-              let winsActiveSumObj;
-              //console.log(winsActiveSumStr);
-              if (!!data.data['winsActiveSum']) {
-                  winsActiveSumObj=data.data['winsActiveSum'];
-                  //console.log('from file');
-                  if (!!winsActiveSumObj[winPNAMEstring]) {
-                      const winTimeAllDelta=winsActiveSumObj[winPNAMEstring]['timeAllDelta']+(timeAllDelta2-timeAllDelta);
-                      winsActiveSumObj[winPNAMEstring]={timeAllDelta:winTimeAllDelta,pid:+winPIDstring,access:winsActiveSumObj[winPNAMEstring]['access']};
-                  }
-                  else {
-                      winsActiveSumObj[winPNAMEstring]={timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
-                  }
-              }
-              else {
-                  winsActiveSumObj={};
-                  winsActiveSumObj[winPNAMEstring]={timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
-              }
-              data.data['winsActiveSum']=winsActiveSumObj;
+        //получаем активное окно и время выполнения процесса
+        try {
+          //new arch
+          const winObj=await activeWindow(),
+                timeAllDelta2=performance.now();
+          if (typeof winObj==='object')  {    
+            if (winObj.hasOwnProperty('owner')) {
+                const winPNAMEstring=winObj.owner.name,
+                      winPIDstring=winObj.owner.processId;
+                //console.log('processInfo',processInfo);
+                winObj.time=performance.now();
+                //fs.writeFileSync("./data/lastWin_"+hereDateStr+".json", JSON.stringify(winObj));
+                data.data.lastWin=winObj;
+                //суммируем время активных окон
+                let winsActiveSumObj;
+                //console.log(winsActiveSumStr);
+                if (!!data.data['winsActiveSum']) {
+                    winsActiveSumObj=data.data['winsActiveSum'];
+                    //console.log('from file');
+                    if (!!winsActiveSumObj[winPNAMEstring]) {
+                        const winTimeAllDelta=winsActiveSumObj[winPNAMEstring]['timeAllDelta']+(timeAllDelta2-timeAllDelta);
+                        winsActiveSumObj[winPNAMEstring]={timeAllDelta:winTimeAllDelta,pid:+winPIDstring,access:winsActiveSumObj[winPNAMEstring]['access']};
+                    }
+                    else {
+                        winsActiveSumObj[winPNAMEstring]={timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
+                    }
+                }
+                else {
+                    winsActiveSumObj={};
+                    winsActiveSumObj[winPNAMEstring]={timeAllDelta:(timeAllDelta2-timeAllDelta),pid:+winPIDstring,access:true};
+                }
+                data.data['winsActiveSum']=winsActiveSumObj;
 
-              if (winPNAMEstring.toUpperCase().indexOf('CHROME')>-1) {
-                //добавляем время к последнему активному хосту, если это процесс браузера
-                //и существуют данные о последнем переходе на страницу
-                if (!!data.data.browserLastHost) {
-                    data.data.browser[data.data.browserLastHost].timeAll+=timeAllDelta2-timeAllDelta;
+                if (winPNAMEstring.toUpperCase().indexOf('CHROME')>-1) {
+                  //добавляем время к последнему активному хосту, если это процесс браузера
+                  //и существуют данные о последнем переходе на страницу
+                  if (!!data.data.browserLastHost) {
+                      data.data.browser[data.data.browserLastHost].timeAll+=timeAllDelta2-timeAllDelta;
+                  }
+                }
+            }
+          }
+
+          data.data['timeAll']+=timeAllDelta2-timeAllDelta;
+          countMSsaveTek+=timeAllDelta2-timeAllDelta;
+          if (countMSsaveTek>=configs.countMSsave) {
+              countMSsaveTek=0;
+              await dataToFilePost(lastDate);
+              //console.log(data);
+              //await dataToFilePost(lastDate);
+          }
+
+          //проверяем превышение лимитов
+          if (!!data.lims) {
+            let rows=data.lims.sys;
+            if (!!rows) {
+              const timeAllClient=data.data.timeAll/1000;
+              data.data.access=true;
+              if (rows['TIME_ALL']>0) {
+                if (rows['TIME_ALL']<timeAllClient) {
+                  data.data.access=false;
                 }
               }
+              if (!!data.lims.proc) {
+                rows=data.lims.proc;
+                if (rows.length>0) {
+                  //console.log(data.winsActiveSum);
+                  for (var i = 0; i < rows.length; i++) {
+                    const rowOne=rows[i];
+                    if (!!data.data.winsActiveSum[rowOne['PRC_NAME']]) {
+                      const timeAllDeltaClient=data.data.winsActiveSum[rowOne['PRC_NAME']].timeAllDelta/1000;
+                      data.data.winsActiveSum[rowOne['PRC_NAME']].access=true;
+                      if (rowOne['LIM']<timeAllDeltaClient) {
+                          data.data.winsActiveSum[rowOne['PRC_NAME']].access=false;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            else {
+                data.data.access=true;
+            }
           }
+          else {
+            data.data.access=true;
+          }
+
+          if (!data.data.access) {
+            if (configs.test) {
+              console.log("killall -w -u "+currentUser);
+            }
+            else {
+              //execSync("gnome-session-quit --logout --no-prompt");
+              try {
+                execSync("killall -w -u "+currentUser);
+              } catch (e) {
+                console.error(e); // should contain code (exit code) and signal (that caused the termination).
+              }
+            }
+          }
+          //убиваем запрещенные процессы
+          for (var key in data.data.winsActiveSum) {
+              const oneWin=data.data.winsActiveSum[key];
+              if (!oneWin.access) {
+                  try {
+                    execSync("kill -TERM "+oneWin.pid);
+                  } catch (e) {
+                    //console.error(e); // should contain code (exit code) and signal (that caused the termination).
+                  }
+              }
+          }
+          timeAllDelta=timeAllDelta2;
+        } catch (e) {
+          console.error(e); // should contain code (exit code) and signal (that caused the termination).
         }
-
-         data.data['timeAll']+=timeAllDelta2-timeAllDelta;
-         countMSsaveTek+=timeAllDelta2-timeAllDelta;
-         if (countMSsaveTek>=configs.countMSsave) {
-             countMSsaveTek=0;
-             await dataToFilePost(lastDate);
-             //console.log(data);
-             //await dataToFilePost(lastDate);
-         }
-
-         //проверяем превышение лимитов
-         if (!!data.lims) {
-           let rows=data.lims.sys;
-           if (!!rows) {
-             const timeAllClient=data.data.timeAll/1000;
-             data.data.access=true;
-             if (rows['TIME_ALL']>0) {
-               if (rows['TIME_ALL']<timeAllClient) {
-                 data.data.access=false;
-               }
-             }
-             if (!!data.lims.proc) {
-               rows=data.lims.proc;
-               if (rows.length>0) {
-                 //console.log(data.winsActiveSum);
-                 for (var i = 0; i < rows.length; i++) {
-                   const rowOne=rows[i];
-                   if (!!data.data.winsActiveSum[rowOne['PRC_NAME']]) {
-                     const timeAllDeltaClient=data.data.winsActiveSum[rowOne['PRC_NAME']].timeAllDelta/1000;
-                     data.data.winsActiveSum[rowOne['PRC_NAME']].access=true;
-                     if (rowOne['LIM']<timeAllDeltaClient) {
-                         data.data.winsActiveSum[rowOne['PRC_NAME']].access=false;
-                     }
-                   }
-                 }
-               }
-             }
-           }
-           else {
-              data.data.access=true;
-           }
-         }
-         else {
-           data.data.access=true;
-         }
-
-         if (!data.data.access) {
-           if (configs.test) {
-             console.log("killall -w -u "+currentUser);
-           }
-           else {
-             //execSync("gnome-session-quit --logout --no-prompt");
-             try {
-               execSync("killall -w -u "+currentUser);
-             } catch (e) {
-               console.error(e); // should contain code (exit code) and signal (that caused the termination).
-             }
-           }
-         }
-         //убиваем запрещенные процессы
-         for (var key in data.data.winsActiveSum) {
-             const oneWin=data.data.winsActiveSum[key];
-             if (!oneWin.access) {
-                 try {
-                   execSync("kill -TERM "+oneWin.pid);
-                 } catch (e) {
-                   //console.error(e); // should contain code (exit code) and signal (that caused the termination).
-                 }
-             }
-         }
-         timeAllDelta=timeAllDelta2;
-       } catch (e) {
-         console.error(e); // should contain code (exit code) and signal (that caused the termination).
-       }
-       //fs.writeFileSync("./data/lastWin.json", JSON.stringify({time:performance.now()}));
-     } catch (e) {
-       console.error(e); // should contain code (exit code) and signal (that caused the termination).
-     }
-   },configs.countMSupd);
- }
+        //fs.writeFileSync("./data/lastWin.json", JSON.stringify({time:performance.now()}));
+      } catch (e) {
+        console.error(e); // should contain code (exit code) and signal (that caused the termination).
+      }
+    },configs.countMSupd);
+  }
+}
+run();
