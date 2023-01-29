@@ -8,13 +8,13 @@ case $osID in
   ubuntu)
     #echo "yes ubuntu!"
     apt install curl;
-    curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -;
+    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -;
     apt-get install -y nodejs;
     apt install git;
   ;;
   debian)
     apt install curl;
-    curl -fsSL https://deb.nodesource.com/setup_16.x | bash -;
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -;
     apt-get install -y nodejs;
     apt install git;
   ;;
@@ -22,7 +22,7 @@ case $osID in
     #
   ;;
 esac
-npm install -g npm@8;
+npm install -g npm@9;
 
 #создаем папку проекта
 dirProject="/opt/f-control";

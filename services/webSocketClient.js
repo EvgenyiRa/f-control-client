@@ -26,7 +26,7 @@ const init=(data,apiOutIn)=> {
     const getMethodApiClient=(method,...args)=>{
       return new Promise((resolve2) => {
         //console.log('apiOutIn',apiOutIn);
-        const fn = apiOutIn.get('control.saveLim');
+        const fn = apiOutIn.get(method);
         try {
           fn(...args).then((result)=>{
             resolve2(result);
