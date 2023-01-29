@@ -11,12 +11,14 @@ case $osID in
     curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -;
     apt-get install -y nodejs;
     apt install git;
+    apt install scrot;
   ;;
   debian)
     apt install curl;
     curl -fsSL https://deb.nodesource.com/setup_18.x | bash -;
     apt-get install -y nodejs;
     apt install git;
+    apt install scrot;
   ;;
   *)
     #

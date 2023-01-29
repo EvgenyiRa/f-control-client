@@ -1,29 +1,36 @@
 'use strict';
-const screenshot = require('desktop-screenshot');;
+const { spawn } = require('child_process'),
+      fs = require('fs');
 
 module.exports = async (user,value) => {
+  const result={res:false},
+        pathScreen='/tmp/screenshot.png';
   const getScreen=()=>{
     return new Promise((resolve, reject) => {
-      screenshot("screenshot.png", function(error, complete) {
-        if(error) {
-          console.log("Screenshot failed", error);
-          resolve(false);
+      const child = spawn('scrot',['-o',pathScreen]);
+      child.on('close', (code) => {
+        if (code !== 0) {
+          resolve(false); 
+          console.log(`grep process exited with code ${code}`);
         }
         else {
-          console.log("Screenshot succeeded");
           resolve(true);
         }
       });  
     });
   }
-  const screen=await getScreen();
-  if (!screen) {
-    return {res:false};
+  try {
+    const screen=await getScreen();
+    if (screen) {    
+      //получаем base64
+      const bitmap = fs.readFileSync(pathScreen);
+      // convert binary data to base64 encoded string
+      result.res=Buffer.from(bitmap).toString('base64');
+    }
+  } catch (err) {
+    console.log(err);
   }
-  else {
-    //получаем base64
-    return {res:true};
-  }  
+  return result;
 };
 
 
