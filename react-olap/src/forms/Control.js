@@ -612,6 +612,9 @@ function Control() {
                       const newApiData={...refConfirmPlus.current.props.obj.apiData};
                       newApiData.lims={...newApiData.lims};
                       delete newApiData.lims[paramGroup.user];
+                      const newParamGroup={...paramGroup};
+                      newParamGroup.user=-777;
+                      setParamGroup(newParamGroup);
                       refConfirmPlus.current.props.obj.setApiData(newApiData);
                       resTxt='Пользователь успешно удален';
                   }
