@@ -400,7 +400,7 @@ const run=async ()=> {
           }
 
           //проверяем превышение лимитов
-          if (!!data.lims) {
+          if ((!!data.lims) && (data.data.access)) {
             let rows=data.lims.sys;
             if (!!rows) {
               const timeAllClient=data.data.timeAll/1000;
@@ -408,6 +408,7 @@ const run=async ()=> {
               if (rows['TIME_ALL']>0) {
                 if (rows['TIME_ALL']<timeAllClient) {
                   data.data.access=false;
+                  await dataToFilePost(lastDate);
                 }
               }
               if (!!data.lims.proc) {
@@ -431,10 +432,12 @@ const run=async ()=> {
                 data.data.access=true;
             }
           }
-          else {
+          else if (!!!data.lims) {
             data.data.access=true;
           }
 
+          //console.log('data.data',data.data);
+          //console.log("currentUser",currentUser);
           if (!data.data.access) {
             if (configs.test) {
               console.log("killall -w -u "+currentUser);
@@ -442,6 +445,7 @@ const run=async ()=> {
             else {
               //execSync("gnome-session-quit --logout --no-prompt");
               try {
+                //console.log("killall -w -u "+currentUser);
                 execSync("killall -w -u "+currentUser);
               } catch (e) {
                 console.error(e); // should contain code (exit code) and signal (that caused the termination).
