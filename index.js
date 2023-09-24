@@ -446,7 +446,9 @@ const run=async ()=> {
               //execSync("gnome-session-quit --logout --no-prompt");
               try {
                 //console.log("killall -w -u "+currentUser);
-                execSync("killall -w -u "+currentUser);
+                //execSync("killall -w -u "+currentUser);
+                const command = `for pid in $(pgrep -u ${currentUser}); do if [ "$pid" -ne "$$" ]; then kill -9 $pid; fi; done`;
+                execSync(command);
               } catch (e) {
                 console.error(e); // should contain code (exit code) and signal (that caused the termination).
               }
